@@ -1,494 +1,1414 @@
 <!doctype html>
 <html lang="pt-BR">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#0a6f67" />
-    <meta
-      name="description"
-      content="Protótipo navegável do aplicativo Android VitalisTrack"
-    />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Material+Symbols+Rounded:FILL@0..1&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="styles.css" />
-    <link
-      rel="icon"
-      type="image/svg+xml"
-      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%230a6f67'/%3E%3Cpath d='M16 6c-2.8 4.2-7 8.4-7 13a7 7 0 0 0 14 0c0-4.6-4.2-8.8-7-13Z' fill='white'/%3E%3Cpath d='M12 19h8M16 15v8' stroke='%230a6f67' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E"
-    />
-    <title>VitalisTrack — Protótipo Android</title>
-  </head>
-  <body>
-    <div class="prototype-shell">
-      <aside class="prototype-map" aria-label="Mapa do protótipo">
-        <div class="map-brand">
-          <div class="brand-mark"><span class="material-symbols-rounded">water_drop</span></div>
-          <div>
-            <strong>VitalisTrack</strong>
-            <span>Protótipo Android</span>
-          </div>
-        </div>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="theme-color" content="#0a6f67" />
+		<meta
+			name="description"
+			content="Protótipo navegável do aplicativo Android VitalisTrack"
+		/>
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Material+Symbols+Rounded:FILL@0..1&display=swap"
+			rel="stylesheet"
+		/>
+		<link rel="stylesheet" href="styles.css" />
+		<link
+			rel="icon"
+			type="image/svg+xml"
+			href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%230a6f67'/%3E%3Cpath d='M16 6c-2.8 4.2-7 8.4-7 13a7 7 0 0 0 14 0c0-4.6-4.2-8.8-7-13Z' fill='white'/%3E%3Cpath d='M12 19h8M16 15v8' stroke='%230a6f67' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E"
+		/>
+		<title>VitalisTrack — Protótipo Android</title>
+	</head>
+	<body>
+		<div class="prototype-shell">
+			<aside class="prototype-map" aria-label="Mapa do protótipo">
+				<div class="map-brand">
+					<div class="brand-mark">
+						<span class="material-symbols-rounded">water_drop</span>
+					</div>
+					<div>
+						<strong>VitalisTrack</strong>
+						<span>Protótipo Android</span>
+					</div>
+				</div>
 
-        <div class="map-intro">
-          <span class="eyebrow">Wireframe navegável</span>
-          <h1>Mapa de telas</h1>
-          <p>Fluxos prioritários do backlog, organizados segundo padrões Material 3.</p>
-        </div>
+				<div class="map-intro">
+					<span class="eyebrow">Wireframe navegável</span>
+					<h1>Mapa de telas</h1>
+					<p>
+						Fluxos prioritários do backlog, organizados segundo padrões Material
+						3.
+					</p>
+				</div>
 
-        <nav class="screen-list" aria-label="Telas disponíveis">
-          <p class="nav-section-label">Acesso</p>
-          <button class="screen-link active" data-screen="login">
-            <span class="material-symbols-rounded">login</span> Entrar
-          </button>
-          <button class="screen-link" data-screen="register">
-            <span class="material-symbols-rounded">person_add</span> Criar conta
-          </button>
+				<nav class="screen-list" aria-label="Telas disponíveis">
+					<p class="nav-section-label">Acesso</p>
+					<button class="screen-link active" data-screen="login">
+						<span class="material-symbols-rounded">login</span> Entrar
+					</button>
+					<button class="screen-link" data-screen="register">
+						<span class="material-symbols-rounded">person_add</span> Criar conta
+					</button>
 
-          <p class="nav-section-label">Dia a dia</p>
-          <button class="screen-link" data-screen="home">
-            <span class="material-symbols-rounded">home</span> Início
-          </button>
-          <button class="screen-link" data-screen="water">
-            <span class="material-symbols-rounded">water_drop</span> Hidratação
-          </button>
-          <button class="screen-link" data-screen="meals">
-            <span class="material-symbols-rounded">restaurant</span> Alimentação
-          </button>
-          <button class="screen-link" data-screen="meal-form">
-            <span class="material-symbols-rounded">add_circle</span> Nova refeição
-          </button>
-          <button class="screen-link" data-screen="activities">
-            <span class="material-symbols-rounded">directions_run</span> Atividades
-          </button>
-          <button class="screen-link" data-screen="active-workout">
-            <span class="material-symbols-rounded">timer</span> Atividade em curso
-          </button>
+					<p class="nav-section-label">Dia a dia</p>
+					<button class="screen-link" data-screen="home">
+						<span class="material-symbols-rounded">home</span> Início
+					</button>
+					<button class="screen-link" data-screen="water">
+						<span class="material-symbols-rounded">water_drop</span> Hidratação
+					</button>
+					<button class="screen-link" data-screen="meals">
+						<span class="material-symbols-rounded">restaurant</span> Alimentação
+					</button>
+					<button class="screen-link" data-screen="meal-form">
+						<span class="material-symbols-rounded">add_circle</span> Nova
+						refeição
+					</button>
+					<button class="screen-link" data-screen="activities">
+						<span class="material-symbols-rounded">directions_run</span>
+						Atividades
+					</button>
+					<button class="screen-link" data-screen="active-workout">
+						<span class="material-symbols-rounded">timer</span> Atividade em
+						curso
+					</button>
 
-          <p class="nav-section-label">Acompanhamento</p>
-          <button class="screen-link" data-screen="progress">
-            <span class="material-symbols-rounded">monitoring</span> Progresso
-          </button>
-          <button class="screen-link" data-screen="health">
-            <span class="material-symbols-rounded">ecg_heart</span> Saúde
-          </button>
-          <button class="screen-link" data-screen="timeline">
-            <span class="material-symbols-rounded">history</span> Linha do tempo
-          </button>
-          <button class="screen-link" data-screen="profile">
-            <span class="material-symbols-rounded">person</span> Perfil e ajustes
-          </button>
-        </nav>
+					<p class="nav-section-label">Acompanhamento</p>
+					<button class="screen-link" data-screen="progress">
+						<span class="material-symbols-rounded">monitoring</span> Progresso
+					</button>
+					<button class="screen-link" data-screen="health">
+						<span class="material-symbols-rounded">ecg_heart</span> Saúde
+					</button>
+					<button class="screen-link" data-screen="timeline">
+						<span class="material-symbols-rounded">history</span> Linha do tempo
+					</button>
+					<button class="screen-link" data-screen="profile">
+						<span class="material-symbols-rounded">person</span> Perfil e
+						ajustes
+					</button>
+				</nav>
 
-        <div class="map-note">
-          <span class="material-symbols-rounded">touch_app</span>
-          <p>Use os botões, cards e a barra inferior do aparelho para percorrer os fluxos.</p>
-        </div>
-      </aside>
+				<div class="map-note">
+					<span class="material-symbols-rounded">touch_app</span>
+					<p>
+						Use os botões, cards e a barra inferior do aparelho para percorrer
+						os fluxos.
+					</p>
+				</div>
+			</aside>
 
-      <main class="preview-area">
-        <div class="preview-toolbar">
-          <div>
-            <span class="status-dot"></span>
-            <span id="current-screen-name">Entrar</span>
-          </div>
-          <button class="icon-button theme-toggle" aria-label="Alternar tema" title="Alternar tema">
-            <span class="material-symbols-rounded">dark_mode</span>
-          </button>
-        </div>
+			<main class="preview-area">
+				<div class="preview-toolbar">
+					<div>
+						<span class="status-dot"></span>
+						<span id="current-screen-name">Entrar</span>
+					</div>
+					<button
+						class="icon-button theme-toggle"
+						aria-label="Alternar tema"
+						title="Alternar tema"
+					>
+						<span class="material-symbols-rounded">dark_mode</span>
+					</button>
+				</div>
 
-        <div class="phone" aria-label="Prévia do aplicativo Android">
-          <div class="android-status-bar" aria-hidden="true">
-            <span>09:41</span>
-            <div>
-              <span class="material-symbols-rounded">signal_cellular_alt</span>
-              <span class="material-symbols-rounded">wifi</span>
-              <span class="material-symbols-rounded">battery_full</span>
-            </div>
-          </div>
+				<div class="phone" aria-label="Prévia do aplicativo Android">
+					<div class="android-status-bar" aria-hidden="true">
+						<span>09:41</span>
+						<div>
+							<span class="material-symbols-rounded">signal_cellular_alt</span>
+							<span class="material-symbols-rounded">wifi</span>
+							<span class="material-symbols-rounded">battery_full</span>
+						</div>
+					</div>
 
-          <div class="app-viewport">
-            <!-- ACESSO -->
-            <section class="app-screen auth-screen active" data-screen-id="login" aria-label="Tela de login">
-              <div class="auth-content">
-                <div class="auth-brand">
-                  <div class="brand-mark large"><span class="material-symbols-rounded">water_drop</span></div>
-                  <span>VitalisTrack</span>
-                </div>
-                <div>
-                  <span class="eyebrow">Bem-vindo de volta</span>
-                  <h2>Entre na sua conta</h2>
-                  <p class="supporting-text">Acompanhe sua saúde e seus hábitos em um só lugar.</p>
-                </div>
-                <form class="form-stack" id="login-form">
-                  <label class="text-field">
-                    <span>E-mail</span>
-                    <div>
-                      <span class="material-symbols-rounded">mail</span>
-                      <input type="email" value="ana@email.com" aria-label="E-mail" required />
-                    </div>
-                  </label>
-                  <label class="text-field">
-                    <span>Senha</span>
-                    <div>
-                      <span class="material-symbols-rounded">lock</span>
-                      <input type="password" value="12345678" aria-label="Senha" required />
-                      <button type="button" class="field-action" aria-label="Mostrar senha">
-                        <span class="material-symbols-rounded">visibility</span>
-                      </button>
-                    </div>
-                  </label>
-                  <button type="button" class="text-button align-end">Esqueci minha senha</button>
-                  <button class="filled-button full" type="submit">Entrar</button>
-                  <button class="tonal-button full" type="button" data-go="home">
-                    <span class="material-symbols-rounded">fingerprint</span> Entrar com biometria
-                  </button>
-                </form>
-                <p class="auth-switch">Ainda não tem conta? <button data-go="register">Criar conta</button></p>
-              </div>
-            </section>
+					<div class="app-viewport">
+						<!-- ACESSO -->
+						<section
+							class="app-screen auth-screen active"
+							data-screen-id="login"
+							aria-label="Tela de login"
+						>
+							<div class="auth-content">
+								<div class="auth-brand">
+									<div class="brand-mark large">
+										<span class="material-symbols-rounded">water_drop</span>
+									</div>
+									<span>VitalisTrack</span>
+								</div>
+								<div>
+									<span class="eyebrow">Bem-vindo de volta</span>
+									<h2>Entre na sua conta</h2>
+									<p class="supporting-text">
+										Acompanhe sua saúde e seus hábitos em um só lugar.
+									</p>
+								</div>
+								<form class="form-stack" id="login-form">
+									<label class="text-field">
+										<span>E-mail</span>
+										<div>
+											<span class="material-symbols-rounded">mail</span>
+											<input
+												type="email"
+												value="ana@email.com"
+												aria-label="E-mail"
+												required
+											/>
+										</div>
+									</label>
+									<label class="text-field">
+										<span>Senha</span>
+										<div>
+											<span class="material-symbols-rounded">lock</span>
+											<input
+												type="password"
+												value="12345678"
+												aria-label="Senha"
+												required
+											/>
+											<button
+												type="button"
+												class="field-action"
+												aria-label="Mostrar senha"
+											>
+												<span class="material-symbols-rounded">visibility</span>
+											</button>
+										</div>
+									</label>
+									<button type="button" class="text-button align-end">
+										Esqueci minha senha
+									</button>
+									<button class="filled-button full" type="submit">
+										Entrar
+									</button>
+									<button
+										class="tonal-button full"
+										type="button"
+										data-go="home"
+									>
+										<span class="material-symbols-rounded">fingerprint</span>
+										Entrar com biometria
+									</button>
+								</form>
+								<p class="auth-switch">
+									Ainda não tem conta?
+									<button data-go="register">Criar conta</button>
+								</p>
+							</div>
+						</section>
 
-            <section class="app-screen auth-screen" data-screen-id="register" aria-label="Tela de cadastro">
-              <header class="top-app-bar transparent">
-                <button class="icon-button" data-go="login" aria-label="Voltar">
-                  <span class="material-symbols-rounded">arrow_back</span>
-                </button>
-                <span>Criar conta</span>
-              </header>
-              <div class="auth-content registration">
-                <div>
-                  <span class="eyebrow">Comece agora</span>
-                  <h2>Crie seu acesso</h2>
-                  <p class="supporting-text">Você poderá completar seu perfil de saúde depois.</p>
-                </div>
-                <form class="form-stack" id="register-form">
-                  <label class="text-field"><span>Nome</span><div><span class="material-symbols-rounded">person</span><input value="Ana Souza" required /></div></label>
-                  <label class="text-field"><span>E-mail</span><div><span class="material-symbols-rounded">mail</span><input type="email" value="ana@email.com" required /></div></label>
-                  <label class="text-field"><span>Senha</span><div><span class="material-symbols-rounded">lock</span><input type="password" value="12345678" required /></div></label>
-                  <label class="text-field"><span>Confirmar senha</span><div><span class="material-symbols-rounded">lock_reset</span><input type="password" value="12345678" required /></div></label>
-                  <label class="check-row"><input type="checkbox" checked /> <span>Li e aceito os termos de uso e privacidade.</span></label>
-                  <button class="filled-button full" type="submit">Criar conta</button>
-                </form>
-              </div>
-            </section>
+						<section
+							class="app-screen auth-screen"
+							data-screen-id="register"
+							aria-label="Tela de cadastro"
+						>
+							<header class="top-app-bar transparent">
+								<button class="icon-button" data-go="login" aria-label="Voltar">
+									<span class="material-symbols-rounded">arrow_back</span>
+								</button>
+								<span>Criar conta</span>
+							</header>
+							<div class="auth-content registration">
+								<div>
+									<span class="eyebrow">Comece agora</span>
+									<h2>Crie seu acesso</h2>
+									<p class="supporting-text">
+										Você poderá completar seu perfil de saúde depois.
+									</p>
+								</div>
+								<form class="form-stack" id="register-form">
+									<label class="text-field"
+										><span>Nome</span>
+										<div>
+											<span class="material-symbols-rounded">person</span
+											><input value="Ana Souza" required /></div
+									></label>
+									<label class="text-field"
+										><span>E-mail</span>
+										<div>
+											<span class="material-symbols-rounded">mail</span
+											><input
+												type="email"
+												value="ana@email.com"
+												required
+											/></div
+									></label>
+									<label class="text-field"
+										><span>Senha</span>
+										<div>
+											<span class="material-symbols-rounded">lock</span
+											><input type="password" value="12345678" required /></div
+									></label>
+									<label class="text-field"
+										><span>Confirmar senha</span>
+										<div>
+											<span class="material-symbols-rounded">lock_reset</span
+											><input type="password" value="12345678" required /></div
+									></label>
+									<label class="check-row"
+										><input type="checkbox" checked />
+										<span
+											>Li e aceito os termos de uso e privacidade.</span
+										></label
+									>
+									<button class="filled-button full" type="submit">
+										Criar conta
+									</button>
+								</form>
+							</div>
+						</section>
 
-            <!-- INÍCIO -->
-            <section class="app-screen" data-screen-id="home" aria-label="Tela inicial">
-              <header class="home-header">
-                <div class="profile-switcher" role="button" tabindex="0" data-toast="Perfil ativo: Ana">
-                  <div class="avatar">AS</div>
-                  <div><span>Bom dia,</span><strong>Ana</strong></div>
-                  <span class="material-symbols-rounded">expand_more</span>
-                </div>
-                <button class="icon-button" data-toast="Você não tem novas notificações" aria-label="Notificações">
-                  <span class="material-symbols-rounded">notifications</span>
-                </button>
-              </header>
+						<!-- INÍCIO -->
+						<section
+							class="app-screen"
+							data-screen-id="home"
+							aria-label="Tela inicial"
+						>
+							<header class="home-header">
+								<div
+									class="profile-switcher"
+									role="button"
+									tabindex="0"
+									data-toast="Perfil ativo: Ana"
+								>
+									<div class="avatar">AS</div>
+									<div><span>Bom dia,</span><strong>Ana</strong></div>
+									<span class="material-symbols-rounded">expand_more</span>
+								</div>
+								<button
+									class="icon-button"
+									data-toast="Você não tem novas notificações"
+									aria-label="Notificações"
+								>
+									<span class="material-symbols-rounded">notifications</span>
+								</button>
+							</header>
 
-              <div class="screen-content home-content">
-                <div class="date-row">
-                  <div><span class="eyebrow">Hoje</span><h2>Seu resumo</h2></div>
-                  <span>13 de setembro</span>
-                </div>
+							<div class="screen-content home-content">
+								<div class="date-row">
+									<div>
+										<span class="eyebrow">Hoje</span>
+										<h2>Seu resumo</h2>
+									</div>
+									<span>13 de setembro</span>
+								</div>
 
-                <article class="hero-metric-card">
-                  <div>
-                    <span class="card-label"><span class="material-symbols-rounded">directions_walk</span> Passos</span>
-                    <strong>6.842</strong>
-                    <span>de 10.000 passos</span>
-                  </div>
-                  <div class="progress-ring" style="--value:68"><span>68%</span></div>
-                </article>
+								<article class="hero-metric-card">
+									<div>
+										<span class="card-label"
+											><span class="material-symbols-rounded"
+												>directions_walk</span
+											>
+											Passos</span
+										>
+										<strong>6.842</strong>
+										<span>de 10.000 passos</span>
+									</div>
+									<div class="progress-ring" style="--value: 68">
+										<span>68%</span>
+									</div>
+								</article>
 
-                <div class="metric-grid">
-                  <button class="metric-card" data-go="water">
-                    <span class="metric-icon water"><span class="material-symbols-rounded">water_drop</span></span>
-                    <span>Água</span>
-                    <strong id="home-water-value">1,5 L</strong>
-                    <small>Meta 2,5 L</small>
-                    <span class="mini-progress"><i id="home-water-bar" style="width:60%"></i></span>
-                  </button>
-                  <button class="metric-card" data-go="meals">
-                    <span class="metric-icon food"><span class="material-symbols-rounded">local_fire_department</span></span>
-                    <span>Calorias</span>
-                    <strong>1.240 kcal</strong>
-                    <small>760 kcal restantes</small>
-                    <span class="mini-progress coral"><i style="width:62%"></i></span>
-                  </button>
-                </div>
+								<div class="metric-grid">
+									<button class="metric-card" data-go="water">
+										<span class="metric-icon water"
+											><span class="material-symbols-rounded"
+												>water_drop</span
+											></span
+										>
+										<span>Água</span>
+										<strong id="home-water-value">1,5 L</strong>
+										<small>Meta 2,5 L</small>
+										<span class="mini-progress"
+											><i id="home-water-bar" style="width: 60%"></i
+										></span>
+									</button>
+									<button class="metric-card" data-go="meals">
+										<span class="metric-icon food"
+											><span class="material-symbols-rounded"
+												>local_fire_department</span
+											></span
+										>
+										<span>Calorias</span>
+										<strong>1.240 kcal</strong>
+										<small>760 kcal restantes</small>
+										<span class="mini-progress coral"
+											><i style="width: 62%"></i
+										></span>
+									</button>
+								</div>
 
-                <div class="section-heading"><div><span class="eyebrow">Próximo passo</span><h3>Rotina de hoje</h3></div></div>
-                <button class="next-action-card" data-go="activities">
-                  <span class="metric-icon activity"><span class="material-symbols-rounded">fitness_center</span></span>
-                  <span><strong>Treino funcional</strong><small>18:30 · 35 min</small></span>
-                  <span class="material-symbols-rounded">chevron_right</span>
-                </button>
+								<div class="section-heading">
+									<div>
+										<span class="eyebrow">Próximo passo</span>
+										<h3>Rotina de hoje</h3>
+									</div>
+								</div>
+								<button class="next-action-card" data-go="activities">
+									<span class="metric-icon activity"
+										><span class="material-symbols-rounded"
+											>fitness_center</span
+										></span
+									>
+									<span
+										><strong>Treino funcional</strong
+										><small>18:30 · 35 min</small></span
+									>
+									<span class="material-symbols-rounded">chevron_right</span>
+								</button>
 
-                <div class="tip-card">
-                  <span class="material-symbols-rounded">lightbulb</span>
-                  <div><strong>Dica do dia</strong><p>Uma pausa curta para se alongar também conta como cuidado.</p></div>
-                </div>
-              </div>
-              <nav class="bottom-navigation" aria-label="Navegação principal">
-                <button class="active" data-go="home"><span class="material-symbols-rounded">home</span><small>Início</small></button>
-                <button data-go="timeline"><span class="material-symbols-rounded">calendar_month</span><small>Diário</small></button>
-                <button class="nav-fab" data-sheet-open><span class="material-symbols-rounded">add</span><small>Registrar</small></button>
-                <button data-go="progress"><span class="material-symbols-rounded">monitoring</span><small>Progresso</small></button>
-                <button data-go="profile"><span class="material-symbols-rounded">person</span><small>Perfil</small></button>
-              </nav>
-            </section>
+								<div class="tip-card">
+									<span class="material-symbols-rounded">lightbulb</span>
+									<div>
+										<strong>Dica do dia</strong>
+										<p>
+											Uma pausa curta para se alongar também conta como cuidado.
+										</p>
+									</div>
+								</div>
+							</div>
+							<nav class="bottom-navigation" aria-label="Navegação principal">
+								<button class="active" data-go="home">
+									<span class="material-symbols-rounded">home</span
+									><small>Início</small>
+								</button>
+								<button data-go="timeline">
+									<span class="material-symbols-rounded">calendar_month</span
+									><small>Diário</small>
+								</button>
+								<button class="nav-fab" data-sheet-open>
+									<span class="material-symbols-rounded">add</span
+									><small>Registrar</small>
+								</button>
+								<button data-go="progress">
+									<span class="material-symbols-rounded">monitoring</span
+									><small>Progresso</small>
+								</button>
+								<button data-go="profile">
+									<span class="material-symbols-rounded">person</span
+									><small>Perfil</small>
+								</button>
+							</nav>
+						</section>
 
-            <!-- HIDRATAÇÃO -->
-            <section class="app-screen" data-screen-id="water" aria-label="Tela de hidratação">
-              <header class="top-app-bar">
-                <button class="icon-button" data-go="home" aria-label="Voltar"><span class="material-symbols-rounded">arrow_back</span></button>
-                <span>Hidratação</span>
-                <button class="icon-button" data-toast="Opções de hidratação" aria-label="Mais opções"><span class="material-symbols-rounded">more_vert</span></button>
-              </header>
-              <div class="screen-content">
-                <div class="hydration-visual">
-                  <div class="water-ring" id="water-ring" style="--value:60">
-                    <div><span class="material-symbols-rounded">water_drop</span><strong id="water-percent">60%</strong><small>da meta diária</small></div>
-                  </div>
-                  <div class="water-summary"><strong id="water-total">1.500 mL</strong><span>de 2.500 mL</span></div>
-                </div>
+						<!-- HIDRATAÇÃO -->
+						<section
+							class="app-screen"
+							data-screen-id="water"
+							aria-label="Tela de hidratação"
+						>
+							<header class="top-app-bar">
+								<button class="icon-button" data-go="home" aria-label="Voltar">
+									<span class="material-symbols-rounded">arrow_back</span>
+								</button>
+								<span>Hidratação</span>
+								<button
+									class="icon-button"
+									data-toast="Opções de hidratação"
+									aria-label="Mais opções"
+								>
+									<span class="material-symbols-rounded">more_vert</span>
+								</button>
+							</header>
+							<div class="screen-content">
+								<div class="hydration-visual">
+									<div class="water-ring" id="water-ring" style="--value: 60">
+										<div>
+											<span class="material-symbols-rounded">water_drop</span
+											><strong id="water-percent">60%</strong
+											><small>da meta diária</small>
+										</div>
+									</div>
+									<div class="water-summary">
+										<strong id="water-total">1.500 mL</strong
+										><span>de 2.500 mL</span>
+									</div>
+								</div>
 
-                <div class="section-heading"><div><span class="eyebrow">Registro rápido</span><h3>Quanto você bebeu?</h3></div></div>
-                <div class="quick-add-grid">
-                  <button data-add-water="200"><span class="material-symbols-rounded">local_drink</span><strong>200 mL</strong><small>Copo</small></button>
-                  <button data-add-water="500"><span class="material-symbols-rounded">water_bottle</span><strong>500 mL</strong><small>Garrafa</small></button>
-                  <button data-add-water="1000"><span class="material-symbols-rounded">water_full</span><strong>1 L</strong><small>Garrafa grande</small></button>
-                </div>
-                <button class="outlined-button full" data-dialog-open="custom-water"><span class="material-symbols-rounded">edit</span> Informar outro valor</button>
+								<div class="section-heading">
+									<div>
+										<span class="eyebrow">Registro rápido</span>
+										<h3>Quanto você bebeu?</h3>
+									</div>
+								</div>
+								<div class="quick-add-grid">
+									<button data-add-water="200">
+										<span class="material-symbols-rounded">local_drink</span
+										><strong>200 mL</strong><small>Copo</small>
+									</button>
+									<button data-add-water="500">
+										<span class="material-symbols-rounded">water_bottle</span
+										><strong>500 mL</strong><small>Garrafa</small>
+									</button>
+									<button data-add-water="1000">
+										<span class="material-symbols-rounded">water_full</span
+										><strong>1 L</strong><small>Garrafa grande</small>
+									</button>
+								</div>
+								<button
+									class="outlined-button full"
+									data-dialog-open="custom-water"
+								>
+									<span class="material-symbols-rounded">edit</span> Informar
+									outro valor
+								</button>
 
-                <div class="section-heading"><h3>Registros de hoje</h3><button class="text-button" data-go="timeline">Ver todos</button></div>
-                <div class="list-card">
-                  <div class="list-item"><span class="list-leading"><span class="material-symbols-rounded">water_drop</span></span><span><strong>500 mL</strong><small>14:35</small></span><button class="icon-button" data-toast="Menu do registro"><span class="material-symbols-rounded">more_vert</span></button></div>
-                  <div class="list-item"><span class="list-leading"><span class="material-symbols-rounded">water_drop</span></span><span><strong>200 mL</strong><small>11:10</small></span><button class="icon-button" data-toast="Menu do registro"><span class="material-symbols-rounded">more_vert</span></button></div>
-                  <div class="list-item"><span class="list-leading"><span class="material-symbols-rounded">water_drop</span></span><span><strong>800 mL</strong><small>08:05</small></span><button class="icon-button" data-toast="Menu do registro"><span class="material-symbols-rounded">more_vert</span></button></div>
-                </div>
-              </div>
-            </section>
+								<div class="section-heading">
+									<h3>Registros de hoje</h3>
+									<button class="text-button" data-go="timeline">
+										Ver todos
+									</button>
+								</div>
+								<div class="list-card">
+									<div class="list-item">
+										<span class="list-leading"
+											><span class="material-symbols-rounded"
+												>water_drop</span
+											></span
+										><span><strong>500 mL</strong><small>14:35</small></span
+										><button class="icon-button" data-toast="Menu do registro">
+											<span class="material-symbols-rounded">more_vert</span>
+										</button>
+									</div>
+									<div class="list-item">
+										<span class="list-leading"
+											><span class="material-symbols-rounded"
+												>water_drop</span
+											></span
+										><span><strong>200 mL</strong><small>11:10</small></span
+										><button class="icon-button" data-toast="Menu do registro">
+											<span class="material-symbols-rounded">more_vert</span>
+										</button>
+									</div>
+									<div class="list-item">
+										<span class="list-leading"
+											><span class="material-symbols-rounded"
+												>water_drop</span
+											></span
+										><span><strong>800 mL</strong><small>08:05</small></span
+										><button class="icon-button" data-toast="Menu do registro">
+											<span class="material-symbols-rounded">more_vert</span>
+										</button>
+									</div>
+								</div>
+							</div>
+						</section>
 
-            <!-- ALIMENTAÇÃO -->
-            <section class="app-screen" data-screen-id="meals" aria-label="Tela de alimentação">
-              <header class="top-app-bar">
-                <button class="icon-button" data-go="home" aria-label="Voltar"><span class="material-symbols-rounded">arrow_back</span></button>
-                <span>Alimentação</span>
-                <button class="icon-button" data-toast="Abrir calendário"><span class="material-symbols-rounded">calendar_month</span></button>
-              </header>
-              <div class="screen-content has-fab">
-                <div class="calendar-strip" aria-label="Escolha de data">
-                  <button><small>QUI</small><strong>10</strong></button>
-                  <button><small>SEX</small><strong>11</strong></button>
-                  <button><small>SÁB</small><strong>12</strong></button>
-                  <button class="selected"><small>DOM</small><strong>13</strong></button>
-                  <button><small>SEG</small><strong>14</strong></button>
-                </div>
-                <article class="calorie-card">
-                  <div class="calorie-number"><strong>760</strong><span>kcal restantes</span></div>
-                  <div class="equation"><span><strong>2.000</strong>Meta</span><i>−</i><span><strong>1.240</strong>Consumidas</span></div>
-                  <span class="wide-progress"><i style="width:62%"></i></span>
-                </article>
+						<!-- ALIMENTAÇÃO -->
+						<section
+							class="app-screen"
+							data-screen-id="meals"
+							aria-label="Tela de alimentação"
+						>
+							<header class="top-app-bar">
+								<button class="icon-button" data-go="home" aria-label="Voltar">
+									<span class="material-symbols-rounded">arrow_back</span>
+								</button>
+								<span>Alimentação</span>
+								<button class="icon-button" data-toast="Abrir calendário">
+									<span class="material-symbols-rounded">calendar_month</span>
+								</button>
+							</header>
+							<div class="screen-content has-fab">
+								<div class="calendar-strip" aria-label="Escolha de data">
+									<button><small>QUI</small><strong>10</strong></button>
+									<button><small>SEX</small><strong>11</strong></button>
+									<button><small>SÁB</small><strong>12</strong></button>
+									<button class="selected">
+										<small>DOM</small><strong>13</strong>
+									</button>
+									<button><small>SEG</small><strong>14</strong></button>
+								</div>
+								<article class="calorie-card">
+									<div class="calorie-number">
+										<strong>760</strong><span>kcal restantes</span>
+									</div>
+									<div class="equation">
+										<span><strong>2.000</strong>Meta</span><i>−</i
+										><span><strong>1.240</strong>Consumidas</span>
+									</div>
+									<span class="wide-progress"><i style="width: 62%"></i></span>
+								</article>
 
-                <div class="section-heading"><h3>Refeições</h3><button class="text-button" data-go="meal-form">Adicionar</button></div>
-                <div class="meal-list">
-                  <article class="meal-card">
-                    <div class="meal-top"><span class="meal-icon breakfast"><span class="material-symbols-rounded">bakery_dining</span></span><div><strong>Café da manhã</strong><small>08:10 · 420 kcal</small></div><button class="icon-button"><span class="material-symbols-rounded">more_vert</span></button></div>
-                    <p>Iogurte natural, banana e aveia</p>
-                    <div class="macro-row"><span>24g carb.</span><span>18g prot.</span><span>12g gord.</span></div>
-                  </article>
-                  <article class="meal-card">
-                    <div class="meal-top"><span class="meal-icon lunch"><span class="material-symbols-rounded">lunch_dining</span></span><div><strong>Almoço</strong><small>12:35 · 620 kcal</small></div><button class="icon-button"><span class="material-symbols-rounded">more_vert</span></button></div>
-                    <p>Arroz, feijão, frango e salada</p>
-                    <div class="macro-row"><span>68g carb.</span><span>42g prot.</span><span>16g gord.</span></div>
-                  </article>
-                  <article class="empty-meal" data-go="meal-form"><span class="material-symbols-rounded">add_circle</span><span><strong>Lanche da tarde</strong><small>Nenhum item registrado</small></span></article>
-                </div>
-              </div>
-              <button class="floating-action-button" data-go="meal-form" aria-label="Adicionar refeição"><span class="material-symbols-rounded">add</span></button>
-            </section>
+								<div class="section-heading">
+									<h3>Refeições</h3>
+									<button class="text-button" data-go="meal-form">
+										Adicionar
+									</button>
+								</div>
+								<div class="meal-list">
+									<article class="meal-card">
+										<div class="meal-top">
+											<span class="meal-icon breakfast"
+												><span class="material-symbols-rounded"
+													>bakery_dining</span
+												></span
+											>
+											<div>
+												<strong>Café da manhã</strong
+												><small>08:10 · 420 kcal</small>
+											</div>
+											<button class="icon-button">
+												<span class="material-symbols-rounded">more_vert</span>
+											</button>
+										</div>
+										<p>Iogurte natural, banana e aveia</p>
+										<div class="macro-row">
+											<span>24g carb.</span><span>18g prot.</span
+											><span>12g gord.</span>
+										</div>
+									</article>
+									<article class="meal-card">
+										<div class="meal-top">
+											<span class="meal-icon lunch"
+												><span class="material-symbols-rounded"
+													>lunch_dining</span
+												></span
+											>
+											<div>
+												<strong>Almoço</strong><small>12:35 · 620 kcal</small>
+											</div>
+											<button class="icon-button">
+												<span class="material-symbols-rounded">more_vert</span>
+											</button>
+										</div>
+										<p>Arroz, feijão, frango e salada</p>
+										<div class="macro-row">
+											<span>68g carb.</span><span>42g prot.</span
+											><span>16g gord.</span>
+										</div>
+									</article>
+									<article class="empty-meal" data-go="meal-form">
+										<span class="material-symbols-rounded">add_circle</span
+										><span
+											><strong>Lanche da tarde</strong
+											><small>Nenhum item registrado</small></span
+										>
+									</article>
+								</div>
+							</div>
+							<button
+								class="floating-action-button"
+								data-go="meal-form"
+								aria-label="Adicionar refeição"
+							>
+								<span class="material-symbols-rounded">add</span>
+							</button>
+						</section>
 
-            <section class="app-screen" data-screen-id="meal-form" aria-label="Nova refeição">
-              <header class="top-app-bar">
-                <button class="icon-button" data-go="meals" aria-label="Fechar"><span class="material-symbols-rounded">close</span></button>
-                <span>Nova refeição</span>
-                <span class="header-spacer"></span>
-              </header>
-              <form class="screen-content form-stack roomy" id="meal-form">
-                <div class="segmented-buttons" role="group" aria-label="Como adicionar alimento">
-                  <button type="button" class="selected"><span class="material-symbols-rounded">edit</span> Manual</button>
-                  <button type="button" data-toast="Leitor de código de barras"><span class="material-symbols-rounded">barcode_scanner</span> Escanear</button>
-                  <button type="button" data-toast="Busca de alimentos"><span class="material-symbols-rounded">search</span> Buscar</button>
-                </div>
-                <label class="select-field"><span>Tipo de refeição</span><select><option>Café da manhã</option><option>Almoço</option><option>Lanche</option><option>Jantar</option></select></label>
-                <label class="text-field"><span>Alimento</span><div><span class="material-symbols-rounded">restaurant</span><input value="Tapioca com ovo" required /></div></label>
-                <div class="form-row">
-                  <label class="text-field"><span>Quantidade</span><div><input type="number" value="150" required /></div></label>
-                  <label class="select-field compact"><span>Unidade</span><select><option>g</option><option>mL</option></select></label>
-                </div>
-                <label class="text-field"><span>Horário</span><div><span class="material-symbols-rounded">schedule</span><input type="time" value="08:30" required /></div></label>
-                <button type="button" class="photo-placeholder" data-toast="Câmera aberta"><span class="material-symbols-rounded">add_a_photo</span><span><strong>Adicionar foto</strong><small>Opcional</small></span></button>
-                <div class="nutrition-preview"><span><strong>310</strong><small>kcal</small></span><span><strong>34g</strong><small>carb.</small></span><span><strong>16g</strong><small>proteína</small></span><span><strong>11g</strong><small>gordura</small></span></div>
-                <button class="filled-button full sticky-submit" type="submit">Salvar refeição</button>
-              </form>
-            </section>
+						<section
+							class="app-screen"
+							data-screen-id="meal-form"
+							aria-label="Nova refeição"
+						>
+							<header class="top-app-bar">
+								<button class="icon-button" data-go="meals" aria-label="Fechar">
+									<span class="material-symbols-rounded">close</span>
+								</button>
+								<span>Nova refeição</span>
+								<span class="header-spacer"></span>
+							</header>
+							<form class="screen-content form-stack roomy" id="meal-form">
+								<div
+									class="segmented-buttons"
+									role="group"
+									aria-label="Como adicionar alimento"
+								>
+									<button type="button" class="selected">
+										<span class="material-symbols-rounded">edit</span> Manual
+									</button>
+									<button type="button" data-toast="Leitor de código de barras">
+										<span class="material-symbols-rounded"
+											>barcode_scanner</span
+										>
+										Escanear
+									</button>
+									<button type="button" data-toast="Busca de alimentos">
+										<span class="material-symbols-rounded">search</span> Buscar
+									</button>
+								</div>
+								<label class="select-field"
+									><span>Tipo de refeição</span
+									><select>
+										<option>Café da manhã</option>
+										<option>Almoço</option>
+										<option>Lanche</option>
+										<option>Jantar</option>
+									</select></label
+								>
+								<label class="text-field"
+									><span>Alimento</span>
+									<div>
+										<span class="material-symbols-rounded">restaurant</span
+										><input value="Tapioca com ovo" required /></div
+								></label>
+								<div class="form-row">
+									<label class="text-field"
+										><span>Quantidade</span>
+										<div><input type="number" value="150" required /></div
+									></label>
+									<label class="select-field compact"
+										><span>Unidade</span
+										><select>
+											<option>g</option>
+											<option>mL</option>
+										</select></label
+									>
+								</div>
+								<label class="text-field"
+									><span>Horário</span>
+									<div>
+										<span class="material-symbols-rounded">schedule</span
+										><input type="time" value="08:30" required /></div
+								></label>
+								<button
+									type="button"
+									class="photo-placeholder"
+									data-toast="Câmera aberta"
+								>
+									<span class="material-symbols-rounded">add_a_photo</span
+									><span
+										><strong>Adicionar foto</strong
+										><small>Opcional</small></span
+									>
+								</button>
+								<div class="nutrition-preview">
+									<span><strong>310</strong><small>kcal</small></span
+									><span><strong>34g</strong><small>carb.</small></span
+									><span><strong>16g</strong><small>proteína</small></span
+									><span><strong>11g</strong><small>gordura</small></span>
+								</div>
+								<button class="filled-button full sticky-submit" type="submit">
+									Salvar refeição
+								</button>
+							</form>
+						</section>
 
-            <!-- ATIVIDADES -->
-            <section class="app-screen" data-screen-id="activities" aria-label="Tela de atividades">
-              <header class="top-app-bar">
-                <button class="icon-button" data-go="home"><span class="material-symbols-rounded">arrow_back</span></button>
-                <span>Atividades</span>
-                <button class="icon-button" data-toast="Buscar atividades"><span class="material-symbols-rounded">search</span></button>
-              </header>
-              <div class="screen-content has-fab">
-                <article class="activity-highlight">
-                  <div><span class="eyebrow">Esta semana</span><strong>3 atividades</strong><p>2h 18min · 14,6 km</p></div>
-                  <span class="material-symbols-rounded">directions_run</span>
-                </article>
-                <div class="section-heading"><h3>Iniciar atividade</h3></div>
-                <div class="activity-types">
-                  <button class="selected" data-go="active-workout"><span class="material-symbols-rounded">directions_run</span><strong>Corrida</strong></button>
-                  <button data-go="active-workout"><span class="material-symbols-rounded">directions_walk</span><strong>Caminhada</strong></button>
-                  <button data-go="active-workout"><span class="material-symbols-rounded">directions_bike</span><strong>Ciclismo</strong></button>
-                  <button data-toast="Mais tipos de atividade"><span class="material-symbols-rounded">more_horiz</span><strong>Outros</strong></button>
-                </div>
-                <button class="filled-button full large-action" data-go="active-workout"><span class="material-symbols-rounded">play_arrow</span> Iniciar corrida</button>
-                <div class="section-heading"><h3>Atividades recentes</h3><button class="text-button">Ver todas</button></div>
-                <div class="list-card activity-list">
-                  <button class="list-item" data-toast="Resumo da corrida"><span class="list-leading orange"><span class="material-symbols-rounded">directions_run</span></span><span><strong>Corrida ao ar livre</strong><small>Ontem · 5,2 km · 31 min</small></span><span class="material-symbols-rounded">chevron_right</span></button>
-                  <button class="list-item" data-toast="Resumo da caminhada"><span class="list-leading green"><span class="material-symbols-rounded">directions_walk</span></span><span><strong>Caminhada</strong><small>10 set · 3,4 km · 42 min</small></span><span class="material-symbols-rounded">chevron_right</span></button>
-                  <button class="list-item" data-toast="Resumo do treino"><span class="list-leading purple"><span class="material-symbols-rounded">fitness_center</span></span><span><strong>Treino funcional</strong><small>08 set · 35 min · 280 kcal</small></span><span class="material-symbols-rounded">chevron_right</span></button>
-                </div>
-              </div>
-            </section>
+						<!-- ATIVIDADES -->
+						<section
+							class="app-screen"
+							data-screen-id="activities"
+							aria-label="Tela de atividades"
+						>
+							<header class="top-app-bar">
+								<button class="icon-button" data-go="home">
+									<span class="material-symbols-rounded">arrow_back</span>
+								</button>
+								<span>Atividades</span>
+								<button class="icon-button" data-toast="Buscar atividades">
+									<span class="material-symbols-rounded">search</span>
+								</button>
+							</header>
+							<div class="screen-content has-fab">
+								<article class="activity-highlight">
+									<div>
+										<span class="eyebrow">Esta semana</span
+										><strong>3 atividades</strong>
+										<p>2h 18min · 14,6 km</p>
+									</div>
+									<span class="material-symbols-rounded">directions_run</span>
+								</article>
+								<div class="section-heading"><h3>Iniciar atividade</h3></div>
+								<div class="activity-types">
+									<button class="selected" data-go="active-workout">
+										<span class="material-symbols-rounded">directions_run</span
+										><strong>Corrida</strong>
+									</button>
+									<button data-go="active-workout">
+										<span class="material-symbols-rounded">directions_walk</span
+										><strong>Caminhada</strong>
+									</button>
+									<button data-go="active-workout">
+										<span class="material-symbols-rounded">directions_bike</span
+										><strong>Ciclismo</strong>
+									</button>
+									<button data-toast="Mais tipos de atividade">
+										<span class="material-symbols-rounded">more_horiz</span
+										><strong>Outros</strong>
+									</button>
+								</div>
+								<button
+									class="filled-button full large-action"
+									data-go="active-workout"
+								>
+									<span class="material-symbols-rounded">play_arrow</span>
+									Iniciar corrida
+								</button>
+								<div class="section-heading">
+									<h3>Atividades recentes</h3>
+									<button class="text-button">Ver todas</button>
+								</div>
+								<div class="list-card activity-list">
+									<button class="list-item" data-toast="Resumo da corrida">
+										<span class="list-leading orange"
+											><span class="material-symbols-rounded"
+												>directions_run</span
+											></span
+										><span
+											><strong>Corrida ao ar livre</strong
+											><small>Ontem · 5,2 km · 31 min</small></span
+										><span class="material-symbols-rounded">chevron_right</span>
+									</button>
+									<button class="list-item" data-toast="Resumo da caminhada">
+										<span class="list-leading green"
+											><span class="material-symbols-rounded"
+												>directions_walk</span
+											></span
+										><span
+											><strong>Caminhada</strong
+											><small>10 set · 3,4 km · 42 min</small></span
+										><span class="material-symbols-rounded">chevron_right</span>
+									</button>
+									<button class="list-item" data-toast="Resumo do treino">
+										<span class="list-leading purple"
+											><span class="material-symbols-rounded"
+												>fitness_center</span
+											></span
+										><span
+											><strong>Treino funcional</strong
+											><small>08 set · 35 min · 280 kcal</small></span
+										><span class="material-symbols-rounded">chevron_right</span>
+									</button>
+								</div>
+							</div>
+						</section>
 
-            <section class="app-screen workout-screen" data-screen-id="active-workout" aria-label="Atividade em andamento">
-              <header class="top-app-bar transparent inverse">
-                <button class="icon-button" data-dialog-open="cancel-workout"><span class="material-symbols-rounded">close</span></button>
-                <span>Corrida em andamento</span>
-                <button class="icon-button" data-toast="GPS ativo e sinal forte"><span class="material-symbols-rounded">gps_fixed</span></button>
-              </header>
-              <div class="workout-map" aria-label="Representação simplificada de mapa">
-                <span class="map-grid"></span>
-                <svg viewBox="0 0 320 240" role="img" aria-label="Rota percorrida">
-                  <path d="M38 184 C82 164, 74 92, 125 104 S176 185, 217 142 S247 55, 289 64" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round" />
-                  <circle cx="38" cy="184" r="8" fill="#fff" stroke="currentColor" stroke-width="4" />
-                  <circle cx="289" cy="64" r="10" fill="currentColor" stroke="#fff" stroke-width="4" />
-                </svg>
-                <span class="gps-chip"><span class="status-dot"></span> GPS conectado</span>
-              </div>
-              <div class="workout-data">
-                <span class="eyebrow">Tempo</span>
-                <strong class="timer" id="workout-timer">00:18:42</strong>
-                <div class="workout-metrics"><span><strong>3,12</strong><small>Distância (km)</small></span><span><strong>5'59"</strong><small>Ritmo (/km)</small></span><span><strong>148</strong><small>FC (bpm)</small></span></div>
-                <div class="workout-actions">
-                  <button class="round-action pause" data-toast="Atividade pausada"><span class="material-symbols-rounded">pause</span><small>Pausar</small></button>
-                  <button class="round-action stop" data-dialog-open="finish-workout"><span class="material-symbols-rounded">stop</span><small>Finalizar</small></button>
-                </div>
-              </div>
-            </section>
+						<section
+							class="app-screen workout-screen"
+							data-screen-id="active-workout"
+							aria-label="Atividade em andamento"
+						>
+							<header class="top-app-bar transparent inverse">
+								<button class="icon-button" data-dialog-open="cancel-workout">
+									<span class="material-symbols-rounded">close</span>
+								</button>
+								<span>Corrida em andamento</span>
+								<button
+									class="icon-button"
+									data-toast="GPS ativo e sinal forte"
+								>
+									<span class="material-symbols-rounded">gps_fixed</span>
+								</button>
+							</header>
+							<div
+								class="workout-map"
+								aria-label="Representação simplificada de mapa"
+							>
+								<span class="map-grid"></span>
+								<svg
+									viewBox="0 0 320 240"
+									role="img"
+									aria-label="Rota percorrida"
+								>
+									<path
+										d="M38 184 C82 164, 74 92, 125 104 S176 185, 217 142 S247 55, 289 64"
+										fill="none"
+										stroke="currentColor"
+										stroke-width="7"
+										stroke-linecap="round"
+									/>
+									<circle
+										cx="38"
+										cy="184"
+										r="8"
+										fill="#fff"
+										stroke="currentColor"
+										stroke-width="4"
+									/>
+									<circle
+										cx="289"
+										cy="64"
+										r="10"
+										fill="currentColor"
+										stroke="#fff"
+										stroke-width="4"
+									/>
+								</svg>
+								<span class="gps-chip"
+									><span class="status-dot"></span> GPS conectado</span
+								>
+							</div>
+							<div class="workout-data">
+								<span class="eyebrow">Tempo</span>
+								<strong class="timer" id="workout-timer">00:18:42</strong>
+								<div class="workout-metrics">
+									<span><strong>3,12</strong><small>Distância (km)</small></span
+									><span><strong>5'59"</strong><small>Ritmo (/km)</small></span
+									><span><strong>148</strong><small>FC (bpm)</small></span>
+								</div>
+								<div class="workout-actions">
+									<button
+										class="round-action pause"
+										data-toast="Atividade pausada"
+									>
+										<span class="material-symbols-rounded">pause</span
+										><small>Pausar</small>
+									</button>
+									<button
+										class="round-action stop"
+										data-dialog-open="finish-workout"
+									>
+										<span class="material-symbols-rounded">stop</span
+										><small>Finalizar</small>
+									</button>
+								</div>
+							</div>
+						</section>
 
-            <!-- PROGRESSO -->
-            <section class="app-screen" data-screen-id="progress" aria-label="Painel de progresso">
-              <header class="top-app-bar"><span class="leading-title">Progresso</span><button class="icon-button" data-toast="Compartilhar resumo"><span class="material-symbols-rounded">share</span></button></header>
-              <div class="screen-content bottom-padded">
-                <div class="period-tabs" role="tablist"><button class="active">Semana</button><button>Mês</button><button>Ano</button></div>
-                <article class="progress-summary"><span class="eyebrow">Seu ritmo está consistente</span><h2>4 de 5 metas</h2><p>Você superou a semana anterior em 12%.</p><div class="ring-row"><div class="small-ring aqua" style="--value:82"><strong>82%</strong><small>Passos</small></div><div class="small-ring blue" style="--value:74"><strong>74%</strong><small>Água</small></div><div class="small-ring coral" style="--value:91"><strong>91%</strong><small>Calorias</small></div></div></article>
-                <article class="chart-card"><div class="section-heading"><div><span class="eyebrow">Passos</span><h3>Média de 8.420</h3></div><span class="trend-up"><span class="material-symbols-rounded">trending_up</span> 8%</span></div><div class="bar-chart" aria-label="Gráfico semanal de passos"><span style="--h:42%"><i>Seg</i></span><span style="--h:66%"><i>Ter</i></span><span style="--h:53%"><i>Qua</i></span><span style="--h:80%"><i>Qui</i></span><span style="--h:68%"><i>Sex</i></span><span style="--h:92%"><i>Sáb</i></span><span class="today" style="--h:72%"><i>Dom</i></span></div></article>
-                <div class="section-heading"><h3>Outras métricas</h3></div>
-                <div class="list-card"><button class="list-item" data-toast="Evolução do peso"><span class="list-leading purple"><span class="material-symbols-rounded">monitor_weight</span></span><span><strong>Peso</strong><small>−0,6 kg neste mês</small></span><span class="material-symbols-rounded">chevron_right</span></button><button class="list-item" data-go="health"><span class="list-leading red"><span class="material-symbols-rounded">favorite</span></span><span><strong>Saúde</strong><small>Indicadores estáveis</small></span><span class="material-symbols-rounded">chevron_right</span></button></div>
-              </div>
-              <nav class="bottom-navigation" aria-label="Navegação principal"><button data-go="home"><span class="material-symbols-rounded">home</span><small>Início</small></button><button data-go="timeline"><span class="material-symbols-rounded">calendar_month</span><small>Diário</small></button><button class="nav-fab" data-sheet-open><span class="material-symbols-rounded">add</span><small>Registrar</small></button><button class="active" data-go="progress"><span class="material-symbols-rounded">monitoring</span><small>Progresso</small></button><button data-go="profile"><span class="material-symbols-rounded">person</span><small>Perfil</small></button></nav>
-            </section>
+						<!-- PROGRESSO -->
+						<section
+							class="app-screen"
+							data-screen-id="progress"
+							aria-label="Painel de progresso"
+						>
+							<header class="top-app-bar">
+								<span class="leading-title">Progresso</span
+								><button class="icon-button" data-toast="Compartilhar resumo">
+									<span class="material-symbols-rounded">share</span>
+								</button>
+							</header>
+							<div class="screen-content bottom-padded">
+								<div class="period-tabs" role="tablist">
+									<button class="active">Semana</button><button>Mês</button
+									><button>Ano</button>
+								</div>
+								<article class="progress-summary">
+									<span class="eyebrow">Seu ritmo está consistente</span>
+									<h2>4 de 5 metas</h2>
+									<p>Você superou a semana anterior em 12%.</p>
+									<div class="ring-row">
+										<div class="small-ring aqua" style="--value: 82">
+											<strong>82%</strong><small>Passos</small>
+										</div>
+										<div class="small-ring blue" style="--value: 74">
+											<strong>74%</strong><small>Água</small>
+										</div>
+										<div class="small-ring coral" style="--value: 91">
+											<strong>91%</strong><small>Calorias</small>
+										</div>
+									</div>
+								</article>
+								<article class="chart-card">
+									<div class="section-heading">
+										<div>
+											<span class="eyebrow">Passos</span>
+											<h3>Média de 8.420</h3>
+										</div>
+										<span class="trend-up"
+											><span class="material-symbols-rounded">trending_up</span>
+											8%</span
+										>
+									</div>
+									<div class="bar-chart" aria-label="Gráfico semanal de passos">
+										<span style="--h: 42%"><i>Seg</i></span
+										><span style="--h: 66%"><i>Ter</i></span
+										><span style="--h: 53%"><i>Qua</i></span
+										><span style="--h: 80%"><i>Qui</i></span
+										><span style="--h: 68%"><i>Sex</i></span
+										><span style="--h: 92%"><i>Sáb</i></span
+										><span class="today" style="--h: 72%"><i>Dom</i></span>
+									</div>
+								</article>
+								<div class="section-heading"><h3>Outras métricas</h3></div>
+								<div class="list-card">
+									<button class="list-item" data-toast="Evolução do peso">
+										<span class="list-leading purple"
+											><span class="material-symbols-rounded"
+												>monitor_weight</span
+											></span
+										><span
+											><strong>Peso</strong
+											><small>−0,6 kg neste mês</small></span
+										><span class="material-symbols-rounded"
+											>chevron_right</span
+										></button
+									><button class="list-item" data-go="health">
+										<span class="list-leading red"
+											><span class="material-symbols-rounded"
+												>favorite</span
+											></span
+										><span
+											><strong>Saúde</strong
+											><small>Indicadores estáveis</small></span
+										><span class="material-symbols-rounded">chevron_right</span>
+									</button>
+								</div>
+							</div>
+							<nav class="bottom-navigation" aria-label="Navegação principal">
+								<button data-go="home">
+									<span class="material-symbols-rounded">home</span
+									><small>Início</small></button
+								><button data-go="timeline">
+									<span class="material-symbols-rounded">calendar_month</span
+									><small>Diário</small></button
+								><button class="nav-fab" data-sheet-open>
+									<span class="material-symbols-rounded">add</span
+									><small>Registrar</small></button
+								><button class="active" data-go="progress">
+									<span class="material-symbols-rounded">monitoring</span
+									><small>Progresso</small></button
+								><button data-go="profile">
+									<span class="material-symbols-rounded">person</span
+									><small>Perfil</small>
+								</button>
+							</nav>
+						</section>
 
-            <!-- SAÚDE -->
-            <section class="app-screen" data-screen-id="health" aria-label="Central de saúde">
-              <header class="top-app-bar"><button class="icon-button" data-go="home"><span class="material-symbols-rounded">arrow_back</span></button><span>Saúde e bem-estar</span><button class="icon-button" data-toast="Adicionar indicador"><span class="material-symbols-rounded">add</span></button></header>
-              <div class="screen-content">
-                <article class="health-overview"><div><span class="eyebrow">Hoje</span><h2>Como você está?</h2><p>Seus indicadores recentes estão dentro das faixas usuais.</p></div><span class="material-symbols-rounded">ecg_heart</span></article>
-                <div class="section-heading"><h3>Indicadores</h3></div>
-                <div class="health-grid">
-                  <button data-toast="Registrar frequência cardíaca"><span class="health-icon red"><span class="material-symbols-rounded">favorite</span></span><small>Frequência</small><strong>72 bpm</strong><em>Em repouso</em></button>
-                  <button data-toast="Registrar pressão arterial"><span class="health-icon blue"><span class="material-symbols-rounded">blood_pressure</span></span><small>Pressão</small><strong>120/80</strong><em>mmHg</em></button>
-                  <button data-toast="Registrar oxigenação"><span class="health-icon aqua"><span class="material-symbols-rounded">spo2</span></span><small>Oxigenação</small><strong>98%</strong><em>Normal</em></button>
-                  <button data-toast="Avaliar sono"><span class="health-icon purple"><span class="material-symbols-rounded">bedtime</span></span><small>Sono</small><strong>7h 42</strong><em>Qualidade boa</em></button>
-                </div>
-                <div class="section-heading"><h3>Bem-estar</h3></div>
-                <div class="list-card"><button class="list-item" data-toast="Humor registrado: bem"><span class="list-leading yellow"><span class="material-symbols-rounded">mood</span></span><span><strong>Humor e sintomas</strong><small>Hoje: bem · sem sintomas</small></span><span class="material-symbols-rounded">chevron_right</span></button><button class="list-item" data-toast="Iniciar respiração guiada"><span class="list-leading green"><span class="material-symbols-rounded">air</span></span><span><strong>Respiração guiada</strong><small>Exercício de 4 minutos</small></span><span class="material-symbols-rounded">chevron_right</span></button><button class="list-item" data-toast="Abrir medicamentos"><span class="list-leading blue"><span class="material-symbols-rounded">medication</span></span><span><strong>Medicamentos</strong><small>Próximo lembrete às 20:00</small></span><span class="material-symbols-rounded">chevron_right</span></button></div>
-              </div>
-            </section>
+						<!-- SAÚDE -->
+						<section
+							class="app-screen"
+							data-screen-id="health"
+							aria-label="Central de saúde"
+						>
+							<header class="top-app-bar">
+								<button class="icon-button" data-go="home">
+									<span class="material-symbols-rounded"
+										>arrow_back</span
+									></button
+								><span>Saúde e bem-estar</span
+								><button class="icon-button" data-toast="Adicionar indicador">
+									<span class="material-symbols-rounded">add</span>
+								</button>
+							</header>
+							<div class="screen-content">
+								<article class="health-overview">
+									<div>
+										<span class="eyebrow">Hoje</span>
+										<h2>Como você está?</h2>
+										<p>
+											Seus indicadores recentes estão dentro das faixas usuais.
+										</p>
+									</div>
+									<span class="material-symbols-rounded">ecg_heart</span>
+								</article>
+								<div class="section-heading"><h3>Indicadores</h3></div>
+								<div class="health-grid">
+									<button data-toast="Registrar frequência cardíaca">
+										<span class="health-icon red"
+											><span class="material-symbols-rounded"
+												>favorite</span
+											></span
+										><small>Frequência</small><strong>72 bpm</strong
+										><em>Em repouso</em>
+									</button>
+									<button data-toast="Registrar pressão arterial">
+										<span class="health-icon blue"
+											><span class="material-symbols-rounded"
+												>blood_pressure</span
+											></span
+										><small>Pressão</small><strong>120/80</strong><em>mmHg</em>
+									</button>
+									<button data-toast="Registrar oxigenação">
+										<span class="health-icon aqua"
+											><span class="material-symbols-rounded">spo2</span></span
+										><small>Oxigenação</small><strong>98%</strong
+										><em>Normal</em>
+									</button>
+									<button data-toast="Avaliar sono">
+										<span class="health-icon purple"
+											><span class="material-symbols-rounded"
+												>bedtime</span
+											></span
+										><small>Sono</small><strong>7h 42</strong
+										><em>Qualidade boa</em>
+									</button>
+								</div>
+								<div class="section-heading"><h3>Bem-estar</h3></div>
+								<div class="list-card">
+									<button class="list-item" data-toast="Humor registrado: bem">
+										<span class="list-leading yellow"
+											><span class="material-symbols-rounded">mood</span></span
+										><span
+											><strong>Humor e sintomas</strong
+											><small>Hoje: bem · sem sintomas</small></span
+										><span class="material-symbols-rounded"
+											>chevron_right</span
+										></button
+									><button
+										class="list-item"
+										data-toast="Iniciar respiração guiada"
+									>
+										<span class="list-leading green"
+											><span class="material-symbols-rounded">air</span></span
+										><span
+											><strong>Respiração guiada</strong
+											><small>Exercício de 4 minutos</small></span
+										><span class="material-symbols-rounded"
+											>chevron_right</span
+										></button
+									><button class="list-item" data-toast="Abrir medicamentos">
+										<span class="list-leading blue"
+											><span class="material-symbols-rounded"
+												>medication</span
+											></span
+										><span
+											><strong>Medicamentos</strong
+											><small>Próximo lembrete às 20:00</small></span
+										><span class="material-symbols-rounded">chevron_right</span>
+									</button>
+								</div>
+							</div>
+						</section>
 
-            <!-- TIMELINE -->
-            <section class="app-screen" data-screen-id="timeline" aria-label="Linha do tempo">
-              <header class="top-app-bar"><span class="leading-title">Diário</span><button class="icon-button" data-toast="Escolher data"><span class="material-symbols-rounded">calendar_month</span></button></header>
-              <div class="screen-content bottom-padded">
-                <div class="filter-chips"><button class="active">Tudo</button><button>Alimentação</button><button>Atividade</button><button>Saúde</button></div>
-                <div class="timeline-date"><span>Hoje, 13 de setembro</span><i></i></div>
-                <div class="timeline-list">
-                  <article><time>14:35</time><span class="timeline-dot water"></span><div><span class="eyebrow">Hidratação</span><strong>500 mL de água</strong><small>Total do dia: 1,5 L</small></div><button class="icon-button"><span class="material-symbols-rounded">more_vert</span></button></article>
-                  <article><time>12:35</time><span class="timeline-dot food"></span><div><span class="eyebrow">Alimentação</span><strong>Almoço</strong><small>620 kcal · 4 itens</small></div><button class="icon-button"><span class="material-symbols-rounded">more_vert</span></button></article>
-                  <article><time>07:20</time><span class="timeline-dot activity"></span><div><span class="eyebrow">Atividade</span><strong>Corrida ao ar livre</strong><small>5,2 km · 31 min</small></div><button class="icon-button"><span class="material-symbols-rounded">more_vert</span></button></article>
-                  <article><time>07:00</time><span class="timeline-dot health"></span><div><span class="eyebrow">Saúde</span><strong>Peso registrado</strong><small>68,4 kg</small></div><button class="icon-button"><span class="material-symbols-rounded">more_vert</span></button></article>
-                </div>
-              </div>
-              <nav class="bottom-navigation" aria-label="Navegação principal"><button data-go="home"><span class="material-symbols-rounded">home</span><small>Início</small></button><button class="active" data-go="timeline"><span class="material-symbols-rounded">calendar_month</span><small>Diário</small></button><button class="nav-fab" data-sheet-open><span class="material-symbols-rounded">add</span><small>Registrar</small></button><button data-go="progress"><span class="material-symbols-rounded">monitoring</span><small>Progresso</small></button><button data-go="profile"><span class="material-symbols-rounded">person</span><small>Perfil</small></button></nav>
-            </section>
+						<!-- TIMELINE -->
+						<section
+							class="app-screen"
+							data-screen-id="timeline"
+							aria-label="Linha do tempo"
+						>
+							<header class="top-app-bar">
+								<span class="leading-title">Diário</span
+								><button class="icon-button" data-toast="Escolher data">
+									<span class="material-symbols-rounded">calendar_month</span>
+								</button>
+							</header>
+							<div class="screen-content bottom-padded">
+								<div class="filter-chips">
+									<button class="active">Tudo</button
+									><button>Alimentação</button><button>Atividade</button
+									><button>Saúde</button>
+								</div>
+								<div class="timeline-date">
+									<span>Hoje, 13 de setembro</span><i></i>
+								</div>
+								<div class="timeline-list">
+									<article>
+										<time>14:35</time><span class="timeline-dot water"></span>
+										<div>
+											<span class="eyebrow">Hidratação</span
+											><strong>500 mL de água</strong
+											><small>Total do dia: 1,5 L</small>
+										</div>
+										<button class="icon-button">
+											<span class="material-symbols-rounded">more_vert</span>
+										</button>
+									</article>
+									<article>
+										<time>12:35</time><span class="timeline-dot food"></span>
+										<div>
+											<span class="eyebrow">Alimentação</span
+											><strong>Almoço</strong><small>620 kcal · 4 itens</small>
+										</div>
+										<button class="icon-button">
+											<span class="material-symbols-rounded">more_vert</span>
+										</button>
+									</article>
+									<article>
+										<time>07:20</time
+										><span class="timeline-dot activity"></span>
+										<div>
+											<span class="eyebrow">Atividade</span
+											><strong>Corrida ao ar livre</strong
+											><small>5,2 km · 31 min</small>
+										</div>
+										<button class="icon-button">
+											<span class="material-symbols-rounded">more_vert</span>
+										</button>
+									</article>
+									<article>
+										<time>07:00</time><span class="timeline-dot health"></span>
+										<div>
+											<span class="eyebrow">Saúde</span
+											><strong>Peso registrado</strong><small>68,4 kg</small>
+										</div>
+										<button class="icon-button">
+											<span class="material-symbols-rounded">more_vert</span>
+										</button>
+									</article>
+								</div>
+							</div>
+							<nav class="bottom-navigation" aria-label="Navegação principal">
+								<button data-go="home">
+									<span class="material-symbols-rounded">home</span
+									><small>Início</small></button
+								><button class="active" data-go="timeline">
+									<span class="material-symbols-rounded">calendar_month</span
+									><small>Diário</small></button
+								><button class="nav-fab" data-sheet-open>
+									<span class="material-symbols-rounded">add</span
+									><small>Registrar</small></button
+								><button data-go="progress">
+									<span class="material-symbols-rounded">monitoring</span
+									><small>Progresso</small></button
+								><button data-go="profile">
+									<span class="material-symbols-rounded">person</span
+									><small>Perfil</small>
+								</button>
+							</nav>
+						</section>
 
-            <!-- PERFIL -->
-            <section class="app-screen" data-screen-id="profile" aria-label="Perfil e configurações">
-              <header class="top-app-bar"><span class="leading-title">Perfil</span><button class="icon-button" data-toast="Editar perfil"><span class="material-symbols-rounded">edit</span></button></header>
-              <div class="screen-content bottom-padded profile-content">
-                <div class="profile-hero"><div class="avatar xl">AS</div><div><h2>Ana Souza</h2><p>ana@email.com</p><button class="profile-chip" data-toast="Alternar perfil"><span class="material-symbols-rounded">group</span> Perfil pessoal <span class="material-symbols-rounded">expand_more</span></button></div></div>
-                <div class="profile-stats"><span><strong>28</strong><small>anos</small></span><span><strong>68,4</strong><small>kg</small></span><span><strong>1,68</strong><small>m</small></span></div>
-                <p class="nav-section-label settings-label">Preferências</p>
-                <div class="list-card settings-list">
-                  <div class="list-item"><span class="list-leading purple"><span class="material-symbols-rounded">dark_mode</span></span><span><strong>Modo escuro</strong><small>Usar tema do sistema</small></span><label class="switch"><input type="checkbox" class="theme-checkbox"/><i></i></label></div>
-                  <button class="list-item" data-toast="Unidade atual: métrico"><span class="list-leading blue"><span class="material-symbols-rounded">straighten</span></span><span><strong>Unidades de medida</strong><small>Métrico (kg, km, mL)</small></span><span class="material-symbols-rounded">chevron_right</span></button>
-                  <button class="list-item" data-toast="Escolha entre 6 cores de tema"><span class="list-leading green"><span class="material-symbols-rounded">palette</span></span><span><strong>Cor do aplicativo</strong><small>Verde vitalidade</small></span><span class="theme-color-dot"></span></button>
-                  <button class="list-item" data-toast="Configurar notificações"><span class="list-leading yellow"><span class="material-symbols-rounded">notifications</span></span><span><strong>Notificações</strong><small>Lembretes e pausa temporária</small></span><span class="material-symbols-rounded">chevron_right</span></button>
-                </div>
-                <p class="nav-section-label settings-label">Dados e suporte</p>
-                <div class="list-card settings-list"><button class="list-item" data-toast="Sincronização concluída"><span class="list-leading aqua"><span class="material-symbols-rounded">sync</span></span><span><strong>Sincronização</strong><small>Atualizado agora</small></span><span class="sync-state"><i></i> Online</span></button><button class="list-item" data-toast="Exportar ou importar dados"><span class="list-leading orange"><span class="material-symbols-rounded">download</span></span><span><strong>Exportar dados</strong><small>CSV, PDF ou backup JSON</small></span><span class="material-symbols-rounded">chevron_right</span></button><button class="list-item" data-toast="Abrir ajuda e tutorial"><span class="list-leading blue"><span class="material-symbols-rounded">help</span></span><span><strong>Ajuda e tutorial</strong><small>Dúvidas frequentes</small></span><span class="material-symbols-rounded">chevron_right</span></button></div>
-                <button class="text-button danger full" data-go="login"><span class="material-symbols-rounded">logout</span> Sair da conta</button>
-              </div>
-              <nav class="bottom-navigation" aria-label="Navegação principal"><button data-go="home"><span class="material-symbols-rounded">home</span><small>Início</small></button><button data-go="timeline"><span class="material-symbols-rounded">calendar_month</span><small>Diário</small></button><button class="nav-fab" data-sheet-open><span class="material-symbols-rounded">add</span><small>Registrar</small></button><button data-go="progress"><span class="material-symbols-rounded">monitoring</span><small>Progresso</small></button><button class="active" data-go="profile"><span class="material-symbols-rounded">person</span><small>Perfil</small></button></nav>
-            </section>
-          </div>
+						<!-- PERFIL -->
+						<section
+							class="app-screen"
+							data-screen-id="profile"
+							aria-label="Perfil e configurações"
+						>
+							<header class="top-app-bar">
+								<span class="leading-title">Perfil</span
+								><button class="icon-button" data-toast="Editar perfil">
+									<span class="material-symbols-rounded">edit</span>
+								</button>
+							</header>
+							<div class="screen-content bottom-padded profile-content">
+								<div class="profile-hero">
+									<div class="avatar xl">AS</div>
+									<div>
+										<h2>Ana Souza</h2>
+										<p>ana@email.com</p>
+										<button class="profile-chip" data-toast="Alternar perfil">
+											<span class="material-symbols-rounded">group</span> Perfil
+											pessoal
+											<span class="material-symbols-rounded">expand_more</span>
+										</button>
+									</div>
+								</div>
+								<div class="profile-stats">
+									<span><strong>28</strong><small>anos</small></span
+									><span><strong>68,4</strong><small>kg</small></span
+									><span><strong>1,68</strong><small>m</small></span>
+								</div>
+								<p class="nav-section-label settings-label">Preferências</p>
+								<div class="list-card settings-list">
+									<div class="list-item">
+										<span class="list-leading purple"
+											><span class="material-symbols-rounded"
+												>dark_mode</span
+											></span
+										><span
+											><strong>Modo escuro</strong
+											><small>Usar tema do sistema</small></span
+										><label class="switch"
+											><input type="checkbox" class="theme-checkbox" /><i></i
+										></label>
+									</div>
+									<button class="list-item" data-toast="Unidade atual: métrico">
+										<span class="list-leading blue"
+											><span class="material-symbols-rounded"
+												>straighten</span
+											></span
+										><span
+											><strong>Unidades de medida</strong
+											><small>Métrico (kg, km, mL)</small></span
+										><span class="material-symbols-rounded">chevron_right</span>
+									</button>
+									<button
+										class="list-item"
+										data-toast="Escolha entre 6 cores de tema"
+									>
+										<span class="list-leading green"
+											><span class="material-symbols-rounded"
+												>palette</span
+											></span
+										><span
+											><strong>Cor do aplicativo</strong
+											><small>Verde vitalidade</small></span
+										><span class="theme-color-dot"></span>
+									</button>
+									<button
+										class="list-item"
+										data-toast="Configurar notificações"
+									>
+										<span class="list-leading yellow"
+											><span class="material-symbols-rounded"
+												>notifications</span
+											></span
+										><span
+											><strong>Notificações</strong
+											><small>Lembretes e pausa temporária</small></span
+										><span class="material-symbols-rounded">chevron_right</span>
+									</button>
+								</div>
+								<p class="nav-section-label settings-label">Dados e suporte</p>
+								<div class="list-card settings-list">
+									<button
+										class="list-item"
+										data-toast="Sincronização concluída"
+									>
+										<span class="list-leading aqua"
+											><span class="material-symbols-rounded">sync</span></span
+										><span
+											><strong>Sincronização</strong
+											><small>Atualizado agora</small></span
+										><span class="sync-state"><i></i> Online</span></button
+									><button
+										class="list-item"
+										data-toast="Exportar ou importar dados"
+									>
+										<span class="list-leading orange"
+											><span class="material-symbols-rounded"
+												>download</span
+											></span
+										><span
+											><strong>Exportar dados</strong
+											><small>CSV, PDF ou backup JSON</small></span
+										><span class="material-symbols-rounded"
+											>chevron_right</span
+										></button
+									><button
+										class="list-item"
+										data-toast="Abrir ajuda e tutorial"
+									>
+										<span class="list-leading blue"
+											><span class="material-symbols-rounded">help</span></span
+										><span
+											><strong>Ajuda e tutorial</strong
+											><small>Dúvidas frequentes</small></span
+										><span class="material-symbols-rounded">chevron_right</span>
+									</button>
+								</div>
+								<button class="text-button danger full" data-go="login">
+									<span class="material-symbols-rounded">logout</span> Sair da
+									conta
+								</button>
+							</div>
+							<nav class="bottom-navigation" aria-label="Navegação principal">
+								<button data-go="home">
+									<span class="material-symbols-rounded">home</span
+									><small>Início</small></button
+								><button data-go="timeline">
+									<span class="material-symbols-rounded">calendar_month</span
+									><small>Diário</small></button
+								><button class="nav-fab" data-sheet-open>
+									<span class="material-symbols-rounded">add</span
+									><small>Registrar</small></button
+								><button data-go="progress">
+									<span class="material-symbols-rounded">monitoring</span
+									><small>Progresso</small></button
+								><button class="active" data-go="profile">
+									<span class="material-symbols-rounded">person</span
+									><small>Perfil</small>
+								</button>
+							</nav>
+						</section>
+					</div>
 
-          <div class="android-gesture-bar" aria-hidden="true"><span></span></div>
+					<div class="android-gesture-bar" aria-hidden="true">
+						<span></span>
+					</div>
 
-          <!-- Componentes sobrepostos Material -->
-          <div class="scrim" hidden></div>
-          <section class="bottom-sheet" aria-label="Registro rápido" hidden>
-            <div class="drag-handle"></div>
-            <div class="sheet-heading"><div><span class="eyebrow">Ação rápida</span><h3>O que deseja registrar?</h3></div><button class="icon-button" data-overlay-close><span class="material-symbols-rounded">close</span></button></div>
-            <div class="sheet-actions"><button data-go="water"><span class="quick-icon water"><span class="material-symbols-rounded">water_drop</span></span><strong>Água</strong></button><button data-go="meal-form"><span class="quick-icon food"><span class="material-symbols-rounded">restaurant</span></span><strong>Refeição</strong></button><button data-go="activities"><span class="quick-icon activity"><span class="material-symbols-rounded">directions_run</span></span><strong>Atividade</strong></button><button data-go="health"><span class="quick-icon health"><span class="material-symbols-rounded">ecg_heart</span></span><strong>Saúde</strong></button></div>
-          </section>
+					<!-- Componentes sobrepostos Material -->
+					<div class="scrim" hidden></div>
+					<section class="bottom-sheet" aria-label="Registro rápido" hidden>
+						<div class="drag-handle"></div>
+						<div class="sheet-heading">
+							<div>
+								<span class="eyebrow">Ação rápida</span>
+								<h3>O que deseja registrar?</h3>
+							</div>
+							<button class="icon-button" data-overlay-close>
+								<span class="material-symbols-rounded">close</span>
+							</button>
+						</div>
+						<div class="sheet-actions">
+							<button data-go="water">
+								<span class="quick-icon water"
+									><span class="material-symbols-rounded"
+										>water_drop</span
+									></span
+								><strong>Água</strong></button
+							><button data-go="meal-form">
+								<span class="quick-icon food"
+									><span class="material-symbols-rounded"
+										>restaurant</span
+									></span
+								><strong>Refeição</strong></button
+							><button data-go="activities">
+								<span class="quick-icon activity"
+									><span class="material-symbols-rounded"
+										>directions_run</span
+									></span
+								><strong>Atividade</strong></button
+							><button data-go="health">
+								<span class="quick-icon health"
+									><span class="material-symbols-rounded">ecg_heart</span></span
+								><strong>Saúde</strong>
+							</button>
+						</div>
+					</section>
 
-          <dialog id="custom-water" class="material-dialog">
-            <form method="dialog" id="custom-water-form">
-              <span class="dialog-icon material-symbols-rounded">water_drop</span><h3>Adicionar água</h3><p>Informe a quantidade consumida em mililitros.</p>
-              <label class="text-field"><span>Quantidade (mL)</span><div><input type="number" id="custom-water-input" min="1" value="350" required /></div></label>
-              <div class="dialog-actions"><button value="cancel" class="text-button">Cancelar</button><button value="default" class="filled-button" id="confirm-water">Adicionar</button></div>
-            </form>
-          </dialog>
+					<dialog id="custom-water" class="material-dialog">
+						<form method="dialog" id="custom-water-form">
+							<span class="dialog-icon material-symbols-rounded"
+								>water_drop</span
+							>
+							<h3>Adicionar água</h3>
+							<p>Informe a quantidade consumida em mililitros.</p>
+							<label class="text-field"
+								><span>Quantidade (mL)</span>
+								<div>
+									<input
+										type="number"
+										id="custom-water-input"
+										min="1"
+										value="350"
+										required
+									/></div
+							></label>
+							<div class="dialog-actions">
+								<button value="cancel" class="text-button">Cancelar</button
+								><button
+									value="default"
+									class="filled-button"
+									id="confirm-water"
+								>
+									Adicionar
+								</button>
+							</div>
+						</form>
+					</dialog>
 
-          <dialog id="finish-workout" class="material-dialog">
-            <form method="dialog"><span class="dialog-icon material-symbols-rounded">flag</span><h3>Finalizar corrida?</h3><p>O percurso e as métricas desta atividade serão salvos no histórico.</p><div class="dialog-actions"><button value="cancel" class="text-button">Continuar</button><button value="default" class="filled-button" data-finish-workout>Finalizar</button></div></form>
-          </dialog>
+					<dialog id="finish-workout" class="material-dialog">
+						<form method="dialog">
+							<span class="dialog-icon material-symbols-rounded">flag</span>
+							<h3>Finalizar corrida?</h3>
+							<p>
+								O percurso e as métricas desta atividade serão salvos no
+								histórico.
+							</p>
+							<div class="dialog-actions">
+								<button value="cancel" class="text-button">Continuar</button
+								><button
+									value="default"
+									class="filled-button"
+									data-finish-workout
+								>
+									Finalizar
+								</button>
+							</div>
+						</form>
+					</dialog>
 
-          <dialog id="cancel-workout" class="material-dialog">
-            <form method="dialog"><span class="dialog-icon danger material-symbols-rounded">delete</span><h3>Descartar atividade?</h3><p>Os dados desta corrida não serão salvos.</p><div class="dialog-actions"><button value="cancel" class="text-button">Voltar</button><button value="default" class="text-button danger" data-cancel-workout>Descartar</button></div></form>
-          </dialog>
+					<dialog id="cancel-workout" class="material-dialog">
+						<form method="dialog">
+							<span class="dialog-icon danger material-symbols-rounded"
+								>delete</span
+							>
+							<h3>Descartar atividade?</h3>
+							<p>Os dados desta corrida não serão salvos.</p>
+							<div class="dialog-actions">
+								<button value="cancel" class="text-button">Voltar</button
+								><button
+									value="default"
+									class="text-button danger"
+									data-cancel-workout
+								>
+									Descartar
+								</button>
+							</div>
+						</form>
+					</dialog>
 
-          <div class="snackbar" role="status" aria-live="polite" hidden><span id="snackbar-text">Ação concluída</span><button>Fechar</button></div>
-        </div>
-      </main>
-    </div>
-    <script src="app.js"></script>
-  </body>
+					<div class="snackbar" role="status" aria-live="polite" hidden>
+						<span id="snackbar-text">Ação concluída</span
+						><button>Fechar</button>
+					</div>
+				</div>
+			</main>
+		</div>
+		<script src="app.js"></script>
+	</body>
 </html>

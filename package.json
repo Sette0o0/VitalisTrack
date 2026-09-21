@@ -1,0 +1,20 @@
+{
+	"name": "vitalis-track-workspace",
+	"private": true,
+	"packageManager": "pnpm@11.19.0",
+	"engines": {
+		"node": ">=24"
+	},
+	"scripts": {
+		"dev": "pnpm --parallel --filter @vitalis/server --filter vitalis-track dev",
+		"dev:server": "pnpm --filter @vitalis/server dev",
+		"dev:app": "pnpm --filter vitalis-track start",
+		"build": "pnpm --filter @vitalis/contracts build && pnpm --filter @vitalis/server build",
+		"typecheck": "pnpm -r typecheck",
+		"test": "pnpm -r test",
+		"lint": "pnpm -r lint",
+		"db:generate": "pnpm --filter @vitalis/server db:generate",
+		"db:migrate": "pnpm --filter @vitalis/server db:migrate",
+		"db:seed": "pnpm --filter @vitalis/server db:seed"
+	}
+}

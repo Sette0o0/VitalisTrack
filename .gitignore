@@ -1,0 +1,11 @@
+node_modules/
+dist/
+coverage/
+.env
+.expo/
+server/generated/
+server/storage/*
+!server/storage/.gitkeep
+app/.env.local
+*.log
+.pnpm/

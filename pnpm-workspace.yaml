@@ -1,0 +1,11 @@
+packages:
+  - app
+  - server
+  - packages/*
+
+allowBuilds:
+  "@prisma/engines": true
+  prisma: true
+  argon2: true
+  esbuild: true
+  unrs-resolver: true

@@ -1,0 +1,166 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           String              @id @default(uuid()) @db.Uuid
+  email        String              @unique
+  passwordHash String
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+  profile      Profile?
+  goals        Goals?
+  sessions     RefreshSession[]
+  water        WaterEntry[]
+  meals        Meal[]
+  activities   Activity[]
+  weights      WeightEntry[]
+  dailySteps   DailySteps[]
+  mutations    ProcessedMutation[]
+}
+
+model Profile {
+  userId     String   @id @db.Uuid
+  name       String
+  birthDate  DateTime? @db.Date
+  weightKg   Float?
+  heightCm   Int?
+  gender     String?
+  avatarPath String?
+  updatedAt  DateTime @updatedAt
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Goals {
+  userId       String   @id @db.Uuid
+  waterMl      Int      @default(2500)
+  calories     Int      @default(2000)
+  mealCalories Int      @default(700)
+  steps        Int      @default(10000)
+  weightKg     Float    @default(70)
+  dailyDeficit Int      @default(400)
+  updatedAt    DateTime @updatedAt
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model RefreshSession {
+  id           String    @id @default(uuid()) @db.Uuid
+  userId       String    @db.Uuid
+  tokenHash    String    @unique
+  expiresAt    DateTime
+  revokedAt    DateTime?
+  replacedById String?   @db.Uuid
+  createdAt    DateTime  @default(now())
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, expiresAt])
+}
+
+model WaterEntry {
+  id        String    @id @db.Uuid
+  userId    String    @db.Uuid
+  amountMl  Int
+  date      DateTime  @db.Date
+  time      String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, date])
+  @@index([userId, updatedAt])
+}
+
+model Meal {
+  id        String    @id @db.Uuid
+  userId    String    @db.Uuid
+  name      String
+  date      DateTime  @db.Date
+  time      String
+  quantity  Float
+  unit      String
+  calories  Int
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, date])
+  @@index([userId, updatedAt])
+}
+
+model Activity {
+  id              String               @id @db.Uuid
+  userId          String               @db.Uuid
+  type            String
+  date            DateTime             @db.Date
+  durationSeconds Int
+  distanceMeters  Float
+  calories        Int
+  paceSecondsPerKm Float?
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+  deletedAt       DateTime?
+  user            User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  route            ActivityRoutePoint[]
+
+  @@index([userId, date])
+  @@index([userId, updatedAt])
+}
+
+model ActivityRoutePoint {
+  id         BigInt   @id @default(autoincrement())
+  activityId String   @db.Uuid
+  sequence   Int
+  latitude   Float
+  longitude  Float
+  altitude   Float?
+  accuracy   Float?
+  timestamp  DateTime
+  activity   Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+
+  @@unique([activityId, sequence])
+}
+
+model WeightEntry {
+  id        String    @id @db.Uuid
+  userId    String    @db.Uuid
+  date      DateTime  @db.Date
+  weightKg  Float
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, date])
+  @@index([userId, updatedAt])
+}
+
+model DailySteps {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  date      DateTime @db.Date
+  steps     Int
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@index([userId, updatedAt])
+}
+
+model ProcessedMutation {
+  id         String   @id @default(uuid()) @db.Uuid
+  userId     String   @db.Uuid
+  mutationId String   @db.Uuid
+  result     Json
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, mutationId])
+  @@index([userId, createdAt])
+}
