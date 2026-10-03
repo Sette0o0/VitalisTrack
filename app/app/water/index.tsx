@@ -1,13 +1,7 @@
 import { router } from "expo-router";
 import { useState } from "react";
 import { View } from "react-native";
-import {
-	Dialog,
-	HelperText,
-	IconButton,
-	Portal,
-	Text,
-} from "react-native-paper";
+import { HelperText, IconButton, Text } from "react-native-paper";
 import { goalsUpdateSchema, waterInputSchema } from "@vitalis/contracts";
 import {
 	Button,
@@ -18,6 +12,7 @@ import {
 	Subtitle,
 } from "@/components/vitalis/ui";
 import { HydrationSummary } from "@/components/vitalis/hydration";
+import { FormDialog } from "@/components/vitalis/form-dialog";
 import { useConfirm } from "@/components/vitalis/confirmation";
 import { useSubmit } from "@/hooks/use-submit";
 import { isoDate, newId } from "@/lib/health";
@@ -136,39 +131,36 @@ export default function WaterScreen() {
 						/>
 					</Card>
 				))}
-			<Portal>
-				<Dialog
-					visible={Boolean(modal)}
-					dismissable={!saving}
-					onDismiss={() => setModal(null)}
-				>
-					<Dialog.Title>
-						{modal === "goal"
-							? "Meta diária de água"
-							: editing
-								? "Editar consumo"
-								: "Registrar água"}
-					</Dialog.Title>
-					<Dialog.Content>
-						<Field
-							label="Quantidade em mL"
-							value={value}
-							onChangeText={setValue}
-							keyboardType="numeric"
-							error={error}
-						/>
-					</Dialog.Content>
-					<Dialog.Actions>
-						<Button
-							title="Cancelar"
-							variant="text"
-							disabled={saving}
-							onPress={() => setModal(null)}
-						/>
-						<Button title="Salvar" loading={saving} onPress={save} />
-					</Dialog.Actions>
-				</Dialog>
-			</Portal>
+			<FormDialog
+				visible={Boolean(modal)}
+				dismissable={!saving}
+				onDismiss={() => setModal(null)}
+				title={
+					modal === "goal"
+						? "Meta diária de água"
+						: editing
+							? "Editar consumo"
+							: "Registrar água"
+				}
+				actions={[
+					<Button
+						key="cancel"
+						title="Cancelar"
+						variant="text"
+						disabled={saving}
+						onPress={() => setModal(null)}
+					/>,
+					<Button key="save" title="Salvar" loading={saving} onPress={save} />,
+				]}
+			>
+				<Field
+					label="Quantidade em mL"
+					value={value}
+					onChangeText={setValue}
+					keyboardType="numeric"
+					error={error}
+				/>
+			</FormDialog>
 		</Screen>
 	);
 }

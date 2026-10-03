@@ -1,6 +1,6 @@
 import { router } from "expo-router";
 import { View } from "react-native";
-import { Text, TouchableRipple } from "react-native-paper";
+import { Text } from "react-native-paper";
 import { HydrationSummary } from "@/components/vitalis/hydration";
 import { ProfileAvatar } from "@/components/vitalis/avatar";
 import {
@@ -63,14 +63,13 @@ export default function HomeScreen() {
 					/>
 				</View>
 			</Card>
-			<TouchableRipple
-				accessibilityRole="button"
-				accessibilityLabel="Abrir hidratação"
-				onPress={() => router.push("/water")}
+			<HydrationSummary onPress={() => router.push("/water")} />
+			<Card
+				style={{ backgroundColor: theme.foodContainer }}
+				accessibilityLabel="Abrir alimentação"
+				testID="calories-summary-card"
+				onPress={() => router.push("/(tabs)/meals")}
 			>
-				<HydrationSummary />
-			</TouchableRipple>
-			<Card style={{ backgroundColor: theme.foodContainer }}>
 				<Text variant="titleMedium" style={{ color: theme.onFoodContainer }}>
 					Calorias
 				</Text>
@@ -81,11 +80,9 @@ export default function HomeScreen() {
 					{Math.abs(remaining)} {remaining < 0 ? "acima da meta" : "restantes"}
 				</Text>
 				<ProgressBar value={summary.calorieProgress} color={theme.food} />
-				<Button
-					title="Abrir alimentação"
-					variant="text"
-					onPress={() => router.push("/(tabs)/meals")}
-				/>
+				<Text variant="labelLarge" style={{ color: theme.onFoodContainer }}>
+					Abrir alimentação
+				</Text>
 			</Card>
 			<Button
 				title="Registrar atividade física"

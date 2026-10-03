@@ -13,6 +13,7 @@ import {
 	Appbar,
 	Button as PaperButton,
 	Surface,
+	TouchableRipple,
 	HelperText,
 	Text,
 	TextInput,
@@ -51,7 +52,7 @@ export function Screen({
 				paddingLeft: insets.left,
 				paddingRight: insets.right,
 			}}
-			behavior={Platform.OS === "ios" ? "padding" : undefined}
+			behavior={Platform.OS === "ios" ? "padding" : "height"}
 		>
 			{scroll ? (
 				<ScrollView
@@ -95,16 +96,41 @@ export const Eyebrow = ({ children }: PropsWithChildren) => {
 export function Card({
 	children,
 	style,
-}: PropsWithChildren<{ style?: ViewStyle }>) {
+	onPress,
+	accessibilityLabel,
+	testID,
+}: PropsWithChildren<{
+	style?: ViewStyle;
+	onPress?: () => void;
+	accessibilityLabel?: string;
+	testID?: string;
+}>) {
 	return (
 		<Surface
 			elevation={1}
+			testID={onPress ? undefined : testID}
 			style={[
-				{ padding: spacing.lg, gap: spacing.md, borderRadius: 24 },
+				{ borderRadius: 24 },
+				!onPress && { padding: spacing.lg, gap: spacing.md },
 				style,
 			]}
 		>
-			{children}
+			{onPress ? (
+				<TouchableRipple
+					onPress={onPress}
+					accessibilityRole="button"
+					accessibilityLabel={accessibilityLabel}
+					testID={testID}
+					borderless
+					style={{ borderRadius: 24 }}
+				>
+					<View style={{ padding: spacing.lg, gap: spacing.md }}>
+						{children}
+					</View>
+				</TouchableRipple>
+			) : (
+				children
+			)}
 		</Surface>
 	);
 }

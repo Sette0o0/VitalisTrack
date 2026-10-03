@@ -3,12 +3,23 @@ import { Text } from "react-native-paper";
 import { useDailySummary, useAppState } from "@/state/app-state";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { Card, ProgressBar, ProgressRing } from "./ui";
-export function HydrationSummary({ compact = false }: { compact?: boolean }) {
+export function HydrationSummary({
+	compact = false,
+	onPress,
+}: {
+	compact?: boolean;
+	onPress?: () => void;
+}) {
 	const summary = useDailySummary(),
 		{ state } = useAppState(),
 		t = useAppTheme();
 	return (
-		<Card style={{ backgroundColor: t.waterContainer }}>
+		<Card
+			style={{ backgroundColor: t.waterContainer }}
+			onPress={onPress}
+			accessibilityLabel="Abrir hidratação"
+			testID="hydration-summary-card"
+		>
 			<View
 				style={{
 					flexDirection: "row",

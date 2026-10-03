@@ -1,7 +1,7 @@
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { router } from "expo-router";
 import { useMemo, useState } from "react";
-import { KeyboardAvoidingView, Platform, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import {
 	Button,
 	Eyebrow,
@@ -32,59 +32,54 @@ export default function LoginScreen() {
 			router.replace("/(tabs)");
 		});
 	return (
-		<KeyboardAvoidingView
-			style={{ flex: 1 }}
-			behavior={Platform.OS === "ios" ? "padding" : undefined}
-		>
-			<Screen style={styles.screen}>
-				<View style={styles.brand}>
-					<View style={styles.logo}>
-						<MaterialCommunityIcons
-							name="water-plus"
-							size={36}
-							color={theme.onPrimary}
-						/>
-					</View>
-					<Text style={styles.brandName}>VitalisTrack</Text>
-				</View>
-				<View style={{ gap: 7 }}>
-					<Eyebrow>Bem-vindo de volta</Eyebrow>
-					<Title>Entre na sua conta</Title>
-					<Muted>Acompanhe sua saúde e seus hábitos em um só lugar.</Muted>
-				</View>
-				<View style={{ gap: spacing.md }}>
-					<Field
-						label="E-mail"
-						autoCapitalize="none"
-						keyboardType="email-address"
-						value={email}
-						onChangeText={setEmail}
-					/>
-					<Field
-						label="Senha"
-						secureTextEntry
-						value={password}
-						onChangeText={setPassword}
-					/>
-					{error ? (
-						<HelperText type="error" accessibilityLiveRegion="polite">
-							{error}
-						</HelperText>
-					) : null}
-					<Button title="Entrar" onPress={save} loading={saving} />
-				</View>
-				<View style={{ gap: 8 }}>
-					<Text variant="bodyMedium" style={styles.switch}>
-						Ainda não tem conta?
-					</Text>
-					<Button
-						title="Criar conta"
-						variant="text"
-						onPress={() => router.push("/(auth)/register")}
+		<Screen style={styles.screen}>
+			<View style={styles.brand}>
+				<View style={styles.logo}>
+					<MaterialCommunityIcons
+						name="water-plus"
+						size={36}
+						color={theme.onPrimary}
 					/>
 				</View>
-			</Screen>
-		</KeyboardAvoidingView>
+				<Text style={styles.brandName}>VitalisTrack</Text>
+			</View>
+			<View style={{ gap: 7 }}>
+				<Eyebrow>Bem-vindo de volta</Eyebrow>
+				<Title>Entre na sua conta</Title>
+				<Muted>Acompanhe sua saúde e seus hábitos em um só lugar.</Muted>
+			</View>
+			<View style={{ gap: spacing.md }}>
+				<Field
+					label="E-mail"
+					autoCapitalize="none"
+					keyboardType="email-address"
+					value={email}
+					onChangeText={setEmail}
+				/>
+				<Field
+					label="Senha"
+					secureTextEntry
+					value={password}
+					onChangeText={setPassword}
+				/>
+				{error ? (
+					<HelperText type="error" accessibilityLiveRegion="polite">
+						{error}
+					</HelperText>
+				) : null}
+				<Button title="Entrar" onPress={save} loading={saving} />
+			</View>
+			<View style={{ gap: 8 }}>
+				<Text variant="bodyMedium" style={styles.switch}>
+					Ainda não tem conta?
+				</Text>
+				<Button
+					title="Criar conta"
+					variant="text"
+					onPress={() => router.push("/(auth)/register")}
+				/>
+			</View>
+		</Screen>
 	);
 }
 const createStyles = (theme: ThemeTokens) =>

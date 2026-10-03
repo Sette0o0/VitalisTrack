@@ -1,9 +1,10 @@
 import { router } from "expo-router";
 import { useState } from "react";
 import { View } from "react-native";
-import { Dialog, FAB, HelperText, Portal, Text } from "react-native-paper";
+import { FAB, HelperText, Text } from "react-native-paper";
 import { goalsUpdateSchema } from "@vitalis/contracts";
 import { DateField } from "@/components/vitalis/date-field";
+import { FormDialog } from "@/components/vitalis/form-dialog";
 import { useConfirm } from "@/components/vitalis/confirmation";
 import {
 	Button,
@@ -130,39 +131,41 @@ export default function MealsScreen() {
 				label="Adicionar refeição"
 				onPress={() => router.push("/meals/form")}
 			/>
-			<Portal>
-				<Dialog
-					visible={editing}
-					dismissable={!saving}
-					onDismiss={() => setEditing(false)}
-				>
-					<Dialog.Title>Metas de alimentação</Dialog.Title>
-					<Dialog.Content>
-						<Field
-							label="Meta diária (kcal)"
-							value={goal}
-							onChangeText={setGoal}
-							keyboardType="numeric"
-						/>
-						<Field
-							label="Limite por refeição (kcal)"
-							value={limit}
-							onChangeText={setLimit}
-							keyboardType="numeric"
-						/>
-						{error && <HelperText type="error">{error}</HelperText>}
-					</Dialog.Content>
-					<Dialog.Actions>
-						<Button
-							title="Cancelar"
-							variant="text"
-							disabled={saving}
-							onPress={() => setEditing(false)}
-						/>
-						<Button title="Salvar metas" loading={saving} onPress={save} />
-					</Dialog.Actions>
-				</Dialog>
-			</Portal>
+			<FormDialog
+				visible={editing}
+				dismissable={!saving}
+				onDismiss={() => setEditing(false)}
+				title="Metas de alimentação"
+				actions={[
+					<Button
+						key="cancel"
+						title="Cancelar"
+						variant="text"
+						disabled={saving}
+						onPress={() => setEditing(false)}
+					/>,
+					<Button
+						key="save"
+						title="Salvar metas"
+						loading={saving}
+						onPress={save}
+					/>,
+				]}
+			>
+				<Field
+					label="Meta diária (kcal)"
+					value={goal}
+					onChangeText={setGoal}
+					keyboardType="numeric"
+				/>
+				<Field
+					label="Limite por refeição (kcal)"
+					value={limit}
+					onChangeText={setLimit}
+					keyboardType="numeric"
+				/>
+				{error && <HelperText type="error">{error}</HelperText>}
+			</FormDialog>
 		</Screen>
 	);
 }
