@@ -90,7 +90,7 @@ jobs:
           disable-animations: true
           script: |
             adb install app/android/app/build/outputs/apk/release/app-release.apk
-            maestro test -e QA_EMAIL=qa-${{ github.run_id }}-${{ github.run_attempt }}@example.com --format junit --output artifacts/maestro.xml .maestro/sprint-1-smoke.yaml
+            maestro test -e QA_EMAIL=qa-${{ github.run_id }}-${{ github.run_attempt }}@example.com --format junit --output artifacts/maestro.xml --test-output-dir artifacts/maestro --debug-output artifacts/maestro .maestro/sprint-1-smoke.yaml
       - uses: actions/upload-artifact@v4
         if: always()
         with:

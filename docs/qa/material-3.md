@@ -1,6 +1,6 @@
 # Checklist Material 3 e acessibilidade
 
-Os itens de implementação foram revisados em código. Os itens Android permanecem pendentes; não foram observadas telas reais do aplicativo nesta execução.
+Os itens de implementação foram revisados em código. A [captura Android do cadastro](evidence/maestro-37127933080/auth-confirm-keyboard.png) mostra a tela clara e a falha do smoke com teclado aberto. Os itens de aprovação Android permanecem pendentes; essa captura isolada não aprova geometria de toque, fonte ampliada, temas ou TalkBack.
 
 ## Implementação verificada
 
@@ -33,4 +33,4 @@ Os itens de implementação foram revisados em código. Os itens Android permane
 - [ ] Verificar fotos, mapa, marcadores/polilinhas e permisos nativos em APK próprio.
 - [ ] Conferir lista virtualizada com 1.000 atividades: ordenação, busca, rolagem e abertura de edição.
 
-Evidências previstas: `artifacts/android/capturas/API-TEMA-FONTE-TELA.png`, logs e preenchimento dos 89 critérios. Nenhuma captura do app foi obtida. Referências: [Paper MD3](https://oss.callstack.com/react-native-paper/docs/guides/theming) e [Android accessibility](https://developer.android.com/guide/topics/ui/accessibility/apps).
+Evidências adicionais previstas: `artifacts/android/capturas/API-TEMA-FONTE-TELA.png`, logs e preenchimento dos 89 critérios. A captura atual registra D-11; retestes visuais completos permanecem pendentes. Referências: [Paper MD3](https://oss.callstack.com/react-native-paper/docs/guides/theming) e [Android accessibility](https://developer.android.com/guide/topics/ui/accessibility/apps).

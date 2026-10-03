@@ -2,13 +2,13 @@
 
 Data: 03/10/2026. Branch: `codex/sprint-1-quality`. Base: `7ce5161`.
 
-Os seis blocos de correção foram implementados. A regressão automatizada passa, mas **a sprint ainda não está aprovada no Android**: não há APK instalado/validado, capturas das telas, execução Maestro, ensaio real offline de 24 horas ou medições de abertura e RAM. Os obstáculos e procedimentos para concluir essa aprovação estão registrados abaixo.
+Os seis blocos de correção foram implementados. A regressão automatizada passa, mas **a sprint ainda não está aprovada no Android**. O APK release foi instalado em um AVD remoto API 36 e o Maestro chegou ao formulário de cadastro, onde falhou ao tocar na confirmação de senha. Há captura e hierarquia dessa falha; o smoke completo, a matriz Android, o ensaio real offline de 24 horas e as medições de abertura/RAM permanecem pendentes.
 
 Reteste posterior do erro de lockfile no GitHub: a configuração pnpm aninhada em `app/` foi removida e o comando exato do prebuild passou localmente. Veja a [correção e as verificações da CI](correcao-ci-lockfile.md).
 
-A falha posterior do bundle release no GitHub foi reproduzida com `NODE_ENV=test` e corrigida usando ambiente de produção para a compilação. O [reteste do Expo Router](correcao-ci-router.md) passou na etapa `export:embed` utilizada pelo Gradle; o APK completo ainda precisa ser retestado.
+A falha posterior do bundle release no GitHub foi reproduzida com `NODE_ENV=test` e corrigida usando ambiente de produção para a compilação. O [reteste do Expo Router](correcao-ci-router.md) passou na etapa `export:embed` utilizada pelo Gradle; uma execução posterior gerou e instalou o APK release.
 
-O log remoto seguinte falhou na criação do AVD por ausência de `pixel_8` no catálogo do runner. A CI agora usa `pixel_2` com Android API 36; a [criação desse AVD foi verificada localmente](correcao-ci-emulador.md). Não há evidência de boot ou execução Maestro.
+O log remoto seguinte falhou na criação do AVD por ausência de `pixel_8` no catálogo do runner. A CI agora usa `pixel_2` com Android API 36; a [criação desse AVD foi verificada localmente](correcao-ci-emulador.md) e o log posterior confirmou boot e instalação. O [diagnóstico do cadastro](correcao-ci-cadastro.md) usa a captura/hierarquia reais do smoke e registra a correção de teclado/rolagem; o reteste completo dessa correção ainda é necessário.
 
 ## Rastreabilidade
 
@@ -52,7 +52,7 @@ Os testes cobrem refresh concorrente/antecipado/falhas transitórias, atomicidad
 
 | Requisito | Resultado / aprovação |
 |---|---|
-| RNF1 — abertura < 3 s | **Pendente**: APK release não executado. |
+| RNF1 — abertura < 3 s | **Pendente**: APK release executado na CI, sem medição de abertura. |
 | RNF2 — RAM ≤ 50 MB | **Pendente**: nenhuma medição de RAM do app. |
 | RNF3 — 24 h offline | Cache e fila sobrevivem a 24 h com relógio controlado e reinício nos testes. **Ensaio de 24 h no Android pendente.** |
 | RNF4 — Git | Commits semânticos incrementais na branch; alterações locais não relacionadas preservadas. Proteção remota de `main` não foi verificada/modificada. |
@@ -60,7 +60,7 @@ Os testes cobrem refresh concorrente/antecipado/falhas transitórias, atomicidad
 | RNF6 — 1.000 atividades | API listou 100 de 1.000 em **17 ms**, buscou por data/tipo em **8 ms**, com resultados correspondentes ao filtro. Lista Android virtualizada implementada; desempenho/rolagem no APK pendentes. |
 | RNF7 — falhas < 1% | Ensaio local: **0/1.000 falhas**, 900 registros únicos após 100 replays. **Estabilidade do APK pendente.** |
 | RNF8 — API ≤ 2 s | Pico local de 1.000 requisições: p95 **4.429 ms**, máximo **4.452 ms**. Meta não atendida nesse pico; condições normais de rede/aparelho ainda precisam de medição. |
-| RNF9 — API 23+ | **Divergência aceita pelo usuário:** implementação segue **API 24+**. Expo 54 requer Android 7+ e compila/alveja API 36. A documentação existente API 23 não foi alterada. Compatibilidade executada no APK ainda pendente. |
+| RNF9 — API 23+ | **Divergência aceita pelo usuário:** implementação segue **API 24+**. Expo 54 requer Android 7+ e compila/alveja API 36. A documentação existente API 23 não foi alterada. APK iniciou em API 36; matriz completa/API 24 pendentes. |
 | RNF10 — lógica ≥ 70% | Atendido no escopo instrumentado. Limites de linhas/statements na CI; servidor também exige branches/funções ≥ 70%. |
 
 O [ensaio antes da limitação de concorrência](evidence/server-load-before.json) teve 677 falhas/1.000. Após limitar as transações simultâneas a oito, o [ensaio final](evidence/server-load.json) teve zero falhas e nenhum registro duplicado. As execuções ocorreram por **Fastify inject + PostgreSQL local**, sem rede móvel, HTTP externo ou APK. Uma execução anterior após a correção chegou a cerca de 20 s no pico; a diferença confirma que esses números dependem da carga do ambiente e não aprovam o RNF8.
@@ -79,9 +79,9 @@ Não foi removido conteúdo do usuário para liberar espaço. Não há dispositi
 2. Configurar uma chave restrita para `com.vitalistrack.app` e o certificado do APK em `app/.env.local`: `GOOGLE_MAPS_API_KEY`. Usar `EXPO_PUBLIC_API_URL=http://10.0.2.2:3000` e API com banco exclusivo de QA.
 3. Executar `bash scripts/build-android-qa.sh`. Instalar `artifacts/android/vitalis-debug.apk` para diagnóstico e `vitalis-release.apk` para aprovação. O build release de QA inclui o bundle e não depende de Metro; não é uma publicação em loja.
 4. Executar o [roteiro Android](roteiro-android.md), os 89 critérios da matriz e o checklist Material nos dois AVDs; recolher capturas, logs e medições. Atualizar cada reteste com resultado real e caminho da evidência.
-5. Reexecutar o workflow `Android QA` em ambiente com KVM ou `maestro test -e QA_EMAIL=qa-UNICO@example.com .maestro/sprint-1-smoke.yaml`. Os logs fornecidos pelo usuário confirmam tentativas remotas do workflow, incluindo falhas no bundle e na criação do AVD. **Não há evidência de execução do smoke Maestro**, localmente ou remotamente.
+5. Reexecutar o workflow `Android QA` em ambiente com KVM ou `maestro test -e QA_EMAIL=qa-UNICO@example.com .maestro/sprint-1-smoke.yaml`. A execução remota 37127933080 iniciou o smoke e falhou no campo de confirmação. **O smoke corrigido ainda precisa de reteste.**
 
-As pendências ambientais são B-01/B-02; a pendência de desempenho é B-03 no [relatório de defeitos](defeitos-retestes.md). Não há capturas de telas do aplicativo nem APK validado nesta entrega; devem ser adicionados após a execução Android, sem substituir essa evidência por imagens de mockups ou do emulador sem boot.
+As pendências ambientais locais são B-01/B-02; a pendência de desempenho é B-03 no [relatório de defeitos](defeitos-retestes.md). A [captura real do cadastro](evidence/maestro-37127933080/auth-confirm-keyboard.png) é evidência de uma falha, não aprovação visual. O APK da execução remota está disponível localmente em `artifacts/android/github-37127933080/app-release.apk`; não há APK aprovado pela matriz completa.
 
 ## Histórico de commits
 

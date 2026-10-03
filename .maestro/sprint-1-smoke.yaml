@@ -4,15 +4,30 @@ name: Cadastro, hidratação e cache offline da Sprint 1
 - launchApp:
     clearState: true
 - tapOn: "Criar conta"
+- scrollUntilVisible:
+    element:
+      id: auth-name
 - tapOn:
     id: auth-name
 - inputText: "Pessoa QA"
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      id: auth-email
 - tapOn:
     id: auth-email
 - inputText: ${QA_EMAIL}
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      id: auth-password
 - tapOn:
     id: auth-password
 - inputText: "qa-12345678"
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      id: auth-confirm
 - tapOn:
     id: auth-confirm
 - inputText: "qa-12345678"
