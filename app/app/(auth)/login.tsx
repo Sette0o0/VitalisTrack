@@ -25,13 +25,13 @@ export default function LoginScreen() {
 	const theme = useAppTheme();
 	const styles = useMemo(() => createStyles(theme), [theme]);
 	const { login } = useAppState();
-	const [email, setEmail] = useState("ana@email.com");
-	const [password, setPassword] = useState("12345678");
+	const [email, setEmail] = useState("");
+	const [password, setPassword] = useState("");
 	const [error, setError] = useState("");
 	const submit = async () => {
-		if (!isEmail(email) || password.length < 6)
+		if (!isEmail(email) || password.length < 8)
 			return setError(
-				"Informe um e-mail válido e uma senha com ao menos 6 caracteres.",
+				"Informe um e-mail válido e uma senha com ao menos 8 caracteres.",
 			);
 		try {
 			setError("");
@@ -80,12 +80,6 @@ export default function LoginScreen() {
 					/>
 					{error ? <Text style={styles.error}>{error}</Text> : null}
 					<Button title="Entrar" onPress={submit} />
-					<Button
-						title="Entrar com biometria (demonstração)"
-						icon="fingerprint"
-						variant="outline"
-						onPress={submit}
-					/>
 				</View>
 				<Text style={styles.switch}>
 					Ainda não tem conta?{" "}

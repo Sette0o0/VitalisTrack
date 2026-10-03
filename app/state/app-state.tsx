@@ -30,6 +30,7 @@ import {
 	setValue,
 } from "@/lib/local-database";
 import { clearTokens, loadTokens, saveTokens } from "@/lib/session";
+import { useSessionRefresh } from "@/lib/use-session-refresh";
 import type {
 	Activity,
 	AppState,
@@ -287,6 +288,8 @@ export function AppStateProvider({ children }: PropsWithChildren) {
 	const [state, setState] = useState(initialState);
 	const [loading, setLoading] = useState(true);
 	const [lastError, setLastError] = useState<string | null>(null);
+	const invalidateSession = useCallback(() => setState((current) => ({ ...current, authenticated: false })), []);
+	useSessionRefresh(state.authenticated, invalidateSession);
 	const stateRef = useRef(state);
 	stateRef.current = state;
 	const setAndSave = useCallback(

@@ -1,5 +1,5 @@
 import type { ApiError, ApiResponse, AuthTokens } from "@vitalis/contracts";
-import { clearTokens, loadTokens, saveTokens } from "./session";
+import { clearTokens, loadTokens, saveTokens, sessionExpiresAt } from "./session";
 
 export const API_URL =
 	process.env.EXPO_PUBLIC_API_URL ?? "http://10.0.2.2:3000";
@@ -38,7 +38,7 @@ async function decode<T>(response: Response): Promise<T> {
 	return payload.data;
 }
 
-async function refreshAccessToken() {
+export async function refreshAccessToken() {
 	if (refreshPromise) return refreshPromise;
 	refreshPromise = (async () => {
 		const current = await loadTokens();
@@ -49,11 +49,14 @@ async function refreshAccessToken() {
 			body: JSON.stringify({ refreshToken: current.refreshToken }),
 		});
 		const tokens = await decode<AuthTokens>(response);
+		if ((await loadTokens())?.refreshToken !== current.refreshToken)
+			throw new ApiClientError(401, "STALE_SESSION", "A sessão foi alterada");
 		await saveTokens(tokens);
 		return tokens;
 	})()
 		.catch(async (error) => {
-			await clearTokens();
+			if (error instanceof ApiClientError && error.status === 401 && error.code !== "STALE_SESSION")
+				await clearTokens();
 			throw error;
 		})
 		.finally(() => {
@@ -62,12 +65,19 @@ async function refreshAccessToken() {
 	return refreshPromise;
 }
 
+export async function ensureFreshSession() {
+	const tokens = await loadTokens();
+	if (tokens && sessionExpiresAt() <= Date.now() + 60_000)
+		return refreshAccessToken();
+	return tokens;
+}
+
 export async function apiRequest<T>(
 	path: string,
 	init: RequestInit = {},
 	retry = true,
 ): Promise<T> {
-	const tokens = await loadTokens();
+	const tokens = retry ? await ensureFreshSession() : await loadTokens();
 	const headers = new Headers(init.headers);
 	if (!(init.body instanceof FormData))
 		headers.set("content-type", "application/json");
@@ -75,7 +85,8 @@ export async function apiRequest<T>(
 		headers.set("authorization", `Bearer ${tokens.accessToken}`);
 	const response = await fetch(`${API_URL}${path}`, { ...init, headers });
 	if (response.status === 401 && retry && tokens) {
-		await refreshAccessToken();
+		const latest = await loadTokens();
+		if (latest?.accessToken === tokens.accessToken) await refreshAccessToken();
 		return apiRequest<T>(path, init, false);
 	}
 	return decode<T>(response);

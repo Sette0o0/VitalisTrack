@@ -11,25 +11,26 @@ import {
 } from "@/components/vitalis/ui";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { isEmail } from "@/lib/health";
+import { goBackOrReplace } from "@/lib/navigation";
 import { useAppState } from "@/state/app-state";
 
 export default function RegisterScreen() {
 	const theme = useAppTheme();
 	const { register } = useAppState();
-	const [name, setName] = useState("Ana Souza");
-	const [email, setEmail] = useState("ana@email.com");
-	const [password, setPassword] = useState("12345678");
-	const [confirm, setConfirm] = useState("12345678");
+	const [name, setName] = useState("");
+	const [email, setEmail] = useState("");
+	const [password, setPassword] = useState("");
+	const [confirm, setConfirm] = useState("");
 	const [error, setError] = useState("");
 	const submit = async () => {
 		if (
 			!name.trim() ||
 			!isEmail(email) ||
-			password.length < 6 ||
+			password.length < 8 ||
 			password !== confirm
 		)
 			return setError(
-				"Revise os campos. As senhas devem ser iguais e ter ao menos 6 caracteres.",
+				"Revise os campos. As senhas devem ser iguais e ter ao menos 8 caracteres.",
 			);
 		try {
 			setError("");
@@ -45,7 +46,10 @@ export default function RegisterScreen() {
 	};
 	return (
 		<Screen>
-			<Header title="Criar conta" onBack={() => router.back()} />
+			<Header
+				title="Criar conta"
+				onBack={() => goBackOrReplace(router, "/(auth)/login")}
+			/>
 			<Title>Crie seu acesso</Title>
 			<Muted>Seus dados serão protegidos e sincronizados com sua conta.</Muted>
 			<View style={{ gap: 12 }}>
