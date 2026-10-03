@@ -1,0 +1,30 @@
+{
+  "createdAt": "2026-10-03T04:37:53.825Z",
+  "environment": "Fastify inject + PostgreSQL local, sem rede 4G e sem APK",
+  "operations": 1000,
+  "concurrency": 1000,
+  "uniqueMutations": 900,
+  "failures": 0,
+  "failurePercent": 0,
+  "p95Ms": 4429,
+  "maxMs": 4452,
+  "totalMs": 4459,
+  "recordsAfterRetries": 900,
+  "failureExamples": [],
+  "activities": {
+    "seeded": 1000,
+    "returned": 100,
+    "status": 200,
+    "listMs": 17,
+    "searchMs": 8,
+    "searchStatus": 200,
+    "searchReturned": 100,
+    "searchMatches": true
+  },
+  "limits": {
+    "failureRatePassed": true,
+    "allResponsesUnder2Seconds": false,
+    "androidStartup": "pendente",
+    "androidMemory": "pendente"
+  }
+}

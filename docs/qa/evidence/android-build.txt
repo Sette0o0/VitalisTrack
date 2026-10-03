@@ -1,0 +1,1 @@
+Compilação Android pendente: disponíveis 4053264 KiB; necessários pelo menos 15728640 KiB para SDK/NDK/Gradle e APKs.

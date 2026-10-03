@@ -1,0 +1,26 @@
+Verificações executadas em 03/10/2026, antes de registrar a documentação final.
+
+app: tsc --noEmit: exit 0.
+app: eslint . --max-warnings=0: exit 0, sem avisos.
+server: tsc --noEmit: exit 0.
+server: eslint src test scripts/qa-sprint1.ts --max-warnings=0: exit 0.
+contracts: tsc --noEmit e tsc -p tsconfig.json: exit 0.
+contracts: vitest run --passWithNoTests: exit 0, nenhum teste próprio.
+root: pnpm install --lockfile-only --frozen-lockfile --offline --ignore-scripts: exit 0 (4 projetos).
+YAML: ci.yml, android-qa.yml e smoke Maestro parseados com yaml.safe_load_all.
+Shell: bash -n scripts/build-android-qa.sh: exit 0.
+Git: git diff --check e staging revisado por commit: exit 0.
+
+Android CNG: CI=1 ANDROID_QA=true expo prebuild --platform android --no-install: exit 0.
+Manifest gerado com android:usesCleartextTraffic=true para QA; o config plugin define false fora de ANDROID_QA=true.
+Min SDK 24: default do ExpoRootProjectPlugin usado no projeto Expo 54; compile/target SDK 36.
+
+Android bundle: CI=1 expo export --platform android --output-dir /tmp/vitalis-sprint1-bundle: exit 0.
+React Compiler enabled; Metro bundled 1.827 módulos; última exportação Android concluída com sucesso.
+Hermes: entry-448126d00e292c7dd0098f9d79aaca52.hbc, 5,64 MB; 25 assets.
+Esse tempo é de compilação, não de abertura do aplicativo.
+
+Servidor: tsup src/index.ts --format esm --platform node --target node24 --out-dir dist --sourcemap --no-splitting: exit 0.
+ESM dist/index.js: 100,44 KB; sourcemap 222,94 KB; build em 527 ms.
+
+Nenhum APK foi compilado/instalado. Nenhum workflow remoto ou flow Maestro foi executado.
