@@ -37,7 +37,7 @@ export type Activity = {
 	id: string;
 	type: ActivityType;
 	date: string;
-	durationMinutes: number;
+	durationSeconds?: number;	durationMinutes: number;
 	distanceKm: number;
 	calories: number;
 	route?: {
@@ -50,6 +50,9 @@ export type Activity = {
 };
 export type WeightEntry = { id: string; date: string; weightKg: number };
 export type AppState = {
+	schemaVersion?: 2;
+	userId?: string;
+	dailySteps?: { date: string; steps: number }[];
 	profile: Profile;
 	goals: Goals;
 	water: WaterEntry[];
@@ -59,5 +62,6 @@ export type AppState = {
 	steps: number;
 	authenticated: boolean;
 	darkMode: boolean;
+ themeMode?: "system" | "light" | "dark";
 	syncStatus?: "idle" | "syncing" | "offline" | "error";
 };

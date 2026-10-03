@@ -61,7 +61,14 @@ export async function rotateRefreshToken(app: FastifyInstance, token: string) {
 			"Sessão revogada por reutilização de token",
 		);
 	}
-	return issueTokens(app, session.userId, session.id);
+	return prisma.$transaction(async (tx) => {
+ const revoked = await tx.refreshSession.updateMany({ where: { id: session.id, revokedAt: null }, data: { revokedAt: new Date() } });
+ if (revoked.count !== 1) throw new AppError(401, "REFRESH_TOKEN_REUSED", "Refresh token já utilizado");
+ const refreshToken = randomBytes(48).toString("base64url");
+ const replacement = await tx.refreshSession.create({ data: { userId: session.userId, tokenHash: hashToken(refreshToken), expiresAt: new Date(Date.now() + REFRESH_DAYS * 86_400_000) } });
+ await tx.refreshSession.update({ where: { id: session.id }, data: { replacedById: replacement.id } });
+ return { accessToken: app.jwt.sign({ sub: session.userId }, { expiresIn: ACCESS_SECONDS }), refreshToken, expiresIn: ACCESS_SECONDS };
+});
 }
 
 export async function revokeRefreshToken(token: string) {

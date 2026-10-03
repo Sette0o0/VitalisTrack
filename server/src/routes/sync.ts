@@ -12,6 +12,7 @@ import {
 	weightInputSchema,
 } from "@vitalis/contracts";
 import { z } from "zod";
+import { config } from "../config.js";
 import { requireAuth } from "../lib/auth.js";
 import { AppError } from "../lib/errors.js";
 import { parseDate } from "../lib/dates.js";
@@ -50,7 +51,11 @@ async function applyMutation(
 		where: { userId_mutationId: { userId, mutationId: mutation.mutationId } },
 	});
 	if (existing) return existing.result;
-	const result = await prisma.$transaction(async (tx) => {
+	return await prisma.$transaction(async (tx) => {
+  await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${userId + ":" + mutation.mutationId}))`;
+  const replay = await tx.processedMutation.findUnique({ where: { userId_mutationId: { userId, mutationId: mutation.mutationId } } });
+  if (replay) return replay.result;
+  const apply = async () => {
 		if (mutation.action === "delete") {
 			if (
 				!mutation.entityId ||
@@ -88,6 +93,15 @@ async function applyMutation(
 		}
 
 		const payload = mutation.payload ?? {};
+  if (typeof payload.id === "string") {
+   await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${mutation.entity + ":" + payload.id}))`;
+   const where = { id: payload.id };
+   const found = mutation.entity === "water" ? await tx.waterEntry.findUnique({ where })
+    : mutation.entity === "meal" ? await tx.meal.findUnique({ where })
+    : mutation.entity === "weight" ? await tx.weightEntry.findUnique({ where })
+    : mutation.entity === "activity" ? await tx.activity.findUnique({ where }) : null;
+   if (found && found.userId !== userId) throw new AppError(403, "FORBIDDEN", "Registro pertence a outra conta");
+  }
 		if (mutation.entity === "profile") {
 			const data = profileUpdateSchema.parse(payload);
 			const { birthDate, ...rest } = data;
@@ -186,11 +200,11 @@ async function applyMutation(
 			status: "applied",
 			entityId: mutation.entityId ?? (payload.id as string | undefined),
 		};
-	});
-	await prisma.processedMutation.create({
-		data: { userId, mutationId: mutation.mutationId, result },
-	});
-	return result;
+  };
+  const result = await apply();
+  await tx.processedMutation.create({ data: { userId, mutationId: mutation.mutationId, result } });
+  return result;
+ });
 }
 
 export async function syncRoutes(raw: FastifyInstance) {
@@ -226,20 +240,20 @@ export async function syncRoutes(raw: FastifyInstance) {
 			const [water, meals, activities, weights, steps, profile, goals] =
 				await Promise.all([
 					prisma.waterEntry.findMany({
-						where: { userId: request.user.sub, updatedAt: { gt: since } },
+						where: { userId: request.user.sub, updatedAt: { gte: since, lte: cursor } },
 					}),
 					prisma.meal.findMany({
-						where: { userId: request.user.sub, updatedAt: { gt: since } },
+						where: { userId: request.user.sub, updatedAt: { gte: since, lte: cursor } },
 					}),
 					prisma.activity.findMany({
-						where: { userId: request.user.sub, updatedAt: { gt: since } },
+						where: { userId: request.user.sub, updatedAt: { gte: since, lte: cursor } },
 						include: { route: { orderBy: { sequence: "asc" } } },
 					}),
 					prisma.weightEntry.findMany({
-						where: { userId: request.user.sub, updatedAt: { gt: since } },
+						where: { userId: request.user.sub, updatedAt: { gte: since, lte: cursor } },
 					}),
 					prisma.dailySteps.findMany({
-						where: { userId: request.user.sub, updatedAt: { gt: since } },
+						where: { userId: request.user.sub, updatedAt: { gte: since, lte: cursor } },
 					}),
 					prisma.profile.findUnique({ where: { userId: request.user.sub } }),
 					prisma.goals.findUnique({ where: { userId: request.user.sub } }),
@@ -256,7 +270,7 @@ export async function syncRoutes(raw: FastifyInstance) {
 						updatedAt: x.updatedAt.toISOString(),
 					})),
 					profile:
-						profile && profile.updatedAt > since
+						profile && profile.updatedAt >= since
 							? {
 									name: profile.name,
 									birthDate:
@@ -264,11 +278,12 @@ export async function syncRoutes(raw: FastifyInstance) {
 									weightKg: profile.weightKg,
 									heightCm: profile.heightCm,
 									gender: profile.gender,
+ avatarUrl: profile.avatarPath ? `${config.PUBLIC_BASE_URL}${profile.avatarPath}` : null,
 									updatedAt: profile.updatedAt.toISOString(),
 								}
 							: null,
 					goals:
-						goals && goals.updatedAt > since ? serializeGoals(goals) : null,
+						goals && goals.updatedAt >= since ? serializeGoals(goals) : null,
 					cursor: cursor.toISOString(),
 				},
 			};

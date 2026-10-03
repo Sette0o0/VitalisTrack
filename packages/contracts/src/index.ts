@@ -52,9 +52,9 @@ export const profileSchema = z.object({
 export const profileUpdateSchema = z
 	.object({
 		name: z.string().trim().min(2).max(100).optional(),
-		birthDate: dateSchema.optional(),
+		birthDate: dateSchema.refine((value) => value <= new Date().toISOString().slice(0, 10), "Nascimento não pode estar no futuro").optional(),
 		weightKg: z.number().min(20).max(500).optional(),
-		heightCm: z.number().min(80).max(260).optional(),
+		heightCm: z.number().int().min(80).max(260).optional(),
 		gender: genderSchema.optional(),
 	})
 	.strict();
@@ -212,4 +212,16 @@ export type AuthTokens = {
 	accessToken: string;
 	refreshToken: string;
 	expiresIn: number;
+};
+
+export type SyncResult = { mutationId: string; status: "applied" | "failed"; entityId?: string; message?: string };
+export type SyncPull = {
+	water: WaterEntry[];
+	meals: Meal[];
+	activities: Activity[];
+	weights: WeightEntry[];
+	steps: { date: string; steps: number; updatedAt?: string }[];
+	profile: Partial<Profile> | null;
+	goals: Partial<Goals> | null;
+	cursor: string;
 };
