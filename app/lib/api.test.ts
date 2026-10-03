@@ -30,7 +30,7 @@ beforeEach(async () => {
 	jest.spyOn(SecureStore, "setItemAsync").mockResolvedValue();
 	jest.spyOn(SecureStore, "deleteItemAsync").mockResolvedValue();
 	await clearTokens();
-	global.fetch = jest.fn();
+	globalThis.fetch = jest.fn();
 });
 
 test("lê claims e tolera token incompleto", () => {
