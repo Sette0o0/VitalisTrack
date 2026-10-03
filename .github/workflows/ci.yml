@@ -40,5 +40,14 @@ jobs:
       - run: pnpm --filter @vitalis/server db:deploy
       - run: pnpm typecheck
       - run: pnpm lint
-      - run: pnpm test
+      - run: pnpm --filter @vitalis/contracts test
+      - run: pnpm --filter vitalis-track test:coverage
+      - run: pnpm --filter @vitalis/server test
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: business-coverage
+          path: |
+            app/coverage/
+            server/coverage/
       - run: pnpm build

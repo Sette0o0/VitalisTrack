@@ -224,6 +224,149 @@ describe("API da Sprint 1", () => {
 	});
 });
 
+test("login valida e-mail e senha e emite JWT para credenciais válidas", async () => {
+	for (const [credentials, status] of [
+		[{ email: "inválido", password: "12345678" }, 400],
+		[{ email, password: "senha-errada" }, 401],
+	] as const)
+		expect(
+			(
+				await app.inject({
+					method: "POST",
+					url: "/v1/auth/login",
+					payload: credentials,
+				})
+			).statusCode,
+		).toBe(status);
+	const result = await app.inject({
+		method: "POST",
+		url: "/v1/auth/login",
+		payload: { email, password: "12345678" },
+	});
+	expect(result.statusCode).toBe(200);
+	expect(
+		app.jwt.verify<{ sub: string }>(result.json().data.tokens.accessToken).sub,
+	).toBe(userId);
+});
+
+test("edição, exclusão e meta de água recalculam o resumo", async () => {
+	const headers = auth(),
+		id = crypto.randomUUID(),
+		date = "2026-10-03";
+	expect(
+		(
+			await app.inject({
+				method: "POST",
+				url: "/v1/water",
+				headers,
+				payload: { id, amountMl: 200, date, time: "10:00" },
+			})
+		).statusCode,
+	).toBe(201);
+	expect(
+		(
+			await app.inject({
+				method: "PATCH",
+				url: `/v1/water/${id}`,
+				headers,
+				payload: { amountMl: 500 },
+			})
+		).statusCode,
+	).toBe(200);
+	expect(
+		(
+			await app.inject({
+				method: "GET",
+				url: `/v1/dashboard/daily?date=${date}`,
+				headers,
+			})
+		).json().data.water,
+	).toBe(500);
+	expect(
+		(
+			await app.inject({
+				method: "GET",
+				url: `/v1/water?date=${date}`,
+				headers,
+			})
+		).json().data[0].amountMl,
+	).toBe(500);
+	expect(
+		(
+			await app.inject({
+				method: "PATCH",
+				url: "/v1/goals",
+				headers,
+				payload: { waterMl: 0 },
+			})
+		).statusCode,
+	).toBe(400);
+	expect(
+		(
+			await app.inject({
+				method: "PATCH",
+				url: "/v1/goals",
+				headers,
+				payload: { waterMl: 2000 },
+			})
+		).statusCode,
+	).toBe(200);
+	expect(
+		(await app.inject({ method: "GET", url: "/v1/goals", headers })).json().data
+			.waterMl,
+	).toBe(2000);
+	expect(
+		(await app.inject({ method: "DELETE", url: `/v1/water/${id}`, headers }))
+			.statusCode,
+	).toBe(204);
+	expect(
+		(
+			await app.inject({
+				method: "GET",
+				url: `/v1/dashboard/daily?date=${date}`,
+				headers,
+			})
+		).json().data.water,
+	).toBe(0);
+});
+
+test("falha no meio da mutação reverte registro e marcador de idempotência", async () => {
+	const registered = await app.inject({
+		method: "POST",
+		url: "/v1/auth/register",
+		payload: {
+			name: "Rollback QA",
+			email: `rollback-${crypto.randomUUID()}@example.com`,
+			password: "12345678",
+			passwordConfirmation: "12345678",
+		},
+	});
+	expect(registered.statusCode).toBe(201);
+	const account = registered.json().data,
+		owner = account.profile.id;
+	extraUsers.push(owner);
+	// A ausência do perfil provoca uma falha real após o upsert do peso dentro da transação.
+	await prisma.profile.delete({ where: { userId: owner } });
+	const mutation = {
+		mutationId: crypto.randomUUID(),
+		entity: "weight",
+		action: "upsert",
+		clientUpdatedAt: new Date().toISOString(),
+		payload: { id: crypto.randomUUID(), date: "2026-10-03", weightKg: 70 },
+	};
+	const response = await app.inject({
+		method: "POST",
+		url: "/v1/sync",
+		headers: { authorization: `Bearer ${account.tokens.accessToken}` },
+		payload: { mutations: [mutation] },
+	});
+	expect(response.json().data[0].status).toBe("failed");
+	expect(await prisma.weightEntry.count({ where: { userId: owner } })).toBe(0);
+	expect(
+		await prisma.processedMutation.count({ where: { userId: owner } }),
+	).toBe(0);
+});
+
 test("CRUD de refeições, atividades, peso e metas atualiza os agregados", async () => {
 	const headers = auth(),
 		date = "2026-10-03";
