@@ -44,6 +44,9 @@ export default function TabLayout() {
 					getLabelText={({ route }) =>
 						descriptors[route.key].options.title ?? route.name
 					}
+					getAccessibilityLabel={({ route }) =>
+						descriptors[route.key].options.title ?? route.name
+					}
 				/>
 			)}
 			screenOptions={{
