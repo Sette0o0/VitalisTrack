@@ -1,6 +1,6 @@
 import { router } from "expo-router";
 import { useState } from "react";
-import { Text, View } from "react-native";
+import { View } from "react-native";
 import {
 	Button,
 	Field,
@@ -9,41 +9,36 @@ import {
 	Screen,
 	Title,
 } from "@/components/vitalis/ui";
-import { useAppTheme } from "@/hooks/use-app-theme";
-import { isEmail } from "@/lib/health";
+import { registerSchema } from "@vitalis/contracts";
+import { parseInput } from "@/lib/validation";
+import { useSubmit } from "@/hooks/use-submit";
+import { HelperText } from "react-native-paper";
 import { goBackOrReplace } from "@/lib/navigation";
 import { useAppState } from "@/state/app-state";
 
 export default function RegisterScreen() {
-	const theme = useAppTheme();
 	const { register } = useAppState();
 	const [name, setName] = useState("");
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [confirm, setConfirm] = useState("");
-	const [error, setError] = useState("");
-	const submit = async () => {
-		if (
-			!name.trim() ||
-			!isEmail(email) ||
-			password.length < 8 ||
-			password !== confirm
-		)
-			return setError(
-				"Revise os campos. As senhas devem ser iguais e ter ao menos 8 caracteres.",
+	const { submit, saving, error } = useSubmit();
+	const save = () =>
+		submit(async () => {
+			const input = parseInput(registerSchema, {
+				name,
+				email: email.trim(),
+				password,
+				passwordConfirmation: confirm,
+			});
+			await register(
+				input.name,
+				input.email,
+				input.password,
+				input.passwordConfirmation,
 			);
-		try {
-			setError("");
-			await register(name.trim(), email.trim(), password, confirm);
 			router.replace("/(tabs)");
-		} catch (cause) {
-			setError(
-				cause instanceof Error
-					? cause.message
-					: "Não foi possível criar a conta.",
-			);
-		}
-	};
+		});
 	return (
 		<Screen>
 			<Header
@@ -53,8 +48,14 @@ export default function RegisterScreen() {
 			<Title>Crie seu acesso</Title>
 			<Muted>Seus dados serão protegidos e sincronizados com sua conta.</Muted>
 			<View style={{ gap: 12 }}>
-				<Field label="Nome" value={name} onChangeText={setName} />
 				<Field
+					testID="auth-name"
+					label="Nome"
+					value={name}
+					onChangeText={setName}
+				/>
+				<Field
+					testID="auth-email"
 					label="E-mail"
 					value={email}
 					keyboardType="email-address"
@@ -62,19 +63,30 @@ export default function RegisterScreen() {
 					onChangeText={setEmail}
 				/>
 				<Field
+					testID="auth-password"
 					label="Senha"
 					secureTextEntry
 					value={password}
 					onChangeText={setPassword}
 				/>
 				<Field
+					testID="auth-confirm"
 					label="Confirmar senha"
 					secureTextEntry
 					value={confirm}
 					onChangeText={setConfirm}
 				/>
-				{error ? <Text style={{ color: theme.error }}>{error}</Text> : null}
-				<Button title="Criar conta" onPress={submit} />
+				{error ? (
+					<HelperText type="error" accessibilityLiveRegion="polite">
+						{error}
+					</HelperText>
+				) : null}
+				<Button
+					testID="auth-submit"
+					title="Criar conta"
+					onPress={save}
+					loading={saving}
+				/>
 			</View>
 		</Screen>
 	);

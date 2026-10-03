@@ -1,142 +1,105 @@
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { router } from "expo-router";
-import { useMemo, useState } from "react";
-import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
+import { useState } from "react";
+import { View } from "react-native";
+import { Dialog, FAB, HelperText, Portal, Text } from "react-native-paper";
+import { goalsUpdateSchema } from "@vitalis/contracts";
+import { DateField } from "@/components/vitalis/date-field";
+import { useConfirm } from "@/components/vitalis/confirmation";
 import {
 	Button,
 	Card,
 	Eyebrow,
 	Field,
+	Muted,
 	ProgressBar,
 	Screen,
 	Subtitle,
 	Title,
 } from "@/components/vitalis/ui";
-import { radius, ThemeTokens } from "@/constants/theme";
 import { useAppTheme } from "@/hooks/use-app-theme";
+import { useSubmit } from "@/hooks/use-submit";
 import { isoDate } from "@/lib/health";
+import { parseInput, parseDecimal } from "@/lib/validation";
 import { useAppState, useDailySummary } from "@/state/app-state";
-
 export default function MealsScreen() {
-	const theme = useAppTheme();
-	const styles = useMemo(() => createStyles(theme), [theme]);
-	const { state, dispatch } = useAppState();
-	const [date, setDate] = useState(isoDate());
-	const summary = useDailySummary(date);
-	const meals = useMemo(
-		() =>
-			state.meals
-				.filter((meal) => meal.date === date)
-				.sort((a, b) => a.time.localeCompare(b.time)),
-		[state.meals, date],
-	);
-	const [editingGoals, setEditingGoals] = useState(false);
-	const [goal, setGoal] = useState(String(state.goals.calories));
-	const [limit, setLimit] = useState(String(state.goals.mealCalories));
-	const remaining = state.goals.calories - summary.calories;
-	const remove = (id: string) =>
-		Alert.alert("Excluir refeição?", "As calorias serão recalculadas.", [
-			{ text: "Cancelar" },
-			{
-				text: "Excluir",
-				style: "destructive",
-				onPress: () => dispatch({ type: "MEAL_DELETE", id }),
-			},
-		]);
+	const { state, dispatch } = useAppState(),
+		theme = useAppTheme(),
+		confirm = useConfirm(),
+		{ submit, saving, error } = useSubmit();
+	const [date, setDate] = useState(isoDate()),
+		[editing, setEditing] = useState(false),
+		[goal, setGoal] = useState(String(state.goals.calories)),
+		[limit, setLimit] = useState(String(state.goals.mealCalories));
+	const summary = useDailySummary(date),
+		remaining = state.goals.calories - summary.calories,
+		meals = state.meals
+			.filter((x) => x.date === date)
+			.sort((a, b) => a.time.localeCompare(b.time));
+	const save = () =>
+		submit(async () => {
+			const value = parseInput(goalsUpdateSchema, {
+				calories: parseDecimal(goal),
+				mealCalories: parseDecimal(limit),
+			});
+			await dispatch({ type: "GOALS", value });
+			setEditing(false);
+		});
 	return (
 		<Screen>
-			<View>
-				<Eyebrow>Diário alimentar</Eyebrow>
-				<Title>Alimentação</Title>
-			</View>
-			<Field
-				label="Data"
-				value={date}
-				onChangeText={setDate}
-				placeholder="AAAA-MM-DD"
-			/>
-			<Card style={styles.summaryCard}>
+			<Eyebrow>Diário alimentar</Eyebrow>
+			<Title>Alimentação</Title>
+			<DateField value={date} onChange={setDate} />
+			<Card style={{ backgroundColor: theme.foodContainer }}>
 				<Text
-					style={[styles.remaining, remaining < 0 && { color: theme.error }]}
+					variant="displaySmall"
+					style={{ color: remaining < 0 ? theme.error : theme.onFoodContainer }}
 				>
-					{remaining}
+					{Math.abs(remaining)}
 				</Text>
-				<Text style={styles.summaryMuted}>
+				<Text style={{ color: theme.onFoodContainer }}>
 					{remaining < 0 ? "kcal acima da meta" : "kcal restantes"}
 				</Text>
-				<View style={styles.equation}>
-					<Text style={styles.equationText}>{state.goals.calories} meta</Text>
-					<Text style={styles.equationText}>−</Text>
-					<Text style={styles.equationText}>{summary.calories} consumidas</Text>
-				</View>
+				<Text style={{ color: theme.onFoodContainer }}>
+					Meta {state.goals.calories} − consumidas {summary.calories}
+				</Text>
 				<ProgressBar value={summary.calorieProgress} color={theme.food} />
 				<Button
-					title={editingGoals ? "Fechar metas" : "Configurar metas"}
+					title="Configurar metas"
 					variant="text"
-					onPress={() => setEditingGoals((value) => !value)}
+					onPress={() => {
+						setGoal(String(state.goals.calories));
+						setLimit(String(state.goals.mealCalories));
+						setEditing(true);
+					}}
 				/>
-				{editingGoals ? (
-					<View style={{ gap: 10 }}>
-						<Field
-							label="Meta diária (kcal)"
-							keyboardType="numeric"
-							value={goal}
-							onChangeText={setGoal}
-						/>
-						<Field
-							label="Limite por refeição (kcal)"
-							keyboardType="numeric"
-							value={limit}
-							onChangeText={setLimit}
-						/>
-						<Button
-							title="Salvar metas"
-							onPress={() => {
-								const calorieGoal = Number(goal);
-								const mealLimit = Number(limit);
-								if (calorieGoal > 0 && mealLimit > 0) {
-									dispatch({
-										type: "GOALS",
-										value: { calories: calorieGoal, mealCalories: mealLimit },
-									});
-									setEditingGoals(false);
-								}
-							}}
-						/>
-					</View>
-				) : null}
 			</Card>
-			<View style={styles.section}>
-				<Subtitle>Refeições</Subtitle>
-				<Button
-					title="Adicionar"
-					variant="text"
-					onPress={() => router.push("/meals/form")}
-				/>
-			</View>
+			<Subtitle>Refeições</Subtitle>
 			{meals.map((meal) => (
 				<Card key={meal.id}>
-					<View style={styles.mealTop}>
-						<View style={styles.mealIcon}>
-							<MaterialCommunityIcons
-								name="food-apple-outline"
-								size={24}
-								color={theme.food}
-							/>
-						</View>
-						<View style={{ flex: 1 }}>
-							<Text style={styles.mealName}>{meal.name}</Text>
-							<Text style={styles.muted}>
-								{meal.time} · {meal.calories} kcal · {meal.quantity} {meal.unit}
-							</Text>
-						</View>
-					</View>
-					{meal.calories > state.goals.mealCalories ? (
-						<Text style={styles.warning}>
+					<Text variant="titleMedium">{meal.name}</Text>
+					<Muted>
+						{meal.time} · {meal.calories} kcal · {meal.quantity} {meal.unit}
+					</Muted>
+					{meal.calories > state.goals.mealCalories && (
+						<Text
+							accessibilityLiveRegion="polite"
+							style={{
+								backgroundColor: theme.warningContainer,
+								color: theme.onWarningContainer,
+								padding: 12,
+								borderRadius: 12,
+							}}
+						>
 							Esta refeição excedeu o limite de {state.goals.mealCalories} kcal.
 						</Text>
-					) : null}
-					<View style={styles.actions}>
+					)}
+					<View
+						style={{
+							flexDirection: "row",
+							flexWrap: "wrap",
+							justifyContent: "flex-end",
+						}}
+					>
 						<Button
 							title="Editar"
 							variant="text"
@@ -150,72 +113,56 @@ export default function MealsScreen() {
 						<Button
 							title="Excluir"
 							variant="danger"
-							onPress={() => remove(meal.id)}
+							onPress={() =>
+								confirm(
+									"Excluir refeição?",
+									"As calorias serão recalculadas.",
+									() => dispatch({ type: "MEAL_DELETE", id: meal.id }),
+								)
+							}
 						/>
 					</View>
 				</Card>
 			))}
-			{!meals.length ? (
-				<Card>
-					<Text style={styles.muted}>
-						Nenhuma refeição registrada nesta data.
-					</Text>
-				</Card>
-			) : null}
-			<Pressable
-				accessibilityLabel="Adicionar refeição"
-				style={styles.fab}
+			{!meals.length && <Muted>Nenhuma refeição nesta data.</Muted>}
+			<FAB
+				icon="plus"
+				label="Adicionar refeição"
 				onPress={() => router.push("/meals/form")}
-			>
-				<MaterialCommunityIcons name="plus" size={28} color={theme.onPrimary} />
-			</Pressable>
+			/>
+			<Portal>
+				<Dialog
+					visible={editing}
+					dismissable={!saving}
+					onDismiss={() => setEditing(false)}
+				>
+					<Dialog.Title>Metas de alimentação</Dialog.Title>
+					<Dialog.Content>
+						<Field
+							label="Meta diária (kcal)"
+							value={goal}
+							onChangeText={setGoal}
+							keyboardType="numeric"
+						/>
+						<Field
+							label="Limite por refeição (kcal)"
+							value={limit}
+							onChangeText={setLimit}
+							keyboardType="numeric"
+						/>
+						{error && <HelperText type="error">{error}</HelperText>}
+					</Dialog.Content>
+					<Dialog.Actions>
+						<Button
+							title="Cancelar"
+							variant="text"
+							disabled={saving}
+							onPress={() => setEditing(false)}
+						/>
+						<Button title="Salvar metas" loading={saving} onPress={save} />
+					</Dialog.Actions>
+				</Dialog>
+			</Portal>
 		</Screen>
 	);
 }
-
-const createStyles = (theme: ThemeTokens) =>
-	StyleSheet.create({
-		summaryCard: { backgroundColor: theme.foodContainer },
-		remaining: {
-			fontSize: 35,
-			fontWeight: "900",
-			color: theme.onFoodContainer,
-		},
-		summaryMuted: { color: theme.onFoodContainer, opacity: 0.8, fontSize: 12 },
-		equation: { flexDirection: "row", justifyContent: "space-between" },
-		equationText: { color: theme.onFoodContainer, fontWeight: "700" },
-		section: {
-			flexDirection: "row",
-			alignItems: "center",
-			justifyContent: "space-between",
-		},
-		mealTop: { flexDirection: "row", gap: 12, alignItems: "center" },
-		mealIcon: {
-			width: 45,
-			height: 45,
-			borderRadius: 15,
-			backgroundColor: theme.foodContainer,
-			alignItems: "center",
-			justifyContent: "center",
-		},
-		mealName: { color: theme.onSurface, fontWeight: "800", fontSize: 15 },
-		muted: { color: theme.onSurfaceVariant, fontSize: 12 },
-		warning: {
-			color: theme.onWarningContainer,
-			backgroundColor: theme.warningContainer,
-			padding: 10,
-			borderRadius: radius.sm,
-			fontSize: 12,
-		},
-		actions: { flexDirection: "row", justifyContent: "flex-end" },
-		fab: {
-			alignSelf: "flex-end",
-			width: 58,
-			height: 58,
-			borderRadius: 18,
-			backgroundColor: theme.primary,
-			alignItems: "center",
-			justifyContent: "center",
-			elevation: 5,
-		},
-	});

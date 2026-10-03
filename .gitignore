@@ -9,3 +9,8 @@ server/storage/*
 app/.env.local
 *.log
 .pnpm/
+# Expo CNG: os projetos nativos são reproduzidos pelo app.config.ts.
+app/android/
+app/ios/
+artifacts/
+app/.idea/

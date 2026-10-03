@@ -1,7 +1,9 @@
 import { router } from "expo-router";
-import { useMemo, useState } from "react";
-import { Alert, StyleSheet, Text, View } from "react-native";
-import Svg, { Line, Polyline } from "react-native-svg";
+import { useState } from "react";
+import { View } from "react-native";
+import { HelperText, Text } from "react-native-paper";
+import Svg, { Circle, Line, Polyline } from "react-native-svg";
+import { goalsUpdateSchema, weightInputSchema } from "@vitalis/contracts";
 import {
 	Button,
 	Card,
@@ -11,111 +13,179 @@ import {
 	Subtitle,
 	Title,
 } from "@/components/vitalis/ui";
-import type { ThemeTokens } from "@/constants/theme";
 import { useAppTheme } from "@/hooks/use-app-theme";
+import { useSubmit } from "@/hooks/use-submit";
 import {
 	calculateBmi,
 	classifyBmi,
 	isoDate,
+	newId,
 	weightGoalWeeks,
 } from "@/lib/health";
+import { parseInput, parseDecimal } from "@/lib/validation";
+import { goBackOrReplace } from "@/lib/navigation";
 import { useAppState } from "@/state/app-state";
-
+import { selectWeightComparison } from "@/state/selectors";
 export default function WeightScreen() {
-	const theme = useAppTheme();
-	const styles = useMemo(() => createStyles(theme), [theme]);
-	const { state, dispatch } = useAppState();
-	const [weight, setWeight] = useState(String(state.profile.weightKg));
-	const [goal, setGoal] = useState(String(state.goals.weightKg));
-	const [deficit, setDeficit] = useState(String(state.goals.dailyDeficit));
-	const bmi = calculateBmi(state.profile.weightKg, state.profile.heightCm);
-	const weeks = weightGoalWeeks(
-		state.profile.weightKg,
-		state.goals.weightKg,
-		state.goals.dailyDeficit,
-	);
-	const entries = state.weights.slice(-8);
-	const currentAverage =
-		entries.slice(-4).reduce((s, x) => s + x.weightKg, 0) /
-		Math.max(entries.slice(-4).length, 1);
-	const previousAverage =
-		entries.slice(0, 4).reduce((s, x) => s + x.weightKg, 0) /
-		Math.max(entries.slice(0, 4).length, 1);
-	const points = useMemo(
-		() =>
-			entries
-				.map((x, i) => `${10 + i * 42},${100 - (70 - x.weightKg) * 30}`)
-				.join(" "),
-		[entries],
-	);
-	const saveGoal = () => {
-		const g = Number(goal),
-			d = Number(deficit);
-		if (g <= 0 || d < 0) return Alert.alert("Valores inválidos");
-		dispatch({ type: "GOALS", value: { weightKg: g, dailyDeficit: d } });
-	};
-	const add = () => {
-		const w = Number(weight);
-		if (w <= 0) return Alert.alert("Peso inválido");
-		dispatch({ type: "WEIGHT_ADD", value: { date: isoDate(), weightKg: w } });
-	};
+	const theme = useAppTheme(),
+		{ state, dispatch } = useAppState(),
+		{ submit, saving, error } = useSubmit();
+	const [weight, setWeight] = useState(
+			state.profile.hasWeight === false ? "" : String(state.profile.weightKg),
+		),
+		[goal, setGoal] = useState(String(state.goals.weightKg)),
+		[deficit, setDeficit] = useState(String(state.goals.dailyDeficit));
+	const bmi = calculateBmi(state.profile.weightKg, state.profile.heightCm),
+		weeks = weightGoalWeeks(
+			state.profile.weightKg,
+			state.goals.weightKg,
+			state.goals.dailyDeficit,
+		);
+	const comparison = selectWeightComparison(state),
+		entries = comparison.current;
+	const min = entries.length
+			? Math.min(...entries.map((x) => x.weightKg)) - 1
+			: 0,
+		max = entries.length ? Math.max(...entries.map((x) => x.weightKg)) + 1 : 1;
+	const reference = new Date(`${isoDate()}T12:00:00`).getTime();
+	const points = entries.map((x) => ({
+		x:
+			16 +
+			(6 -
+				Math.round(
+					(reference - new Date(`${x.date}T12:00:00`).getTime()) / 86_400_000,
+				)) *
+				48,
+		y: 116 - ((x.weightKg - min) / (max - min)) * 92,
+	}));
+	const saveGoal = () =>
+		submit(async () => {
+			await dispatch({
+				type: "GOALS",
+				value: parseInput(goalsUpdateSchema, {
+					weightKg: parseDecimal(goal),
+					dailyDeficit: parseDecimal(deficit),
+				}),
+			});
+		});
+	const add = () =>
+		submit(async () => {
+			const row = parseInput(weightInputSchema, {
+				id: newId(),
+				date: isoDate(),
+				weightKg: parseDecimal(weight),
+			});
+			await dispatch({ type: "WEIGHT_ADD", value: row });
+		});
+	const averages = [comparison.previousAverage, comparison.currentAverage],
+		largest = Math.max(...averages.filter((x): x is number => x !== null), 1);
 	return (
 		<Screen>
-			<Header title="Peso e evolução" onBack={() => router.back()} />
-			<Title>{state.profile.weightKg.toFixed(1)} kg</Title>
-			<View style={styles.stats}>
-				<Card style={{ flex: 1 }}>
-					<Text style={styles.label}>IMC</Text>
-					<Text style={styles.value}>{bmi.toFixed(1)}</Text>
-					<Text style={styles.muted}>{classifyBmi(bmi)}</Text>
-				</Card>
-				<Card style={{ flex: 1 }}>
-					<Text style={styles.label}>PREVISÃO</Text>
-					<Text style={styles.value}>{weeks ? `${weeks} sem.` : "—"}</Text>
-					<Text style={styles.muted}>
-						{weeks ? "para atingir a meta" : "Déficit insuficiente"}
-					</Text>
-				</Card>
-			</View>
+			<Header
+				title="Peso e evolução"
+				onBack={() => goBackOrReplace(router, "/(tabs)/progress")}
+			/>
+			<Title>
+				{state.profile.hasWeight === false
+					? "Peso não informado"
+					: `${state.profile.weightKg.toFixed(1)} kg`}
+			</Title>
 			<Card>
-				<Subtitle>Evolução semanal</Subtitle>
-				<Svg width="100%" height={120} viewBox="0 0 320 120">
-					<Line x1="0" y1="100" x2="320" y2="100" stroke={theme.outline} />
-					<Polyline
-						points={points}
-						fill="none"
-						stroke={theme.weight}
-						strokeWidth={4}
-						strokeLinejoin="round"
-						strokeLinecap="round"
-					/>
-				</Svg>
-				<Text style={styles.muted}>
-					Últimos registros · atual {entries.at(-1)?.weightKg.toFixed(1)} kg
+				<Text variant="titleLarge">
+					{state.profile.hasHeight === false ||
+					state.profile.hasWeight === false
+						? "Complete suas medidas no perfil"
+						: `IMC ${bmi.toFixed(1)}`}
 				</Text>
-				<View style={styles.comparison}>
-					<View>
-						<Text style={styles.label}>SEMANA ANTERIOR</Text>
-						<Text style={styles.value}>{previousAverage.toFixed(1)} kg</Text>
-					</View>
-					<View>
-						<Text style={styles.label}>SEMANA ATUAL</Text>
-						<Text style={styles.value}>{currentAverage.toFixed(1)} kg</Text>
-					</View>
-					<Text
-						style={[
-							styles.delta,
-							{
-								color:
-									currentAverage <= previousAverage
-										? theme.success
-										: theme.error,
-							},
-						]}
+				<Text>
+					{state.profile.hasHeight === false ||
+					state.profile.hasWeight === false
+						? "IMC ainda indisponível"
+						: classifyBmi(bmi)}
+				</Text>
+				<Text>
+					Previsão:{" "}
+					{state.profile.hasWeight === false
+						? "Informe seu peso atual"
+						: state.profile.weightKg === state.goals.weightKg
+							? "Meta atingida"
+							: weeks
+								? `${weeks} semanas`
+								: "Sem previsão para a meta e o déficit informados"}
+				</Text>
+			</Card>
+			<Card>
+				<Subtitle>Evolução dos últimos 7 dias</Subtitle>
+				{entries.length ? (
+					<View
+						accessible
+						accessibilityLabel={entries
+							.map((x) => `${x.date}: ${x.weightKg} kg`)
+							.join("; ")}
 					>
-						{(currentAverage - previousAverage).toFixed(1)} kg
-					</Text>
+						<Svg
+							width="100%"
+							height={150}
+							viewBox="0 0 320 150"
+							accessible={false}
+						>
+							<Line x1="16" y1="120" x2="304" y2="120" stroke={theme.outline} />
+							<Polyline
+								points={points.map((x) => `${x.x},${x.y}`).join(" ")}
+								fill="none"
+								stroke={theme.weight}
+								strokeWidth={3}
+							/>
+							{points.map((p, i) => (
+								<Circle
+									key={entries[i].id}
+									cx={p.x}
+									cy={p.y}
+									r={4}
+									fill={theme.weight}
+								/>
+							))}
+						</Svg>
+						<Text>
+							{entries[0].date} a {entries.at(-1)?.date}
+						</Text>
+					</View>
+				) : (
+					<Text>Nenhuma pesagem nesta semana.</Text>
+				)}
+				<Subtitle>Comparação semanal</Subtitle>
+				<View style={{ flexDirection: "row", flexWrap: "wrap", gap: 16 }}>
+					{averages.map((value, i) => (
+						<View key={i} style={{ flex: 1, minWidth: 120, gap: 8 }}>
+							<Text>{i ? "Semana atual" : "Semana anterior"}</Text>
+							<Text variant="titleLarge">
+								{value === null ? "Sem registros" : `${value.toFixed(1)} kg`}
+							</Text>
+							{value !== null && (
+								<View
+									accessible
+									accessibilityLabel={`${value.toFixed(1)} quilogramas`}
+									style={{
+										height: (value / largest) * 90,
+										width: 48,
+										borderRadius: 8,
+										backgroundColor: i ? theme.weight : theme.outline,
+									}}
+								/>
+							)}
+						</View>
+					))}
 				</View>
+				{comparison.currentAverage !== null &&
+					comparison.previousAverage !== null && (
+						<Text>
+							Variação:{" "}
+							{(comparison.currentAverage - comparison.previousAverage).toFixed(
+								1,
+							)}{" "}
+							kg
+						</Text>
+					)}
 			</Card>
 			<Card>
 				<Subtitle>Novo registro</Subtitle>
@@ -125,7 +195,7 @@ export default function WeightScreen() {
 					keyboardType="decimal-pad"
 					onChangeText={setWeight}
 				/>
-				<Button title="Registrar peso" onPress={add} />
+				<Button title="Registrar peso" loading={saving} onPress={add} />
 			</Card>
 			<Card>
 				<Subtitle>Meta de peso</Subtitle>
@@ -141,24 +211,9 @@ export default function WeightScreen() {
 					keyboardType="numeric"
 					onChangeText={setDeficit}
 				/>
-				<Button title="Salvar meta" onPress={saveGoal} />
+				<Button title="Salvar meta" loading={saving} onPress={saveGoal} />
 			</Card>
+			{error && <HelperText type="error">{error}</HelperText>}
 		</Screen>
 	);
 }
-const createStyles = (theme: ThemeTokens) =>
-	StyleSheet.create({
-		stats: { flexDirection: "row", gap: 10 },
-		label: { color: theme.primary, fontSize: 11, fontWeight: "900" },
-		value: { color: theme.onSurface, fontSize: 25, fontWeight: "900" },
-		muted: { color: theme.onSurfaceVariant, fontSize: 12 },
-		comparison: {
-			borderTopWidth: 1,
-			borderTopColor: theme.outline,
-			paddingTop: 12,
-			flexDirection: "row",
-			alignItems: "center",
-			justifyContent: "space-between",
-		},
-		delta: { fontWeight: "900" },
-	});

@@ -18,7 +18,10 @@ import {
 } from "@/components/vitalis/ui";
 import { radius, spacing, type ThemeTokens } from "@/constants/theme";
 import { useAppTheme } from "@/hooks/use-app-theme";
-import { isEmail } from "@/lib/health";
+import { loginSchema } from "@vitalis/contracts";
+import { parseInput } from "@/lib/validation";
+import { useSubmit } from "@/hooks/use-submit";
+import { HelperText } from "react-native-paper";
 import { useAppState } from "@/state/app-state";
 
 export default function LoginScreen() {
@@ -27,22 +30,13 @@ export default function LoginScreen() {
 	const { login } = useAppState();
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
-	const [error, setError] = useState("");
-	const submit = async () => {
-		if (!isEmail(email) || password.length < 8)
-			return setError(
-				"Informe um e-mail válido e uma senha com ao menos 8 caracteres.",
-			);
-		try {
-			setError("");
-			await login(email, password);
+	const { submit, saving, error } = useSubmit();
+	const save = () =>
+		submit(async () => {
+			const input = parseInput(loginSchema, { email: email.trim(), password });
+			await login(input.email, input.password);
 			router.replace("/(tabs)");
-		} catch (cause) {
-			setError(
-				cause instanceof Error ? cause.message : "Não foi possível entrar.",
-			);
-		}
-	};
+		});
 	return (
 		<KeyboardAvoidingView
 			style={{ flex: 1 }}
@@ -78,8 +72,12 @@ export default function LoginScreen() {
 						value={password}
 						onChangeText={setPassword}
 					/>
-					{error ? <Text style={styles.error}>{error}</Text> : null}
-					<Button title="Entrar" onPress={submit} />
+					{error ? (
+						<HelperText type="error" accessibilityLiveRegion="polite">
+							{error}
+						</HelperText>
+					) : null}
+					<Button title="Entrar" onPress={save} loading={saving} />
 				</View>
 				<Text style={styles.switch}>
 					Ainda não tem conta?{" "}
