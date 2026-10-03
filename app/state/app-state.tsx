@@ -1,12 +1,44 @@
-import { useColorScheme } from "react-native";
+import { AppState as Lifecycle, useColorScheme } from "react-native";
 import NetInfo from "@react-native-community/netinfo";
 import { Pedometer } from "expo-sensors";
-import { createContext, PropsWithChildren, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
-import type { AuthTokens, Profile as ApiProfile, SyncPull, SyncResult } from "@vitalis/contracts";
+import {
+	createContext,
+	PropsWithChildren,
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from "react";
+import type {
+	AuthTokens,
+	Profile as ApiProfile,
+	SyncPull,
+	SyncResult,
+} from "@vitalis/contracts";
 import { apiRequest, publicRequest } from "@/lib/api";
 import { calculateActivityCalories, isoDate, newId } from "@/lib/health";
-import { getValue, initDatabase, loadState, loadLegacyState, markAttempt, migrateLegacyAccount, pendingMutations, removeMutations, saveState, setActiveUser, setValue } from "@/lib/local-database";
-import { clearTokens, loadTokens, saveTokens, tokenClaims } from "@/lib/session";
+import {
+	getValue,
+	initDatabase,
+	loadState,
+	loadLegacyState,
+	markAttempt,
+	migrateLegacyAccount,
+	pendingCount,
+	pendingMutations,
+	removeMutations,
+	saveState,
+	setActiveUser,
+	setValue,
+} from "@/lib/local-database";
+import {
+	clearTokens,
+	loadTokens,
+	saveTokens,
+	tokenClaims,
+} from "@/lib/session";
 import { useSessionRefresh } from "@/lib/use-session-refresh";
 import { drainOutbox, mergeRows } from "@/lib/sync";
 import { appReducer, initialState, type Action } from "./reducer";
@@ -18,178 +50,513 @@ export { appReducer, initialState } from "./reducer";
 export type { Action } from "./reducer";
 
 type AuthResult = { profile: ApiProfile; tokens: AuthTokens };
-const localProfile = (profile: ApiProfile): Profile => ({ name: profile.name, email: profile.email, birthDate: profile.birthDate ?? "", weightKg: profile.weightKg ?? 70, heightCm: profile.heightCm ?? 170, gender: profile.gender ?? "Outro", avatar: profile.avatarUrl ?? undefined });
+const localProfile = (profile: ApiProfile): Profile => ({
+	name: profile.name,
+	email: profile.email,
+	hasWeight: profile.weightKg != null,
+	hasHeight: profile.heightCm != null,
+	birthDate: profile.birthDate ?? "",
+	weightKg: profile.weightKg ?? 70,
+	heightCm: profile.heightCm ?? 170,
+	gender: profile.gender ?? "Outro",
+	avatar: profile.avatarUrl ?? undefined,
+});
 type ContextValue = {
- state: AppState; dispatch: (action: Action) => Promise<void>; loading: boolean; lastError: string | null;
- addActivity: (value: Omit<Activity, "id" | "calories">) => Promise<void>;
- login: (email: string, password: string) => Promise<void>;
- register: (name: string, email: string, password: string, passwordConfirmation: string) => Promise<void>;
- logout: () => Promise<void>; syncNow: () => Promise<void>; uploadAvatar: (uri: string, mimeType?: string) => Promise<void>;
+	state: AppState;
+	dispatch: (action: Action) => Promise<void>;
+	loading: boolean;
+	lastError: string | null;
+	addActivity: (value: Omit<Activity, "id" | "calories">) => Promise<void>;
+	login: (email: string, password: string) => Promise<void>;
+	register: (
+		name: string,
+		email: string,
+		password: string,
+		passwordConfirmation: string,
+	) => Promise<void>;
+	logout: () => Promise<void>;
+	syncNow: () => Promise<void>;
+	uploadAvatar: (uri: string, mimeType?: string) => Promise<void>;
 };
 const AppContext = createContext<ContextValue | null>(null);
 
 export function AppStateProvider({ children }: PropsWithChildren) {
- const [state, setState] = useState(initialState), [loading, setLoading] = useState(true), [lastError, setLastError] = useState<string | null>(null);
- const systemScheme = useColorScheme();
- const stateRef = useRef(state);
- const writes = useRef<Promise<void>>(Promise.resolve());
- const flight = useRef<Promise<void> | null>(null);
- const syncRef = useRef<() => Promise<void>>(async () => {});
- const syncTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
- const invalidateSession = useCallback(() => {
-  const next = { ...stateRef.current, authenticated: false };
-  stateRef.current = next; setState(next);
- }, []);
- useSessionRefresh(state.authenticated, invalidateSession);
- const commit = useCallback((updater: (previous: AppState) => AppState | Promise<AppState>, action?: Action) => {
-  const operation = writes.current.then(async () => {
-   const previous = stateRef.current, next = await updater(previous);
-   if (next === previous) return;
-   await saveState(next, action && next.authenticated ? mutationFor(action, next) : null);
-   const applied = previous.authenticated && !stateRef.current.authenticated ? { ...next, authenticated: false } : next;
-   stateRef.current = applied; setState(applied);
-  });
-  writes.current = operation.catch((error) => setLastError(error instanceof Error ? error.message : "Falha ao salvar os dados."));
-  return operation;
- }, []);
- const scheduleSync = useCallback(() => {
-  clearTimeout(syncTimer.current);
-  syncTimer.current = setTimeout(() => void syncRef.current(), 750);
- }, []);
- const dispatch = useCallback(async (action: Action) => {
-  const owner = stateRef.current.userId;
-  await commit((previous) => previous.userId !== owner ? previous : appReducer(previous, action), action);
-  if (mutationFor(action, stateRef.current)) scheduleSync();
- }, [commit, scheduleSync]);
- const syncNow = useCallback(() => {
-  if (flight.current) return flight.current;
-  const owner = stateRef.current.userId;
-  if (!owner || !stateRef.current.authenticated) return Promise.resolve();
-  const active = () => stateRef.current.userId === owner && stateRef.current.authenticated;
-  const run = (async () => {
-   const network = await NetInfo.fetch();
-   if (!network.isConnected || network.isInternetReachable === false) {
-    if (active()) await commit((x) => ({ ...x, syncStatus: "offline" }));
-    return;
-   }
-   if (!active()) return;
-   await commit((x) => ({ ...x, syncStatus: "syncing" }));
-   try {
-    await writes.current;
-    await drainOutbox({
-     read: async () => { await writes.current; return active() ? pendingMutations(100, owner) : []; },
-     push: async (mutations) => apiRequest<SyncResult[]>("/v1/sync", { method: "POST", body: JSON.stringify({ mutations }) }, true, owner),
-     ack: (ids) => removeMutations(ids, owner), fail: (ids) => markAttempt(ids, owner),
-    });
-    if (!active()) return;
-    const cursor = await getValue("sync-cursor", owner);
-    const pulled = await apiRequest<SyncPull>(`/v1/sync${cursor ? `?cursor=${encodeURIComponent(cursor)}` : ""}`, {}, true, owner);
-    await commit(async (current) => {
-     if (!active()) return current;
-     const pending = await pendingMutations(1_000_000, owner);
-     const hasPending = (entity: string) => pending.some((x) => x.entity === entity);
-     return ({
-     ...current,
-     profile: pulled.profile && !hasPending("profile") ? { ...current.profile, name: pulled.profile.name ?? current.profile.name, birthDate: pulled.profile.birthDate ?? current.profile.birthDate, weightKg: pulled.profile.weightKg ?? current.profile.weightKg, heightCm: pulled.profile.heightCm ?? current.profile.heightCm, gender: pulled.profile.gender ?? current.profile.gender, avatar: pulled.profile.avatarUrl ?? current.profile.avatar } : current.profile,
-     goals: pulled.goals && !hasPending("goals") ? { ...current.goals, ...pulled.goals } : current.goals,
-     water: mergeRows(current.water, pulled.water, pending, "water"),
-     meals: mergeRows(current.meals, pulled.meals, pending, "meal"),
-     activities: mergeRows(current.activities, pulled.activities.map((x) => ({ ...x, durationMinutes: x.durationSeconds / 60, distanceKm: x.distanceMeters / 1000 })), pending, "activity"),
-     weights: mergeRows(current.weights, pulled.weights, pending, "weight"),
-     dailySteps: hasPending("steps") ? current.dailySteps : [...new Map([...(current.dailySteps ?? []), ...pulled.steps].map((x) => [x.date, x])).values()],
-     steps: hasPending("steps") ? current.steps : pulled.steps.find((x) => x.date === isoDate())?.steps ?? current.dailySteps?.find((x) => x.date === isoDate())?.steps ?? 0,
-     syncStatus: "idle",
-    }); });
-    await setValue("sync-cursor", pulled.cursor, owner); setLastError(null);
-   } catch (error) {
-    if (!active()) return;
-    await commit((x) => ({ ...x, syncStatus: "error" }));
-    setLastError(error instanceof Error ? error.message : "Falha ao sincronizar");
-    clearTimeout(syncTimer.current); syncTimer.current = setTimeout(() => void syncRef.current(), 30_000);
-   }
-  })().catch((error) => setLastError(error instanceof Error ? error.message : "Falha de rede")).finally(() => { flight.current = null; });
-  flight.current = run; return run;
- }, [commit]);
- syncRef.current = syncNow;
- const acceptSession = useCallback(async (result: AuthResult) => {
-  await writes.current;
-  await saveTokens(result.tokens); setActiveUser(result.profile.id);
-  await migrateLegacyAccount(result.profile.id, result.profile.email);
-  const restored = migrateState(await loadState(result.profile.id), result.profile.id);
-  const pendingProfile = (await pendingMutations(1_000_000, result.profile.id)).some((row) => row.entity === "profile");
-  await commit(() => ({ ...restored, profile: pendingProfile ? { ...restored.profile, email: result.profile.email } : localProfile(result.profile), authenticated: true }));
-  await syncNow(); scheduleSync();
- }, [commit, scheduleSync, syncNow]);
- const login = useCallback(async (email: string, password: string) => acceptSession(await publicRequest<AuthResult>("/v1/auth/login", { email, password })), [acceptSession]);
- const register = useCallback(async (name: string, email: string, password: string, passwordConfirmation: string) => acceptSession(await publicRequest<AuthResult>("/v1/auth/register", { name, email, password, passwordConfirmation })), [acceptSession]);
- const logout = useCallback(async () => {
-  const tokens = await loadTokens();
-  const owner = stateRef.current.userId;
-  invalidateSession(); clearTimeout(syncTimer.current);
-  await writes.current; await clearTokens(); setActiveUser(null);
-  stateRef.current = initialState; setState(initialState);
-  if (tokens) void publicRequest("/v1/auth/logout", { refreshToken: tokens.refreshToken }).catch(() => {});
-  // Pending records remain scoped to their owner and can be resumed after login.
-  if (owner) setLastError(null);
- }, [invalidateSession]);
- const uploadAvatar = useCallback(async (uri: string, mimeType = "image/jpeg") => {
-  const owner = stateRef.current.userId;
-  const data = new FormData(); data.append("file", { uri, type: mimeType, name: `avatar.${mimeType.split("/")[1] ?? "jpg"}` } as unknown as Blob);
-  const profile = await apiRequest<ApiProfile>("/v1/profile/avatar", { method: "POST", body: data }, true, owner);
-  await commit((current) => current.userId === owner ? { ...current, profile: { ...current.profile, avatar: profile.avatarUrl ?? undefined } } : current);
- }, [commit]);
- useEffect(() => {
-  let stopped = false;
-  void (async () => {
-   try {
-    await initDatabase(); const tokens = await loadTokens();
-    const owner = tokens ? tokenClaims(tokens.accessToken).sub : undefined;
-    setActiveUser(owner ?? null);
-    if (owner) {
-     const scoped = await loadState(owner);
-     const legacy = scoped ? null : await loadLegacyState();
-     // v1 cleared cache on logout. A legacy authenticated snapshot belongs to
-     // the SecureStore session being migrated; a different login uses verified email.
-     if (legacy?.authenticated && (!legacy.userId || legacy.userId === owner))
-      await migrateLegacyAccount(owner, legacy.profile.email);
+	const [state, setState] = useState(initialState),
+		[loading, setLoading] = useState(true),
+		[lastError, setLastError] = useState<string | null>(null);
+	const systemScheme = useColorScheme();
+	const stateRef = useRef(state);
+	const writes = useRef<Promise<void>>(Promise.resolve());
+	const flight = useRef<Promise<void> | null>(null);
+	const syncRef = useRef<() => Promise<void>>(async () => {});
+	const syncTimer = useRef<ReturnType<typeof setTimeout> | undefined>(
+		undefined,
+	);
+	const invalidateSession = useCallback(() => {
+		const next = { ...stateRef.current, authenticated: false };
+		stateRef.current = next;
+		setState(next);
+	}, []);
+	useSessionRefresh(state.authenticated, invalidateSession);
+	const commit = useCallback(
+		(
+			updater: (previous: AppState) => AppState | Promise<AppState>,
+			action?: Action,
+		) => {
+			const operation = writes.current.then(async () => {
+				const previous = stateRef.current,
+					updated = await updater(previous);
+				const mutation =
+					action && updated.authenticated ? mutationFor(action, updated) : null;
+				const next = mutation
+					? {
+							...updated,
+							syncStatus:
+								updated.syncStatus === "offline"
+									? ("offline" as const)
+									: ("pending" as const),
+						}
+					: updated;
+				if (next === previous) return;
+				await saveState(next, mutation);
+				const applied =
+					previous.authenticated && !stateRef.current.authenticated
+						? { ...next, authenticated: false }
+						: next;
+				stateRef.current = applied;
+				setState(applied);
+			});
+			writes.current = operation.catch((error) =>
+				setLastError(
+					error instanceof Error ? error.message : "Falha ao salvar os dados.",
+				),
+			);
+			return operation;
+		},
+		[],
+	);
+	const scheduleSync = useCallback(() => {
+		clearTimeout(syncTimer.current);
+		syncTimer.current = setTimeout(() => void syncRef.current(), 750);
+	}, []);
+	const dispatch = useCallback(
+		async (action: Action) => {
+			const owner = stateRef.current.userId;
+			await commit(
+				(previous) =>
+					previous.userId !== owner ? previous : appReducer(previous, action),
+				action,
+			);
+			if (mutationFor(action, stateRef.current)) scheduleSync();
+		},
+		[commit, scheduleSync],
+	);
+	const syncNow = useCallback(() => {
+		if (flight.current) return flight.current;
+		const owner = stateRef.current.userId;
+		if (!owner || !stateRef.current.authenticated) return Promise.resolve();
+		const active = () =>
+			stateRef.current.userId === owner && stateRef.current.authenticated;
+		const run = (async () => {
+			const network = await NetInfo.fetch();
+			if (!network.isConnected || network.isInternetReachable === false) {
+				if (active()) await commit((x) => ({ ...x, syncStatus: "offline" }));
+				return;
+			}
+			if (!active()) return;
+			await commit((x) => ({ ...x, syncStatus: "syncing" }));
+			try {
+				await writes.current;
+				await drainOutbox({
+					read: async () => {
+						await writes.current;
+						return active() ? pendingMutations(100, owner) : [];
+					},
+					push: async (mutations) =>
+						apiRequest<SyncResult[]>(
+							"/v1/sync",
+							{ method: "POST", body: JSON.stringify({ mutations }) },
+							true,
+							owner,
+						),
+					ack: (ids) => removeMutations(ids, owner),
+					fail: (ids) => markAttempt(ids, owner),
+				});
+				if (!active()) return;
+				const cursor = await getValue("sync-cursor", owner);
+				const pulled = await apiRequest<SyncPull>(
+					`/v1/sync${cursor ? `?cursor=${encodeURIComponent(cursor)}` : ""}`,
+					{},
+					true,
+					owner,
+				);
+				await commit(async (current) => {
+					if (!active()) return current;
+					const pending = await pendingMutations(1_000_000, owner);
+					const hasPending = (entity: string) =>
+						pending.some((x) => x.entity === entity);
+					return {
+						...current,
+						profile:
+							pulled.profile && !hasPending("profile")
+								? {
+										...current.profile,
+										name: pulled.profile.name ?? current.profile.name,
+										birthDate:
+											pulled.profile.birthDate ?? current.profile.birthDate,
+										weightKg: hasPending("weight")
+											? current.profile.weightKg
+											: (pulled.profile.weightKg ?? current.profile.weightKg),
+										heightCm:
+											pulled.profile.heightCm ?? current.profile.heightCm,
+										gender: pulled.profile.gender ?? current.profile.gender,
+										hasWeight: hasPending("weight")
+											? current.profile.hasWeight
+											: "weightKg" in pulled.profile
+												? pulled.profile.weightKg != null
+												: current.profile.hasWeight,
+										hasHeight:
+											"heightCm" in pulled.profile
+												? pulled.profile.heightCm != null
+												: current.profile.hasHeight,
+										avatar: pulled.profile.avatarUrl ?? current.profile.avatar,
+									}
+								: current.profile,
+						goals:
+							pulled.goals && !hasPending("goals")
+								? { ...current.goals, ...pulled.goals }
+								: current.goals,
+						water: mergeRows(current.water, pulled.water, pending, "water"),
+						meals: mergeRows(current.meals, pulled.meals, pending, "meal"),
+						activities: mergeRows(
+							current.activities,
+							pulled.activities.map((x) => ({
+								...x,
+								durationMinutes: x.durationSeconds / 60,
+								distanceKm: x.distanceMeters / 1000,
+							})),
+							pending,
+							"activity",
+						),
+						weights: mergeRows(
+							current.weights,
+							pulled.weights,
+							pending,
+							"weight",
+						),
+						dailySteps: hasPending("steps")
+							? current.dailySteps
+							: [
+									...new Map(
+										[...(current.dailySteps ?? []), ...pulled.steps].map(
+											(x) => [x.date, x],
+										),
+									).values(),
+								],
+						steps: hasPending("steps")
+							? current.steps
+							: (pulled.steps.find((x) => x.date === isoDate())?.steps ??
+								current.dailySteps?.find((x) => x.date === isoDate())?.steps ??
+								0),
+						syncStatus: pending.length ? "pending" : "idle",
+					};
+				});
+				await setValue("sync-cursor", pulled.cursor, owner);
+				setLastError(null);
+			} catch (error) {
+				if (!active()) return;
+				await commit((x) => ({ ...x, syncStatus: "error" }));
+				setLastError(
+					error instanceof Error ? error.message : "Falha ao sincronizar",
+				);
+				clearTimeout(syncTimer.current);
+				syncTimer.current = setTimeout(() => void syncRef.current(), 30_000);
+			}
+		})()
+			.catch((error) =>
+				setLastError(error instanceof Error ? error.message : "Falha de rede"),
+			)
+			.finally(async () => {
+				flight.current = null;
+				if (
+					active() &&
+					stateRef.current.syncStatus === "pending" &&
+					(await pendingCount(owner))
+				)
+					scheduleSync();
+			});
+		flight.current = run;
+		return run;
+	}, [commit, scheduleSync]);
+	syncRef.current = syncNow;
+	const acceptSession = useCallback(
+		async (result: AuthResult) => {
+			await writes.current;
+			await saveTokens(result.tokens);
+			setActiveUser(result.profile.id);
+			await migrateLegacyAccount(result.profile.id, result.profile.email);
+			const restored = migrateState(
+				await loadState(result.profile.id),
+				result.profile.id,
+			);
+			const pending = await pendingMutations(1_000_000, result.profile.id);
+			const pendingProfile = pending.some((row) => row.entity === "profile");
+			const pendingWeight = pending.some((row) => row.entity === "weight");
+			await commit(() => ({
+				...restored,
+				profile: {
+					...(pendingProfile
+						? { ...restored.profile, email: result.profile.email }
+						: localProfile(result.profile)),
+					...(pendingWeight
+						? {
+								weightKg: restored.profile.weightKg,
+								hasWeight: restored.profile.hasWeight,
+							}
+						: {}),
+				},
+				authenticated: true,
+			}));
+			await syncNow();
+			scheduleSync();
+		},
+		[commit, scheduleSync, syncNow],
+	);
+	const login = useCallback(
+		async (email: string, password: string) =>
+			acceptSession(
+				await publicRequest<AuthResult>("/v1/auth/login", { email, password }),
+			),
+		[acceptSession],
+	);
+	const register = useCallback(
+		async (
+			name: string,
+			email: string,
+			password: string,
+			passwordConfirmation: string,
+		) =>
+			acceptSession(
+				await publicRequest<AuthResult>("/v1/auth/register", {
+					name,
+					email,
+					password,
+					passwordConfirmation,
+				}),
+			),
+		[acceptSession],
+	);
+	const logout = useCallback(async () => {
+		const tokens = await loadTokens();
+		const owner = stateRef.current.userId;
+		invalidateSession();
+		clearTimeout(syncTimer.current);
+		await writes.current;
+		await clearTokens();
+		setActiveUser(null);
+		stateRef.current = initialState;
+		setState(initialState);
+		if (tokens)
+			void publicRequest("/v1/auth/logout", {
+				refreshToken: tokens.refreshToken,
+			}).catch(() => {});
+		// Pending records remain scoped to their owner and can be resumed after login.
+		if (owner) setLastError(null);
+	}, [invalidateSession]);
+	const uploadAvatar = useCallback(
+		async (uri: string, mimeType = "image/jpeg") => {
+			const owner = stateRef.current.userId;
+			const data = new FormData();
+			data.append("file", {
+				uri,
+				type: mimeType,
+				name: `avatar.${mimeType.split("/")[1] ?? "jpg"}`,
+			} as unknown as Blob);
+			const profile = await apiRequest<ApiProfile>(
+				"/v1/profile/avatar",
+				{ method: "POST", body: data },
+				true,
+				owner,
+			);
+			await commit((current) =>
+				current.userId === owner
+					? {
+							...current,
+							profile: {
+								...current.profile,
+								avatar: profile.avatarUrl ?? undefined,
+							},
+						}
+					: current,
+			);
+		},
+		[commit],
+	);
+	useEffect(() => {
+		let stopped = false;
+		void (async () => {
+			try {
+				await initDatabase();
+				const tokens = await loadTokens();
+				const owner = tokens ? tokenClaims(tokens.accessToken).sub : undefined;
+				setActiveUser(owner ?? null);
+				if (owner) {
+					const scoped = await loadState(owner);
+					const legacy = scoped ? null : await loadLegacyState();
+					// v1 cleared cache on logout. A legacy authenticated snapshot belongs to
+					// the SecureStore session being migrated; a different login uses verified email.
+					if (
+						legacy?.authenticated &&
+						(!legacy.userId || legacy.userId === owner)
+					)
+						await migrateLegacyAccount(owner, legacy.profile.email);
 
-     const migrated = migrateState(await loadState(owner), owner);
-     if (!stopped) { stateRef.current = { ...migrated, authenticated: true }; setState(stateRef.current); }
-    }
-   } catch (error) { if (!stopped) setLastError(error instanceof Error ? error.message : "Falha ao carregar os dados"); }
-   finally { if (!stopped) { setLoading(false); scheduleSync(); } }
-  })();
-  return () => { stopped = true; clearTimeout(syncTimer.current); };
- }, [scheduleSync]);
- useEffect(() => {
-  if (state.themeMode === "system" && state.darkMode !== (systemScheme === "dark")) void commit((x) => ({ ...x, darkMode: systemScheme === "dark" }));
- }, [commit, systemScheme, state.themeMode, state.darkMode]);
- useEffect(() => NetInfo.addEventListener((network) => {
-  if (network.isConnected) scheduleSync();
-  else if (stateRef.current.authenticated) void commit((x) => ({ ...x, syncStatus: "offline" }));
- }), [commit, scheduleSync]);
- useEffect(() => {
-  if (!state.authenticated) return;
-  let stopped = false, subscription: { remove(): void } | undefined;
-  let previousCount = 0;
-  void (async () => {
-   try {
-    if (!(await Pedometer.isAvailableAsync())) return;
-    const permission = await Pedometer.requestPermissionsAsync();
-    if (permission.granted && !stopped) subscription = Pedometer.watchStepCount(({ steps }) => {
-     if (stopped) return;
-     const date = isoDate(); const delta = Math.max(0, steps - previousCount); previousCount = steps;
-     if (delta) void dispatch({ type: "STEPS_INCREMENT", date, value: delta }).catch(() => {});
-    });
-   } catch { /* devices without a pedometer still support manual activities */ }
-  })();
-  return () => { stopped = true; subscription?.remove(); };
- }, [dispatch, state.authenticated]);
- const value = useMemo<ContextValue>(() => ({ state, dispatch, loading, lastError, login, register, logout, syncNow, uploadAvatar,
-  addActivity: async (activity) => dispatch({ type: "ACTIVITY_SAVE", value: { ...activity, id: newId(), calories: calculateActivityCalories(activity.type, state.profile.weightKg, activity.durationMinutes) } }),
- }), [state, dispatch, loading, lastError, login, register, logout, syncNow, uploadAvatar]);
- return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
+					const migrated = migrateState(await loadState(owner), owner);
+					if (!stopped) {
+						stateRef.current = { ...migrated, authenticated: true };
+						setState(stateRef.current);
+					}
+				}
+			} catch (error) {
+				if (!stopped)
+					setLastError(
+						error instanceof Error
+							? error.message
+							: "Falha ao carregar os dados",
+					);
+			} finally {
+				if (!stopped) {
+					setLoading(false);
+					scheduleSync();
+				}
+			}
+		})();
+		return () => {
+			stopped = true;
+			clearTimeout(syncTimer.current);
+		};
+	}, [scheduleSync]);
+	useEffect(() => {
+		if (
+			state.themeMode === "system" &&
+			state.darkMode !== (systemScheme === "dark")
+		)
+			void commit((x) => ({ ...x, darkMode: systemScheme === "dark" }));
+	}, [commit, systemScheme, state.themeMode, state.darkMode]);
+	useEffect(
+		() =>
+			NetInfo.addEventListener((network) => {
+				if (network.isConnected) scheduleSync();
+				else if (stateRef.current.authenticated)
+					void commit((x) => ({ ...x, syncStatus: "offline" }));
+			}),
+		[commit, scheduleSync],
+	);
+	useEffect(() => {
+		if (!state.authenticated) return;
+		let day = isoDate();
+		const checkDay = () => {
+			const nextDay = isoDate();
+			if (nextDay !== day) {
+				day = nextDay;
+				void commit((current) => ({
+					...current,
+					steps:
+						current.dailySteps?.find((row) => row.date === nextDay)?.steps ?? 0,
+				}));
+			}
+		};
+		const timer = setInterval(checkDay, 60_000);
+		const subscription = Lifecycle.addEventListener("change", (status) => {
+			if (status === "active") checkDay();
+		});
+		return () => {
+			clearInterval(timer);
+			subscription.remove();
+		};
+	}, [commit, state.authenticated]);
+
+	useEffect(() => {
+		if (!state.authenticated) return;
+		let stopped = false,
+			subscription: { remove(): void } | undefined;
+		let previousCount = 0;
+		void (async () => {
+			try {
+				if (!(await Pedometer.isAvailableAsync())) return;
+				const permission = await Pedometer.requestPermissionsAsync();
+				if (permission.granted && !stopped)
+					subscription = Pedometer.watchStepCount(({ steps }) => {
+						if (stopped) return;
+						const date = isoDate();
+						const delta = Math.max(0, steps - previousCount);
+						previousCount = steps;
+						if (delta)
+							void dispatch({
+								type: "STEPS_INCREMENT",
+								date,
+								value: delta,
+							}).catch(() => {});
+					});
+			} catch {
+				/* devices without a pedometer still support manual activities */
+			}
+		})();
+		return () => {
+			stopped = true;
+			subscription?.remove();
+		};
+	}, [dispatch, state.authenticated]);
+	const value = useMemo<ContextValue>(
+		() => ({
+			state,
+			dispatch,
+			loading,
+			lastError,
+			login,
+			register,
+			logout,
+			syncNow,
+			uploadAvatar,
+			addActivity: async (activity) =>
+				dispatch({
+					type: "ACTIVITY_SAVE",
+					value: {
+						...activity,
+						id: newId(),
+						calories: calculateActivityCalories(
+							activity.type,
+							state.profile.weightKg,
+							activity.durationMinutes,
+						),
+					},
+				}),
+		}),
+		[
+			state,
+			dispatch,
+			loading,
+			lastError,
+			login,
+			register,
+			logout,
+			syncNow,
+			uploadAvatar,
+		],
+	);
+	return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 }
-export const useAppState = () => { const value = useContext(AppContext); if (!value) throw new Error("useAppState deve estar dentro de AppStateProvider"); return value; };
-export function useDailySummary(date = isoDate()) { const { state } = useAppState(); return useMemo(() => selectDailySummary(state, date), [state, date]); }
-export function useProgress(period: Period) { const { state } = useAppState(); return useMemo(() => selectProgressSummary(state, period), [state, period]); }
+export const useAppState = () => {
+	const value = useContext(AppContext);
+	if (!value)
+		throw new Error("useAppState deve estar dentro de AppStateProvider");
+	return value;
+};
+export function useDailySummary(date = isoDate()) {
+	const { state } = useAppState();
+	return useMemo(() => selectDailySummary(state, date), [state, date]);
+}
+export function useProgress(period: Period) {
+	const { state } = useAppState();
+	return useMemo(() => selectProgressSummary(state, period), [state, period]);
+}

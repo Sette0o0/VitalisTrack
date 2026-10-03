@@ -12,6 +12,7 @@ import {
 	weightInputSchema,
 } from "@vitalis/contracts";
 import { z } from "zod";
+import { createLimiter } from "../lib/concurrency.js";
 import { config } from "../config.js";
 import { requireAuth } from "../lib/auth.js";
 import { AppError } from "../lib/errors.js";
@@ -43,6 +44,8 @@ const routeCreate = (route: Array<z.infer<typeof routePointSchema>>) =>
 		timestamp: new Date(point.timestamp),
 	}));
 
+const withSyncSlot = createLimiter(8);
+
 async function applyMutation(
 	userId: string,
 	mutation: z.infer<typeof syncPushSchema>["mutations"][number],
@@ -52,159 +55,174 @@ async function applyMutation(
 	});
 	if (existing) return existing.result;
 	return await prisma.$transaction(async (tx) => {
-  await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${userId + ":" + mutation.mutationId}))`;
-  const replay = await tx.processedMutation.findUnique({ where: { userId_mutationId: { userId, mutationId: mutation.mutationId } } });
-  if (replay) return replay.result;
-  const apply = async () => {
-		if (mutation.action === "delete") {
-			if (
-				!mutation.entityId ||
-				!["water", "meal", "activity", "weight"].includes(mutation.entity)
-			) {
-				throw new AppError(
-					400,
-					"INVALID_SYNC_DELETE",
-					"Exclusão não permitida para esta entidade",
-				);
+		await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${userId + ":" + mutation.mutationId}))`;
+		const replay = await tx.processedMutation.findUnique({
+			where: { userId_mutationId: { userId, mutationId: mutation.mutationId } },
+		});
+		if (replay) return replay.result;
+		const apply = async () => {
+			if (mutation.action === "delete") {
+				if (
+					!mutation.entityId ||
+					!["water", "meal", "activity", "weight"].includes(mutation.entity)
+				) {
+					throw new AppError(
+						400,
+						"INVALID_SYNC_DELETE",
+						"Exclusão não permitida para esta entidade",
+					);
+				}
+				const where = { id: mutation.entityId, userId, deletedAt: null };
+				if (mutation.entity === "water")
+					await tx.waterEntry.updateMany({
+						where,
+						data: { deletedAt: new Date() },
+					});
+				if (mutation.entity === "meal")
+					await tx.meal.updateMany({ where, data: { deletedAt: new Date() } });
+				if (mutation.entity === "activity")
+					await tx.activity.updateMany({
+						where,
+						data: { deletedAt: new Date() },
+					});
+				if (mutation.entity === "weight")
+					await tx.weightEntry.updateMany({
+						where,
+						data: { deletedAt: new Date() },
+					});
+				return {
+					mutationId: mutation.mutationId,
+					status: "applied",
+					entityId: mutation.entityId,
+				};
 			}
-			const where = { id: mutation.entityId, userId, deletedAt: null };
-			if (mutation.entity === "water")
-				await tx.waterEntry.updateMany({
-					where,
-					data: { deletedAt: new Date() },
+
+			const payload = mutation.payload ?? {};
+			if (typeof payload.id === "string") {
+				await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${mutation.entity + ":" + payload.id}))`;
+				const where = { id: payload.id };
+				const found =
+					mutation.entity === "water"
+						? await tx.waterEntry.findUnique({ where })
+						: mutation.entity === "meal"
+							? await tx.meal.findUnique({ where })
+							: mutation.entity === "weight"
+								? await tx.weightEntry.findUnique({ where })
+								: mutation.entity === "activity"
+									? await tx.activity.findUnique({ where })
+									: null;
+				if (found && found.userId !== userId)
+					throw new AppError(
+						403,
+						"FORBIDDEN",
+						"Registro pertence a outra conta",
+					);
+			}
+			if (mutation.entity === "profile") {
+				const data = profileUpdateSchema.parse(payload);
+				const { birthDate, ...rest } = data;
+				await tx.profile.update({
+					where: { userId },
+					data: {
+						...rest,
+						...(birthDate ? { birthDate: parseDate(birthDate) } : {}),
+					},
 				});
-			if (mutation.entity === "meal")
-				await tx.meal.updateMany({ where, data: { deletedAt: new Date() } });
-			if (mutation.entity === "activity")
-				await tx.activity.updateMany({
-					where,
-					data: { deletedAt: new Date() },
+			} else if (mutation.entity === "goals") {
+				await tx.goals.update({
+					where: { userId },
+					data: goalsUpdateSchema.parse(payload),
 				});
-			if (mutation.entity === "weight")
-				await tx.weightEntry.updateMany({
-					where,
-					data: { deletedAt: new Date() },
+			} else if (mutation.entity === "water") {
+				const data = waterInputSchema.parse(payload);
+				await tx.waterEntry.upsert({
+					where: { id: data.id },
+					create: { ...data, date: parseDate(data.date), userId },
+					update: {
+						amountMl: data.amountMl,
+						date: parseDate(data.date),
+						time: data.time,
+						deletedAt: null,
+					},
 				});
+			} else if (mutation.entity === "meal") {
+				const data = mealInputSchema.parse(payload);
+				await tx.meal.upsert({
+					where: { id: data.id },
+					create: { ...data, date: parseDate(data.date), userId },
+					update: { ...data, date: parseDate(data.date), deletedAt: null },
+				});
+			} else if (mutation.entity === "weight") {
+				const data = weightInputSchema.parse(payload);
+				await tx.weightEntry.upsert({
+					where: { id: data.id },
+					create: { ...data, date: parseDate(data.date), userId },
+					update: {
+						date: parseDate(data.date),
+						weightKg: data.weightKg,
+						deletedAt: null,
+					},
+				});
+				await tx.profile.update({
+					where: { userId },
+					data: { weightKg: data.weightKg },
+				});
+			} else if (mutation.entity === "steps") {
+				const data = stepsPayload.parse(payload);
+				await tx.dailySteps.upsert({
+					where: { userId_date: { userId, date: parseDate(data.date) } },
+					create: { userId, date: parseDate(data.date), steps: data.steps },
+					update: { steps: data.steps },
+				});
+			} else if (mutation.entity === "activity") {
+				const data = activityInputSchema.parse(payload);
+				const profile = await tx.profile.findUnique({ where: { userId } });
+				const calories = calculateActivityCalories(
+					data.type,
+					profile?.weightKg ?? 70,
+					data.durationSeconds,
+				);
+				const paceSecondsPerKm =
+					data.type === "run"
+						? calculatePaceSeconds(data.distanceMeters, data.durationSeconds)
+						: null;
+				await tx.activity.upsert({
+					where: { id: data.id },
+					create: {
+						id: data.id,
+						userId,
+						type: data.type,
+						date: parseDate(data.date),
+						durationSeconds: data.durationSeconds,
+						distanceMeters: data.distanceMeters,
+						calories,
+						paceSecondsPerKm,
+						route: { create: routeCreate(data.route) },
+					},
+					update: {
+						type: data.type,
+						date: parseDate(data.date),
+						durationSeconds: data.durationSeconds,
+						distanceMeters: data.distanceMeters,
+						calories,
+						paceSecondsPerKm,
+						deletedAt: null,
+						route: { deleteMany: {}, create: routeCreate(data.route) },
+					},
+				});
+			}
 			return {
 				mutationId: mutation.mutationId,
 				status: "applied",
-				entityId: mutation.entityId,
+				entityId: mutation.entityId ?? (payload.id as string | undefined),
 			};
-		}
-
-		const payload = mutation.payload ?? {};
-  if (typeof payload.id === "string") {
-   await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${mutation.entity + ":" + payload.id}))`;
-   const where = { id: payload.id };
-   const found = mutation.entity === "water" ? await tx.waterEntry.findUnique({ where })
-    : mutation.entity === "meal" ? await tx.meal.findUnique({ where })
-    : mutation.entity === "weight" ? await tx.weightEntry.findUnique({ where })
-    : mutation.entity === "activity" ? await tx.activity.findUnique({ where }) : null;
-   if (found && found.userId !== userId) throw new AppError(403, "FORBIDDEN", "Registro pertence a outra conta");
-  }
-		if (mutation.entity === "profile") {
-			const data = profileUpdateSchema.parse(payload);
-			const { birthDate, ...rest } = data;
-			await tx.profile.update({
-				where: { userId },
-				data: {
-					...rest,
-					...(birthDate ? { birthDate: parseDate(birthDate) } : {}),
-				},
-			});
-		} else if (mutation.entity === "goals") {
-			await tx.goals.update({
-				where: { userId },
-				data: goalsUpdateSchema.parse(payload),
-			});
-		} else if (mutation.entity === "water") {
-			const data = waterInputSchema.parse(payload);
-			await tx.waterEntry.upsert({
-				where: { id: data.id },
-				create: { ...data, date: parseDate(data.date), userId },
-				update: {
-					amountMl: data.amountMl,
-					date: parseDate(data.date),
-					time: data.time,
-					deletedAt: null,
-				},
-			});
-		} else if (mutation.entity === "meal") {
-			const data = mealInputSchema.parse(payload);
-			await tx.meal.upsert({
-				where: { id: data.id },
-				create: { ...data, date: parseDate(data.date), userId },
-				update: { ...data, date: parseDate(data.date), deletedAt: null },
-			});
-		} else if (mutation.entity === "weight") {
-			const data = weightInputSchema.parse(payload);
-			await tx.weightEntry.upsert({
-				where: { id: data.id },
-				create: { ...data, date: parseDate(data.date), userId },
-				update: {
-					date: parseDate(data.date),
-					weightKg: data.weightKg,
-					deletedAt: null,
-				},
-			});
-			await tx.profile.update({
-				where: { userId },
-				data: { weightKg: data.weightKg },
-			});
-		} else if (mutation.entity === "steps") {
-			const data = stepsPayload.parse(payload);
-			await tx.dailySteps.upsert({
-				where: { userId_date: { userId, date: parseDate(data.date) } },
-				create: { userId, date: parseDate(data.date), steps: data.steps },
-				update: { steps: data.steps },
-			});
-		} else if (mutation.entity === "activity") {
-			const data = activityInputSchema.parse(payload);
-			const profile = await tx.profile.findUnique({ where: { userId } });
-			const calories = calculateActivityCalories(
-				data.type,
-				profile?.weightKg ?? 70,
-				data.durationSeconds,
-			);
-			const paceSecondsPerKm =
-				data.type === "run"
-					? calculatePaceSeconds(data.distanceMeters, data.durationSeconds)
-					: null;
-			await tx.activity.upsert({
-				where: { id: data.id },
-				create: {
-					id: data.id,
-					userId,
-					type: data.type,
-					date: parseDate(data.date),
-					durationSeconds: data.durationSeconds,
-					distanceMeters: data.distanceMeters,
-					calories,
-					paceSecondsPerKm,
-					route: { create: routeCreate(data.route) },
-				},
-				update: {
-					type: data.type,
-					date: parseDate(data.date),
-					durationSeconds: data.durationSeconds,
-					distanceMeters: data.distanceMeters,
-					calories,
-					paceSecondsPerKm,
-					deletedAt: null,
-					route: { deleteMany: {}, create: routeCreate(data.route) },
-				},
-			});
-		}
-		return {
-			mutationId: mutation.mutationId,
-			status: "applied",
-			entityId: mutation.entityId ?? (payload.id as string | undefined),
 		};
-  };
-  const result = await apply();
-  await tx.processedMutation.create({ data: { userId, mutationId: mutation.mutationId, result } });
-  return result;
- });
+		const result = await apply();
+		await tx.processedMutation.create({
+			data: { userId, mutationId: mutation.mutationId, result },
+		});
+		return result;
+	});
 }
 
 export async function syncRoutes(raw: FastifyInstance) {
@@ -214,7 +232,9 @@ export async function syncRoutes(raw: FastifyInstance) {
 		const results = [];
 		for (const mutation of request.body.mutations) {
 			try {
-				results.push(await applyMutation(request.user.sub, mutation));
+				results.push(
+					await withSyncSlot(() => applyMutation(request.user.sub, mutation)),
+				);
 			} catch (error) {
 				results.push({
 					mutationId: mutation.mutationId,
@@ -240,20 +260,35 @@ export async function syncRoutes(raw: FastifyInstance) {
 			const [water, meals, activities, weights, steps, profile, goals] =
 				await Promise.all([
 					prisma.waterEntry.findMany({
-						where: { userId: request.user.sub, updatedAt: { gte: since, lte: cursor } },
+						where: {
+							userId: request.user.sub,
+							updatedAt: { gte: since, lte: cursor },
+						},
 					}),
 					prisma.meal.findMany({
-						where: { userId: request.user.sub, updatedAt: { gte: since, lte: cursor } },
+						where: {
+							userId: request.user.sub,
+							updatedAt: { gte: since, lte: cursor },
+						},
 					}),
 					prisma.activity.findMany({
-						where: { userId: request.user.sub, updatedAt: { gte: since, lte: cursor } },
+						where: {
+							userId: request.user.sub,
+							updatedAt: { gte: since, lte: cursor },
+						},
 						include: { route: { orderBy: { sequence: "asc" } } },
 					}),
 					prisma.weightEntry.findMany({
-						where: { userId: request.user.sub, updatedAt: { gte: since, lte: cursor } },
+						where: {
+							userId: request.user.sub,
+							updatedAt: { gte: since, lte: cursor },
+						},
 					}),
 					prisma.dailySteps.findMany({
-						where: { userId: request.user.sub, updatedAt: { gte: since, lte: cursor } },
+						where: {
+							userId: request.user.sub,
+							updatedAt: { gte: since, lte: cursor },
+						},
 					}),
 					prisma.profile.findUnique({ where: { userId: request.user.sub } }),
 					prisma.goals.findUnique({ where: { userId: request.user.sub } }),
@@ -278,7 +313,9 @@ export async function syncRoutes(raw: FastifyInstance) {
 									weightKg: profile.weightKg,
 									heightCm: profile.heightCm,
 									gender: profile.gender,
- avatarUrl: profile.avatarPath ? `${config.PUBLIC_BASE_URL}${profile.avatarPath}` : null,
+									avatarUrl: profile.avatarPath
+										? `${config.PUBLIC_BASE_URL}${profile.avatarPath}`
+										: null,
 									updatedAt: profile.updatedAt.toISOString(),
 								}
 							: null,
