@@ -9,6 +9,8 @@ if (( TASK_AVAILABLE_KB < TASK_REQUIRED_KB )); then
 fi
 cd "$TASK_ROOT/app"
 export ANDROID_QA=true
+export NODE_ENV=production
+export BABEL_ENV=production
 pnpm exec expo prebuild --platform android --no-install
 cd android
 ./gradlew --no-daemon --max-workers=2 assembleDebug assembleRelease

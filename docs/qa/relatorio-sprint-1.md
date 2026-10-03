@@ -6,6 +6,8 @@ Os seis blocos de correção foram implementados. A regressão automatizada pass
 
 Reteste posterior do erro de lockfile no GitHub: a configuração pnpm aninhada em `app/` foi removida e o comando exato do prebuild passou localmente. Veja a [correção e as verificações da CI](correcao-ci-lockfile.md).
 
+A falha posterior do bundle release no GitHub foi reproduzida com `NODE_ENV=test` e corrigida usando ambiente de produção para a compilação. O [reteste do Expo Router](correcao-ci-router.md) passou na etapa `export:embed` utilizada pelo Gradle; o APK completo ainda precisa ser retestado.
+
 ## Rastreabilidade
 
 A [matriz](matriz-sprint-1.md) relaciona **22 histórias e 89 critérios**, com resultado esperado, obtido, evidência, defeito e reteste. A referência foi a Sprint 1 de [Home.md](/home/rafael/Documentos/github/VitalisTrack.wiki/Home.md), os critérios de [Backlog.md](/home/rafael/Documentos/github/VitalisTrack.wiki/Backlog.md) e os requisitos de [Requisitos.md](/home/rafael/Documentos/github/VitalisTrack.wiki/Requisitos.md). Os [hashes das fontes](evidence/source-hashes.txt) permitem identificar a versão analisada. A wiki permanece sem alterações.
