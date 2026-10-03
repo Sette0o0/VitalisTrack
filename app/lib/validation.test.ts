@@ -6,6 +6,7 @@ import {
 	profileUpdateSchema,
 	activityInputSchema,
 	goalsUpdateSchema,
+	routePointSchema,
 } from "@vitalis/contracts";
 const id = "ae1583fb-ae5a-48dd-8178-63e80a20fdd8";
 test.each([
@@ -88,4 +89,20 @@ test("atividades exigem segundos positivos e metas inteiras", () => {
 	).toThrow();
 	expect(() => parseInput(goalsUpdateSchema, { calories: 2000.5 })).toThrow();
 	expect(() => parseInput(goalsUpdateSchema, {})).toThrow();
+});
+test("coordenadas de GPS exigem timestamp válido", () => {
+	expect(
+		routePointSchema.safeParse({
+			latitude: 0,
+			longitude: 0,
+			timestamp: "2026-10-03T12:00:00Z",
+		}).success,
+	).toBe(true);
+	expect(
+		routePointSchema.safeParse({
+			latitude: 0,
+			longitude: 0,
+			timestamp: "ontem",
+		}).success,
+	).toBe(false);
 });

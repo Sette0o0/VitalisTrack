@@ -127,7 +127,7 @@ export const routePointSchema = z.object({
 	longitude: z.number().min(-180).max(180),
 	altitude: z.number().nullable().optional(),
 	accuracy: z.number().nonnegative().nullable().optional(),
-	timestamp: z.string(),
+	timestamp: z.iso.datetime({ offset: true }),
 });
 export const activitySchema = z.object({
 	id: idSchema,
@@ -187,7 +187,7 @@ export const syncMutationSchema = z.object({
 	action: mutationActionSchema,
 	entityId: idSchema.optional(),
 	payload: z.record(z.string(), z.unknown()).optional(),
-	clientUpdatedAt: z.string(),
+	clientUpdatedAt: z.iso.datetime({ offset: true }),
 });
 export const syncPushSchema = z.object({
 	mutations: z.array(syncMutationSchema).min(1).max(100),
