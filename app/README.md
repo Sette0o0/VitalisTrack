@@ -4,8 +4,13 @@ Cliente React Native/Expo 54 integrado à API VitalisTrack. A aplicação é And
 
 ## Executar
 
+Execute os comandos abaixo em `app/`. O pnpm usa o workspace e o
+`pnpm-lock.yaml` da raiz do repositório, incluindo `@vitalis/contracts`.
+As dependências de todos os pacotes são instaladas juntas; mantenha apenas
+esse lockfile compartilhado.
+
 ```bash
-pnpm install
+pnpm install --frozen-lockfile
 pnpm start
 ```
 

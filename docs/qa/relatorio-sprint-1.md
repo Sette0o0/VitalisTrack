@@ -4,6 +4,8 @@ Data: 03/10/2026. Branch: `codex/sprint-1-quality`. Base: `7ce5161`.
 
 Os seis blocos de correção foram implementados. A regressão automatizada passa, mas **a sprint ainda não está aprovada no Android**: não há APK instalado/validado, capturas das telas, execução Maestro, ensaio real offline de 24 horas ou medições de abertura e RAM. Os obstáculos e procedimentos para concluir essa aprovação estão registrados abaixo.
 
+Reteste posterior do erro de lockfile no GitHub: a configuração pnpm aninhada em `app/` foi removida e o comando exato do prebuild passou localmente. Veja a [correção e as verificações da CI](correcao-ci-lockfile.md).
+
 ## Rastreabilidade
 
 A [matriz](matriz-sprint-1.md) relaciona **22 histórias e 89 critérios**, com resultado esperado, obtido, evidência, defeito e reteste. A referência foi a Sprint 1 de [Home.md](/home/rafael/Documentos/github/VitalisTrack.wiki/Home.md), os critérios de [Backlog.md](/home/rafael/Documentos/github/VitalisTrack.wiki/Backlog.md) e os requisitos de [Requisitos.md](/home/rafael/Documentos/github/VitalisTrack.wiki/Requisitos.md). Os [hashes das fontes](evidence/source-hashes.txt) permitem identificar a versão analisada. A wiki permanece sem alterações.

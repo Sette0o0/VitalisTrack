@@ -36,6 +36,9 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: Verify app workspace lockfile
+        working-directory: app
+        run: pnpm install --frozen-lockfile --lockfile-only --ignore-scripts
       - run: pnpm db:generate
       - run: pnpm --filter @vitalis/server db:deploy
       - run: pnpm typecheck
