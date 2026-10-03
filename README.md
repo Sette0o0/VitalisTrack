@@ -7,12 +7,12 @@ Aplicativo Android-first de acompanhamento de saúde, com cliente Expo offline-f
 Requer Node.js 24+, pnpm 11+, Docker e Expo Go ou um emulador Android.
 
 ```bash
-pnpm install
+npx pnpm install
 docker compose up -d postgres
-pnpm db:generate
-pnpm db:migrate
-pnpm db:seed
-pnpm dev:server
+npx pnpm db:generate
+npx pnpm db:migrate
+npx pnpm db:seed
+npx pnpm dev:server
 ```
 
 Em outro terminal, execute `pnpm dev:app`. O seed cria `ana@email.com` com senha `12345678`. A API fica em `http://localhost:3000`, o Swagger em `/docs` e os health checks em `/health` e `/ready`.

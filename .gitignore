@@ -13,4 +13,4 @@ app/.env.local
 app/android/
 app/ios/
 artifacts/
-app/.idea/
+.idea/
