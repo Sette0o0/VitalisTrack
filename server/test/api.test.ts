@@ -13,8 +13,10 @@ const auth = () => ({ authorization: `Bearer ${accessToken}` });
 beforeAll(async () => {
 	await app.ready();
 });
+
 afterAll(async () => {
-	for (const id of extraUsers) await prisma.user.delete({ where: { id } }).catch(() => undefined);
+	for (const id of extraUsers)
+		await prisma.user.delete({ where: { id } }).catch(() => undefined);
 	if (userId)
 		await prisma.user.delete({ where: { id: userId } }).catch(() => undefined);
 	await app.close();
@@ -127,21 +129,258 @@ describe("API da Sprint 1", () => {
 		expect(replay.json().error.code).toBe("REFRESH_TOKEN_REUSED");
 	});
 	test("sincronização concorrente aplica uma única mutação", async () => {
-		const mutation = { mutationId: crypto.randomUUID(), entity: "meal", action: "upsert", clientUpdatedAt: new Date().toISOString(), payload: { id: crypto.randomUUID(), name: "Concorrente", date: "2026-09-20", time: "13:00", quantity: 100, unit: "g", calories: 200 } };
-		const results = await Promise.all(Array.from({ length: 4 }, () => app.inject({ method: "POST", url: "/v1/sync", headers: auth(), payload: { mutations: [mutation] } })));
-		for (const result of results) expect(result.json().data[0].status).toBe("applied");
-		expect(await prisma.processedMutation.count({ where: { userId, mutationId: mutation.mutationId } })).toBe(1);
+		const mutation = {
+			mutationId: crypto.randomUUID(),
+			entity: "meal",
+			action: "upsert",
+			clientUpdatedAt: new Date().toISOString(),
+			payload: {
+				id: crypto.randomUUID(),
+				name: "Concorrente",
+				date: "2026-09-20",
+				time: "13:00",
+				quantity: 100,
+				unit: "g",
+				calories: 200,
+			},
+		};
+		const results = await Promise.all(
+			Array.from({ length: 4 }, () =>
+				app.inject({
+					method: "POST",
+					url: "/v1/sync",
+					headers: auth(),
+					payload: { mutations: [mutation] },
+				}),
+			),
+		);
+		for (const result of results)
+			expect(result.json().data[0].status).toBe("applied");
+		expect(
+			await prisma.processedMutation.count({
+				where: { userId, mutationId: mutation.mutationId },
+			}),
+		).toBe(1);
 	});
 	test("outra conta não pode sobrescrever uma refeição pelo sync", async () => {
 		const owned = await prisma.meal.findFirstOrThrow({ where: { userId } });
-		const registered = await app.inject({ method: "POST", url: "/v1/auth/register", payload: { name: "Outra Pessoa", email: `outra-${crypto.randomUUID()}@example.com`, password: "12345678", passwordConfirmation: "12345678" } });
-		const other = registered.json().data; extraUsers.push(other.profile.id);
-		const result = await app.inject({ method: "POST", url: "/v1/sync", headers: { authorization: `Bearer ${other.tokens.accessToken}` }, payload: { mutations: [{ mutationId: crypto.randomUUID(), entity: "meal", action: "upsert", clientUpdatedAt: new Date().toISOString(), payload: { id: owned.id, name: "Invadida", date: "2026-09-20", time: "12:00", quantity: 100, unit: "g", calories: 999 } }] } });
+		const registered = await app.inject({
+			method: "POST",
+			url: "/v1/auth/register",
+			payload: {
+				name: "Outra Pessoa",
+				email: `outra-${crypto.randomUUID()}@example.com`,
+				password: "12345678",
+				passwordConfirmation: "12345678",
+			},
+		});
+		const other = registered.json().data;
+		extraUsers.push(other.profile.id);
+		const result = await app.inject({
+			method: "POST",
+			url: "/v1/sync",
+			headers: { authorization: `Bearer ${other.tokens.accessToken}` },
+			payload: {
+				mutations: [
+					{
+						mutationId: crypto.randomUUID(),
+						entity: "meal",
+						action: "upsert",
+						clientUpdatedAt: new Date().toISOString(),
+						payload: {
+							id: owned.id,
+							name: "Invadida",
+							date: "2026-09-20",
+							time: "12:00",
+							quantity: 100,
+							unit: "g",
+							calories: 999,
+						},
+					},
+				],
+			},
+		});
 		expect(result.json().data[0].status).toBe("failed");
-		expect((await prisma.meal.findUniqueOrThrow({ where: { id: owned.id } })).name).toBe(owned.name);
+		expect(
+			(await prisma.meal.findUniqueOrThrow({ where: { id: owned.id } })).name,
+		).toBe(owned.name);
 	});
 	test("validação rejeita data inexistente e quantidade inválida", async () => {
-		const result = await app.inject({ method: "POST", url: "/v1/meals", headers: auth(), payload: { id: crypto.randomUUID(), name: "Teste", date: "2026-02-30", time: "25:60", quantity: -1, unit: "g", calories: 100 } });
+		const result = await app.inject({
+			method: "POST",
+			url: "/v1/meals",
+			headers: auth(),
+			payload: {
+				id: crypto.randomUUID(),
+				name: "Teste",
+				date: "2026-02-30",
+				time: "25:60",
+				quantity: -1,
+				unit: "g",
+				calories: 100,
+			},
+		});
 		expect(result.statusCode).toBe(400);
 	});
+});
+
+test("CRUD de refeições, atividades, peso e metas atualiza os agregados", async () => {
+	const headers = auth(),
+		date = "2026-10-03";
+	expect(
+		(
+			await app.inject({
+				method: "PATCH",
+				url: "/v1/profile",
+				headers,
+				payload: {
+					name: "Pessoa Teste",
+					birthDate: "2000-10-03",
+					weightKg: 70,
+					heightCm: 175,
+					gender: "Outro",
+				},
+			})
+		).statusCode,
+	).toBe(200);
+	expect(
+		(
+			await app.inject({
+				method: "PATCH",
+				url: "/v1/goals",
+				headers,
+				payload: {
+					waterMl: 3000,
+					calories: 2200,
+					steps: 10000,
+					weightKg: 65,
+					dailyDeficit: 500,
+				},
+			})
+		).statusCode,
+	).toBe(200);
+	const activity = {
+		id: crypto.randomUUID(),
+		type: "run",
+		date,
+		durationSeconds: 15,
+		distanceMeters: 123.4,
+		route: [],
+	};
+	expect(
+		(
+			await app.inject({
+				method: "POST",
+				url: "/v1/activities",
+				headers,
+				payload: activity,
+			})
+		).statusCode,
+	).toBe(201);
+	const stats = await app.inject({
+		method: "GET",
+		url: `/v1/activities/stats?period=month&date=${date}`,
+		headers,
+	});
+	expect(stats.json().data.durationSeconds).toBe(15);
+	const progress = await app.inject({
+		method: "GET",
+		url: `/v1/progress?period=month&date=${date}`,
+		headers,
+	});
+	expect(progress.json().data.activityMinutes).toBe(0.25);
+	expect(progress.json().data.windowDays).toBe(30);
+	expect(
+		(
+			await app.inject({
+				method: "PATCH",
+				url: `/v1/activities/${activity.id}`,
+				headers,
+				payload: { durationSeconds: 30 },
+			})
+		).statusCode,
+	).toBe(200);
+	expect(
+		(
+			await app.inject({
+				method: "DELETE",
+				url: `/v1/activities/${activity.id}`,
+				headers,
+			})
+		).statusCode,
+	).toBe(204);
+	const weight = { id: crypto.randomUUID(), date, weightKg: 69.5 };
+	expect(
+		(
+			await app.inject({
+				method: "POST",
+				url: "/v1/weights",
+				headers,
+				payload: weight,
+			})
+		).statusCode,
+	).toBe(201);
+	expect(
+		(
+			await app.inject({
+				method: "GET",
+				url: `/v1/weights/comparison?date=${date}`,
+				headers,
+			})
+		).json().data.currentWeek,
+	).toContainEqual({ date, weightKg: 69.5 });
+	const meal = {
+		id: crypto.randomUUID(),
+		name: "Café",
+		date,
+		time: "08:00",
+		quantity: 100.5,
+		unit: "mL",
+		calories: 80,
+	};
+	expect(
+		(
+			await app.inject({
+				method: "POST",
+				url: "/v1/meals",
+				headers,
+				payload: meal,
+			})
+		).statusCode,
+	).toBe(201);
+	expect(
+		(
+			await app.inject({
+				method: "PATCH",
+				url: `/v1/meals/${meal.id}`,
+				headers,
+				payload: { calories: 100 },
+			})
+		).statusCode,
+	).toBe(200);
+	expect(
+		(
+			await app.inject({
+				method: "GET",
+				url: `/v1/dashboard/daily?date=${date}`,
+				headers,
+			})
+		).json().data.calories,
+	).toBe(100);
+	expect(
+		(
+			await app.inject({
+				method: "DELETE",
+				url: `/v1/meals/${meal.id}`,
+				headers,
+			})
+		).statusCode,
+	).toBe(204);
+	const pull = (
+		await app.inject({ method: "GET", url: "/v1/sync", headers })
+	).json().data;
+	expect(
+		pull.meals.find((x: { id: string }) => x.id === meal.id).deletedAt,
+	).toBeTruthy();
+	expect(pull.profile.name).toBe("Pessoa Teste");
 });

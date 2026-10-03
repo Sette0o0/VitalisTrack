@@ -30,8 +30,10 @@ export const calculateActivityCalories = (
 ) => Math.round(((MET[type] * 3.5 * weightKg) / 200) * durationMinutes);
 export const calculatePace = (durationMinutes: number, distanceKm: number) =>
 	distanceKm > 0 ? durationMinutes / distanceKm : 0;
-export const formatPace = (pace: number) =>
-	`${Math.floor(pace)}'${String(Math.round((pace % 1) * 60)).padStart(2, "0")}\"`;
+export const formatPace = (pace: number) => {
+	const total = Math.round(pace * 60);
+	return `${Math.floor(total / 60)}'${String(total % 60).padStart(2, "0")}\"`;
+};
 export const weightGoalWeeks = (
 	current: number,
 	goal: number,

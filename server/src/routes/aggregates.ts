@@ -1,6 +1,11 @@
 import type { FastifyInstance } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
-import { dateSchema, periodSchema } from "@vitalis/contracts";
+import {
+	dateSchema,
+	periodSchema,
+	type ActivityStatistics,
+	type ProgressStatistics,
+} from "@vitalis/contracts";
 import { z } from "zod";
 import { requireAuth } from "../lib/auth.js";
 import { dateWindow, parseDate } from "../lib/dates.js";
@@ -12,6 +17,9 @@ const dateQuery = z.object({ date: dateSchema.default(today) });
 const periodQuery = z.object({
 	period: periodSchema.default("week"),
 	date: dateSchema.default(today),
+});
+const activityStatsQuery = periodQuery.extend({
+	period: z.enum(["week", "month"]).default("week"),
 });
 const ratio = (value: number, goal: number) => (goal > 0 ? value / goal : 0);
 
@@ -117,69 +125,78 @@ export async function aggregateRoutes(raw: FastifyInstance) {
 						sum(steps.map((x) => x.steps)) / days,
 						goals.steps,
 					),
-					activityMinutes: Math.round(
-						sum(activities.map((x) => x.durationSeconds)) / 60,
-					),
+					activityMinutes: sum(activities.map((x) => x.durationSeconds)) / 60,
 					contributingDays: new Set(
 						[...water, ...meals, ...activities, ...steps].map((x) =>
 							x.date.toISOString().slice(0, 10),
 						),
 					).size,
-				},
+				} satisfies ProgressStatistics,
 			};
 		},
 	);
 
 	app.get(
 		"/activities/stats",
-		{ schema: { querystring: dateQuery } },
+		{ schema: { querystring: activityStatsQuery } },
 		async (request) => {
 			const current = dateWindow("week", request.query.date);
+			const period = dateWindow(request.query.period, request.query.date);
 			const previousEnd = new Date(current.start);
 			previousEnd.setUTCDate(previousEnd.getUTCDate() - 1);
 			const previousStart = new Date(previousEnd);
 			previousStart.setUTCDate(previousStart.getUTCDate() - 6);
-			const [activities, currentSteps, previousSteps] = await Promise.all([
-				prisma.activity.findMany({
-					where: {
-						userId: request.user.sub,
-						deletedAt: null,
-						date: { gte: current.start, lte: current.end },
-					},
-				}),
-				prisma.dailySteps.findMany({
-					where: {
-						userId: request.user.sub,
-						date: { gte: current.start, lte: current.end },
-					},
-				}),
-				prisma.dailySteps.findMany({
-					where: {
-						userId: request.user.sub,
-						date: { gte: previousStart, lte: previousEnd },
-					},
-				}),
-			]);
+			const [activities, currentSteps, previousSteps, periodSteps] =
+				await Promise.all([
+					prisma.activity.findMany({
+						where: {
+							userId: request.user.sub,
+							deletedAt: null,
+							date: { gte: period.start, lte: period.end },
+						},
+					}),
+					prisma.dailySteps.findMany({
+						where: {
+							userId: request.user.sub,
+							date: { gte: current.start, lte: current.end },
+						},
+					}),
+					prisma.dailySteps.findMany({
+						where: {
+							userId: request.user.sub,
+							date: { gte: previousStart, lte: previousEnd },
+						},
+					}),
+					prisma.dailySteps.findMany({
+						where: {
+							userId: request.user.sub,
+							date: { gte: period.start, lte: period.end },
+						},
+					}),
+				]);
 			const total = (values: number[]) => values.reduce((a, b) => a + b, 0);
-			const currentAverage =
-				total(currentSteps.map((x) => x.steps)) /
-				Math.max(currentSteps.length, 1);
-			const previousAverage =
-				total(previousSteps.map((x) => x.steps)) /
-				Math.max(previousSteps.length, 1);
+			const currentAverage = total(currentSteps.map((x) => x.steps)) / 7;
+			const previousAverage = total(previousSteps.map((x) => x.steps)) / 7;
 			return {
 				data: {
+					period: request.query.period,
 					activityCount: activities.length,
 					durationSeconds: total(activities.map((x) => x.durationSeconds)),
 					distanceMeters: total(activities.map((x) => x.distanceMeters)),
 					calories: total(activities.map((x) => x.calories)),
-					steps: total(currentSteps.map((x) => x.steps)),
+					steps: total(periodSteps.map((x) => x.steps)),
 					stepAverage: currentAverage,
 					previousStepAverage: previousAverage,
+					trend:
+						currentAverage > previousAverage
+							? "up"
+							: currentAverage < previousAverage
+								? "down"
+								: "flat",
 					trendPercent: previousAverage
 						? ((currentAverage - previousAverage) / previousAverage) * 100
-						: 0,
-				},
+						: null,
+				} satisfies ActivityStatistics,
 			};
 		},
 	);
@@ -200,7 +217,7 @@ export async function aggregateRoutes(raw: FastifyInstance) {
 						deletedAt: null,
 						date: { gte: current.start, lte: current.end },
 					},
-					orderBy: { date: "asc" },
+					orderBy: [{ date: "asc" }, { createdAt: "asc" }, { id: "asc" }],
 				}),
 				prisma.weightEntry.findMany({
 					where: {
@@ -208,7 +225,7 @@ export async function aggregateRoutes(raw: FastifyInstance) {
 						deletedAt: null,
 						date: { gte: previousStart, lte: previousEnd },
 					},
-					orderBy: { date: "asc" },
+					orderBy: [{ date: "asc" }, { createdAt: "asc" }, { id: "asc" }],
 				}),
 				prisma.profile.findUniqueOrThrow({
 					where: { userId: request.user.sub },
@@ -216,7 +233,11 @@ export async function aggregateRoutes(raw: FastifyInstance) {
 				prisma.goals.findUniqueOrThrow({ where: { userId: request.user.sub } }),
 			]);
 			const map = (rows: typeof currentRows) =>
-				rows.map((x) => ({
+				[
+					...new Map(
+						rows.map((row) => [row.date.toISOString().slice(0, 10), row]),
+					).values(),
+				].map((x) => ({
 					date: x.date.toISOString().slice(0, 10),
 					weightKg: x.weightKg,
 				}));

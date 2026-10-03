@@ -9,6 +9,8 @@ export type Profile = {
 	heightCm: number;
 	gender: Gender;
 	avatar?: string;
+	hasWeight?: boolean;
+	hasHeight?: boolean;
 };
 export type Goals = {
 	waterMl: number;
@@ -37,7 +39,8 @@ export type Activity = {
 	id: string;
 	type: ActivityType;
 	date: string;
-	durationSeconds?: number;	durationMinutes: number;
+	durationSeconds?: number;
+	durationMinutes: number;
 	distanceKm: number;
 	calories: number;
 	route?: {
@@ -62,6 +65,6 @@ export type AppState = {
 	steps: number;
 	authenticated: boolean;
 	darkMode: boolean;
- themeMode?: "system" | "light" | "dark";
-	syncStatus?: "idle" | "syncing" | "offline" | "error";
+	themeMode?: "system" | "light" | "dark";
+	syncStatus?: "idle" | "pending" | "syncing" | "offline" | "error";
 };

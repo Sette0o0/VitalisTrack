@@ -52,7 +52,12 @@ export const profileSchema = z.object({
 export const profileUpdateSchema = z
 	.object({
 		name: z.string().trim().min(2).max(100).optional(),
-		birthDate: dateSchema.refine((value) => value <= new Date().toISOString().slice(0, 10), "Nascimento não pode estar no futuro").optional(),
+		birthDate: dateSchema
+			.refine(
+				(value) => value <= new Date().toISOString().slice(0, 10),
+				"Nascimento não pode estar no futuro",
+			)
+			.optional(),
 		weightKg: z.number().min(20).max(500).optional(),
 		heightCm: z.number().int().min(80).max(260).optional(),
 		gender: genderSchema.optional(),
@@ -214,7 +219,12 @@ export type AuthTokens = {
 	expiresIn: number;
 };
 
-export type SyncResult = { mutationId: string; status: "applied" | "failed"; entityId?: string; message?: string };
+export type SyncResult = {
+	mutationId: string;
+	status: "applied" | "failed";
+	entityId?: string;
+	message?: string;
+};
 export type SyncPull = {
 	water: WaterEntry[];
 	meals: Meal[];
@@ -224,4 +234,26 @@ export type SyncPull = {
 	profile: Partial<Profile> | null;
 	goals: Partial<Goals> | null;
 	cursor: string;
+};
+
+export type ActivityStatistics = {
+	period: "week" | "month";
+	activityCount: number;
+	durationSeconds: number;
+	distanceMeters: number;
+	calories: number;
+	steps: number;
+	stepAverage: number;
+	previousStepAverage: number;
+	trend: "up" | "down" | "flat";
+	trendPercent: number | null;
+};
+export type ProgressStatistics = {
+	period: Period;
+	windowDays: number;
+	waterProgress: number;
+	calorieProgress: number;
+	stepProgress: number;
+	activityMinutes: number;
+	contributingDays: number;
 };

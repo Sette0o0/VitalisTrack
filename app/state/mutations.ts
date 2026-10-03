@@ -15,7 +15,10 @@ const createMutation = (
 	entityId,
 	clientUpdatedAt: new Date().toISOString(),
 });
-export function mutationFor(action: Action, next: AppState): SyncMutation | null {
+export function mutationFor(
+	action: Action,
+	next: AppState,
+): SyncMutation | null {
 	switch (action.type) {
 		case "PROFILE": {
 			const { name, birthDate, weightKg, heightCm, gender } = action.value;
@@ -65,7 +68,9 @@ export function mutationFor(action: Action, next: AppState): SyncMutation | null
 					id: action.value.id,
 					type: action.value.type,
 					date: action.value.date,
-					durationSeconds: action.value.durationSeconds ?? Math.round(action.value.durationMinutes * 60),
+					durationSeconds:
+						action.value.durationSeconds ??
+						Math.round(action.value.durationMinutes * 60),
 					distanceMeters: action.value.distanceKm * 1000,
 					route: action.value.route ?? [],
 				},
@@ -80,13 +85,15 @@ export function mutationFor(action: Action, next: AppState): SyncMutation | null
 				next.weights.at(-1) as unknown as Record<string, unknown>,
 			);
 		case "STEPS_INCREMENT":
- case "STEPS_SET":
+		case "STEPS_SET":
 			return createMutation("steps", "upsert", {
 				date: action.date ?? isoDate(),
-				steps: next.dailySteps?.find((row) => row.date === (action.date ?? isoDate()))?.steps ?? action.value,
+				steps:
+					next.dailySteps?.find(
+						(row) => row.date === (action.date ?? isoDate()),
+					)?.steps ?? action.value,
 			});
 		default:
 			return null;
 	}
 }
-
