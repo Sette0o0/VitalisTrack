@@ -86,7 +86,7 @@ jobs:
           api-level: 36
           target: google_apis
           arch: x86_64
-          profile: pixel_8
+          profile: pixel_2
           disable-animations: true
           script: |
             adb install app/android/app/build/outputs/apk/release/app-release.apk

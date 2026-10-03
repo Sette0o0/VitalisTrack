@@ -8,6 +8,8 @@ Reteste posterior do erro de lockfile no GitHub: a configuração pnpm aninhada 
 
 A falha posterior do bundle release no GitHub foi reproduzida com `NODE_ENV=test` e corrigida usando ambiente de produção para a compilação. O [reteste do Expo Router](correcao-ci-router.md) passou na etapa `export:embed` utilizada pelo Gradle; o APK completo ainda precisa ser retestado.
 
+O log remoto seguinte falhou na criação do AVD por ausência de `pixel_8` no catálogo do runner. A CI agora usa `pixel_2` com Android API 36; a [criação desse AVD foi verificada localmente](correcao-ci-emulador.md). Não há evidência de boot ou execução Maestro.
+
 ## Rastreabilidade
 
 A [matriz](matriz-sprint-1.md) relaciona **22 histórias e 89 critérios**, com resultado esperado, obtido, evidência, defeito e reteste. A referência foi a Sprint 1 de [Home.md](/home/rafael/Documentos/github/VitalisTrack.wiki/Home.md), os critérios de [Backlog.md](/home/rafael/Documentos/github/VitalisTrack.wiki/Backlog.md) e os requisitos de [Requisitos.md](/home/rafael/Documentos/github/VitalisTrack.wiki/Requisitos.md). Os [hashes das fontes](evidence/source-hashes.txt) permitem identificar a versão analisada. A wiki permanece sem alterações.
@@ -77,7 +79,7 @@ Não foi removido conteúdo do usuário para liberar espaço. Não há dispositi
 2. Configurar uma chave restrita para `com.vitalistrack.app` e o certificado do APK em `app/.env.local`: `GOOGLE_MAPS_API_KEY`. Usar `EXPO_PUBLIC_API_URL=http://10.0.2.2:3000` e API com banco exclusivo de QA.
 3. Executar `bash scripts/build-android-qa.sh`. Instalar `artifacts/android/vitalis-debug.apk` para diagnóstico e `vitalis-release.apk` para aprovação. O build release de QA inclui o bundle e não depende de Metro; não é uma publicação em loja.
 4. Executar o [roteiro Android](roteiro-android.md), os 89 critérios da matriz e o checklist Material nos dois AVDs; recolher capturas, logs e medições. Atualizar cada reteste com resultado real e caminho da evidência.
-5. Executar o workflow `Android QA` em ambiente com KVM ou `maestro test -e QA_EMAIL=qa-UNICO@example.com .maestro/sprint-1-smoke.yaml`. O fluxo e o workflow foram preparados e têm YAML válido; **não foram executados**, localmente ou remotamente.
+5. Reexecutar o workflow `Android QA` em ambiente com KVM ou `maestro test -e QA_EMAIL=qa-UNICO@example.com .maestro/sprint-1-smoke.yaml`. Os logs fornecidos pelo usuário confirmam tentativas remotas do workflow, incluindo falhas no bundle e na criação do AVD. **Não há evidência de execução do smoke Maestro**, localmente ou remotamente.
 
 As pendências ambientais são B-01/B-02; a pendência de desempenho é B-03 no [relatório de defeitos](defeitos-retestes.md). Não há capturas de telas do aplicativo nem APK validado nesta entrega; devem ser adicionados após a execução Android, sem substituir essa evidência por imagens de mockups ou do emulador sem boot.
 
