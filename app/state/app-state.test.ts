@@ -1,4 +1,4 @@
-import { appReducer, initialState } from "./app-state";
+import { appReducer, initialState } from "./reducer";
 
 describe("estado da aplicação", () => {
 	test("adiciona, edita e exclui consumo de água", () => {
@@ -49,4 +49,69 @@ describe("estado da aplicação", () => {
 		expect(state.profile.weightKg).toBe(67.9);
 		expect(state.weights.at(-1)?.weightKg).toBe(67.9);
 	});
+});
+
+test("edição e exclusão de atividade mantêm um único registro", () => {
+	const activity = {
+		id: "a",
+		type: "run" as const,
+		date: "2026-10-03",
+		durationMinutes: 1,
+		durationSeconds: 60,
+		distanceKm: 0.1,
+		calories: 10,
+	};
+	const saved = appReducer(initialState, {
+		type: "ACTIVITY_SAVE",
+		value: activity,
+	});
+	const edited = appReducer(saved, {
+		type: "ACTIVITY_SAVE",
+		value: { ...activity, durationSeconds: 90, durationMinutes: 1.5 },
+	});
+	expect(edited.activities).toHaveLength(1);
+	expect(edited.activities[0].durationSeconds).toBe(90);
+	expect(
+		appReducer(edited, { type: "ACTIVITY_DELETE", id: "a" }).activities,
+	).toEqual([]);
+});
+test("histórico de passos acumula deltas sem apagar os dias anteriores", () => {
+	let state = appReducer(initialState, {
+		type: "STEPS_SET",
+		date: "2026-10-02",
+		value: 100,
+	});
+	state = appReducer(state, {
+		type: "STEPS_INCREMENT",
+		date: "2026-10-03",
+		value: 20,
+	});
+	state = appReducer(state, {
+		type: "STEPS_INCREMENT",
+		date: "2026-10-03",
+		value: 30,
+	});
+	expect(state.dailySteps).toEqual([
+		{ date: "2026-10-02", steps: 100 },
+		{ date: "2026-10-03", steps: 50 },
+	]);
+});
+test("atualizar metas e perfil preserva registros e permite restaurar o tema", () => {
+	let state = appReducer(initialState, { type: "LOGIN" });
+	state = appReducer(state, { type: "GOALS", value: { waterMl: 3000 } });
+	state = appReducer(state, {
+		type: "PROFILE",
+		value: { ...state.profile, name: "Pessoa", avatar: "foto.jpg" },
+	});
+	expect(state.goals.steps).toBe(initialState.goals.steps);
+	expect(state.profile.avatar).toBe("foto.jpg");
+	state = appReducer(state, { type: "SET_DARK", value: true });
+	expect(state.themeMode).toBe("dark");
+	state = appReducer(state, {
+		type: "SET_THEME",
+		value: "system",
+		dark: false,
+	});
+	expect(state.themeMode).toBe("system");
+	expect(appReducer(state, { type: "LOGOUT" }).authenticated).toBe(false);
 });

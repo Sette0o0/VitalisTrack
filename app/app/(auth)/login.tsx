@@ -1,13 +1,7 @@
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import { Link, router } from "expo-router";
+import { router } from "expo-router";
 import { useMemo, useState } from "react";
-import {
-	KeyboardAvoidingView,
-	Platform,
-	StyleSheet,
-	Text,
-	View,
-} from "react-native";
+import { KeyboardAvoidingView, Platform, StyleSheet, View } from "react-native";
 import {
 	Button,
 	Eyebrow,
@@ -18,31 +12,25 @@ import {
 } from "@/components/vitalis/ui";
 import { radius, spacing, type ThemeTokens } from "@/constants/theme";
 import { useAppTheme } from "@/hooks/use-app-theme";
-import { isEmail } from "@/lib/health";
+import { loginSchema } from "@vitalis/contracts";
+import { parseInput } from "@/lib/validation";
+import { useSubmit } from "@/hooks/use-submit";
+import { HelperText, Text } from "react-native-paper";
 import { useAppState } from "@/state/app-state";
 
 export default function LoginScreen() {
 	const theme = useAppTheme();
 	const styles = useMemo(() => createStyles(theme), [theme]);
 	const { login } = useAppState();
-	const [email, setEmail] = useState("ana@email.com");
-	const [password, setPassword] = useState("12345678");
-	const [error, setError] = useState("");
-	const submit = async () => {
-		if (!isEmail(email) || password.length < 6)
-			return setError(
-				"Informe um e-mail válido e uma senha com ao menos 6 caracteres.",
-			);
-		try {
-			setError("");
-			await login(email, password);
+	const [email, setEmail] = useState("");
+	const [password, setPassword] = useState("");
+	const { submit, saving, error } = useSubmit();
+	const save = () =>
+		submit(async () => {
+			const input = parseInput(loginSchema, { email: email.trim(), password });
+			await login(input.email, input.password);
 			router.replace("/(tabs)");
-		} catch (cause) {
-			setError(
-				cause instanceof Error ? cause.message : "Não foi possível entrar.",
-			);
-		}
-	};
+		});
 	return (
 		<KeyboardAvoidingView
 			style={{ flex: 1 }}
@@ -78,21 +66,23 @@ export default function LoginScreen() {
 						value={password}
 						onChangeText={setPassword}
 					/>
-					{error ? <Text style={styles.error}>{error}</Text> : null}
-					<Button title="Entrar" onPress={submit} />
+					{error ? (
+						<HelperText type="error" accessibilityLiveRegion="polite">
+							{error}
+						</HelperText>
+					) : null}
+					<Button title="Entrar" onPress={save} loading={saving} />
+				</View>
+				<View style={{ gap: 8 }}>
+					<Text variant="bodyMedium" style={styles.switch}>
+						Ainda não tem conta?
+					</Text>
 					<Button
-						title="Entrar com biometria (demonstração)"
-						icon="fingerprint"
-						variant="outline"
-						onPress={submit}
+						title="Criar conta"
+						variant="text"
+						onPress={() => router.push("/(auth)/register")}
 					/>
 				</View>
-				<Text style={styles.switch}>
-					Ainda não tem conta?{" "}
-					<Link href="/(auth)/register" style={styles.link}>
-						Criar conta
-					</Link>
-				</Text>
 			</Screen>
 		</KeyboardAvoidingView>
 	);
@@ -112,5 +102,4 @@ const createStyles = (theme: ThemeTokens) =>
 		brandName: { fontSize: 22, color: theme.onSurface, fontWeight: "900" },
 		error: { color: theme.error, fontSize: 12 },
 		switch: { textAlign: "center", color: theme.onSurfaceVariant },
-		link: { color: theme.primary, fontWeight: "800" },
 	});

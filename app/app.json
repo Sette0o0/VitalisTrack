@@ -24,7 +24,9 @@
 				"monochromeImage": "./assets/images/android-icon-monochrome.png"
 			},
 			"edgeToEdgeEnabled": true,
-			"predictiveBackGestureEnabled": false
+			"predictiveBackGestureEnabled": false,
+			"package": "com.vitalistrack.app",
+			"softwareKeyboardLayoutMode": "resize"
 		},
 		"web": {
 			"output": "static",

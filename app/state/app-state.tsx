@@ -1,3 +1,4 @@
+import { AppState as Lifecycle, useColorScheme } from "react-native";
 import NetInfo from "@react-native-community/netinfo";
 import { Pedometer } from "expo-sensors";
 import {
@@ -13,263 +14,59 @@ import {
 import type {
 	AuthTokens,
 	Profile as ApiProfile,
-	SyncMutation,
+	SyncPull,
+	SyncResult,
 } from "@vitalis/contracts";
 import { apiRequest, publicRequest } from "@/lib/api";
 import { calculateActivityCalories, isoDate, newId } from "@/lib/health";
 import {
-	clearLocalData,
-	enqueueMutation,
 	getValue,
 	initDatabase,
 	loadState,
+	loadLegacyState,
 	markAttempt,
+	migrateLegacyAccount,
+	pendingCount,
 	pendingMutations,
 	removeMutations,
 	saveState,
+	setActiveUser,
 	setValue,
 } from "@/lib/local-database";
-import { clearTokens, loadTokens, saveTokens } from "@/lib/session";
-import type {
-	Activity,
-	AppState,
-	Goals,
-	Meal,
-	Period,
-	Profile,
-	WaterEntry,
-	WeightEntry,
-} from "./types";
+import {
+	clearTokens,
+	loadTokens,
+	saveTokens,
+	tokenClaims,
+} from "@/lib/session";
+import { useSessionRefresh } from "@/lib/use-session-refresh";
+import { drainOutbox, mergeRows } from "@/lib/sync";
+import { appReducer, initialState, type Action } from "./reducer";
+import { mutationFor } from "./mutations";
+import { migrateState } from "./migration";
+import type { Activity, AppState, Period, Profile } from "./types";
 import { selectDailySummary, selectProgressSummary } from "./selectors";
-
-export const initialState: AppState = {
-	profile: {
-		name: "",
-		email: "",
-		birthDate: "2000-01-01",
-		weightKg: 70,
-		heightCm: 170,
-		gender: "Outro",
-	},
-	goals: {
-		waterMl: 2500,
-		calories: 2000,
-		mealCalories: 700,
-		steps: 10000,
-		weightKg: 70,
-		dailyDeficit: 400,
-	},
-	water: [],
-	meals: [],
-	activities: [],
-	weights: [],
-	steps: 0,
-	authenticated: false,
-	darkMode: false,
-	syncStatus: "idle",
-};
-
-export type Action =
-	| { type: "LOGIN" }
-	| { type: "LOGOUT" }
-	| { type: "SET_DARK"; value: boolean }
-	| { type: "PROFILE"; value: Profile }
-	| { type: "GOALS"; value: Partial<Goals> }
-	| { type: "WATER_ADD"; value: Omit<WaterEntry, "id"> }
-	| { type: "WATER_UPDATE"; value: WaterEntry }
-	| { type: "WATER_DELETE"; id: string }
-	| { type: "MEAL_SAVE"; value: Meal }
-	| { type: "MEAL_DELETE"; id: string }
-	| { type: "ACTIVITY_SAVE"; value: Activity }
-	| { type: "ACTIVITY_DELETE"; id: string }
-	| { type: "WEIGHT_ADD"; value: Omit<WeightEntry, "id"> }
-	| { type: "STEPS_SET"; value: number };
-
-export function appReducer(state: AppState, action: Action): AppState {
-	switch (action.type) {
-		case "LOGIN":
-			return { ...state, authenticated: true };
-		case "LOGOUT":
-			return { ...initialState, darkMode: state.darkMode };
-		case "SET_DARK":
-			return { ...state, darkMode: action.value };
-		case "PROFILE":
-			return { ...state, profile: action.value };
-		case "GOALS":
-			return { ...state, goals: { ...state.goals, ...action.value } };
-		case "WATER_ADD":
-			return {
-				...state,
-				water: [...state.water, { ...action.value, id: newId() }],
-			};
-		case "WATER_UPDATE":
-			return {
-				...state,
-				water: state.water.map((x) =>
-					x.id === action.value.id ? action.value : x,
-				),
-			};
-		case "WATER_DELETE":
-			return { ...state, water: state.water.filter((x) => x.id !== action.id) };
-		case "MEAL_SAVE":
-			return {
-				...state,
-				meals: state.meals.some((x) => x.id === action.value.id)
-					? state.meals.map((x) =>
-							x.id === action.value.id ? action.value : x,
-						)
-					: [...state.meals, action.value],
-			};
-		case "MEAL_DELETE":
-			return { ...state, meals: state.meals.filter((x) => x.id !== action.id) };
-		case "ACTIVITY_SAVE":
-			return {
-				...state,
-				activities: state.activities.some((x) => x.id === action.value.id)
-					? state.activities.map((x) =>
-							x.id === action.value.id ? action.value : x,
-						)
-					: [...state.activities, action.value],
-			};
-		case "ACTIVITY_DELETE":
-			return {
-				...state,
-				activities: state.activities.filter((x) => x.id !== action.id),
-			};
-		case "WEIGHT_ADD":
-			return {
-				...state,
-				weights: [...state.weights, { ...action.value, id: newId() }],
-				profile: { ...state.profile, weightKg: action.value.weightKg },
-			};
-		case "STEPS_SET":
-			return { ...state, steps: action.value };
-	}
-}
-
-const createMutation = (
-	entity: SyncMutation["entity"],
-	action: SyncMutation["action"],
-	payload?: Record<string, unknown>,
-	entityId?: string,
-): SyncMutation => ({
-	mutationId: newId(),
-	entity,
-	action,
-	payload,
-	entityId,
-	clientUpdatedAt: new Date().toISOString(),
-});
-function mutationFor(action: Action, next: AppState): SyncMutation | null {
-	switch (action.type) {
-		case "PROFILE": {
-			const { name, birthDate, weightKg, heightCm, gender } = action.value;
-			return createMutation("profile", "upsert", {
-				name,
-				birthDate,
-				weightKg,
-				heightCm,
-				gender,
-			});
-		}
-		case "GOALS":
-			return createMutation(
-				"goals",
-				"upsert",
-				action.value as Record<string, unknown>,
-			);
-		case "WATER_ADD":
-			return createMutation(
-				"water",
-				"upsert",
-				next.water.at(-1) as unknown as Record<string, unknown>,
-			);
-		case "WATER_UPDATE":
-			return createMutation(
-				"water",
-				"upsert",
-				action.value as unknown as Record<string, unknown>,
-				action.value.id,
-			);
-		case "WATER_DELETE":
-			return createMutation("water", "delete", undefined, action.id);
-		case "MEAL_SAVE":
-			return createMutation(
-				"meal",
-				"upsert",
-				action.value as unknown as Record<string, unknown>,
-				action.value.id,
-			);
-		case "MEAL_DELETE":
-			return createMutation("meal", "delete", undefined, action.id);
-		case "ACTIVITY_SAVE":
-			return createMutation(
-				"activity",
-				"upsert",
-				{
-					id: action.value.id,
-					type: action.value.type,
-					date: action.value.date,
-					durationSeconds: action.value.durationMinutes * 60,
-					distanceMeters: action.value.distanceKm * 1000,
-					route: action.value.route ?? [],
-				},
-				action.value.id,
-			);
-		case "ACTIVITY_DELETE":
-			return createMutation("activity", "delete", undefined, action.id);
-		case "WEIGHT_ADD":
-			return createMutation(
-				"weight",
-				"upsert",
-				next.weights.at(-1) as unknown as Record<string, unknown>,
-			);
-		case "STEPS_SET":
-			return createMutation("steps", "upsert", {
-				date: isoDate(),
-				steps: action.value,
-			});
-		default:
-			return null;
-	}
-}
+export { appReducer, initialState } from "./reducer";
+export type { Action } from "./reducer";
 
 type AuthResult = { profile: ApiProfile; tokens: AuthTokens };
-type SyncPull = {
-	water: any[];
-	meals: any[];
-	activities: any[];
-	weights: any[];
-	steps: { date: string; steps: number }[];
-	profile: Partial<Profile> | null;
-	goals: Partial<Goals> | null;
-	cursor: string;
-};
-const mergeRows = <T extends { id: string }>(
-	current: T[],
-	incoming: (T & { deletedAt?: string | null })[],
-) => {
-	const map = new Map(current.map((item) => [item.id, item]));
-	for (const item of incoming)
-		item.deletedAt ? map.delete(item.id) : map.set(item.id, item);
-	return [...map.values()];
-};
 const localProfile = (profile: ApiProfile): Profile => ({
 	name: profile.name,
 	email: profile.email,
-	birthDate: profile.birthDate ?? "2000-01-01",
+	hasWeight: profile.weightKg != null,
+	hasHeight: profile.heightCm != null,
+	birthDate: profile.birthDate ?? "",
 	weightKg: profile.weightKg ?? 70,
 	heightCm: profile.heightCm ?? 170,
 	gender: profile.gender ?? "Outro",
 	avatar: profile.avatarUrl ?? undefined,
 });
-
 type ContextValue = {
 	state: AppState;
-	dispatch: (action: Action) => void;
+	dispatch: (action: Action) => Promise<void>;
 	loading: boolean;
 	lastError: string | null;
-	addActivity: (value: Omit<Activity, "id" | "calories">) => void;
+	addActivity: (value: Omit<Activity, "id" | "calories">) => Promise<void>;
 	login: (email: string, password: string) => Promise<void>;
 	register: (
 		name: string,
@@ -284,143 +81,246 @@ type ContextValue = {
 const AppContext = createContext<ContextValue | null>(null);
 
 export function AppStateProvider({ children }: PropsWithChildren) {
-	const [state, setState] = useState(initialState);
-	const [loading, setLoading] = useState(true);
-	const [lastError, setLastError] = useState<string | null>(null);
+	const [state, setState] = useState(initialState),
+		[loading, setLoading] = useState(true),
+		[lastError, setLastError] = useState<string | null>(null);
+	const systemScheme = useColorScheme();
 	const stateRef = useRef(state);
-	stateRef.current = state;
-	const setAndSave = useCallback(
-		(updater: (previous: AppState) => AppState) => {
-			setState((previous) => {
-				const next = updater(previous);
-				stateRef.current = next;
-				void saveState(next);
-				return next;
+	const writes = useRef<Promise<void>>(Promise.resolve());
+	const flight = useRef<Promise<void> | null>(null);
+	const syncRef = useRef<() => Promise<void>>(async () => {});
+	const syncTimer = useRef<ReturnType<typeof setTimeout> | undefined>(
+		undefined,
+	);
+	const invalidateSession = useCallback(() => {
+		const next = { ...stateRef.current, authenticated: false };
+		stateRef.current = next;
+		setState(next);
+	}, []);
+	useSessionRefresh(state.authenticated, invalidateSession);
+	const commit = useCallback(
+		(
+			updater: (previous: AppState) => AppState | Promise<AppState>,
+			action?: Action,
+		) => {
+			const operation = writes.current.then(async () => {
+				const previous = stateRef.current,
+					updated = await updater(previous);
+				const mutation =
+					action && updated.authenticated ? mutationFor(action, updated) : null;
+				const next = mutation
+					? {
+							...updated,
+							syncStatus:
+								updated.syncStatus === "offline"
+									? ("offline" as const)
+									: ("pending" as const),
+						}
+					: updated;
+				if (next === previous) return;
+				await saveState(next, mutation);
+				const applied =
+					previous.authenticated && !stateRef.current.authenticated
+						? { ...next, authenticated: false }
+						: next;
+				stateRef.current = applied;
+				setState(applied);
 			});
+			writes.current = operation.catch((error) =>
+				setLastError(
+					error instanceof Error ? error.message : "Falha ao salvar os dados.",
+				),
+			);
+			return operation;
 		},
 		[],
 	);
+	const scheduleSync = useCallback(() => {
+		clearTimeout(syncTimer.current);
+		syncTimer.current = setTimeout(() => void syncRef.current(), 750);
+	}, []);
 	const dispatch = useCallback(
-		(action: Action) => {
-			setAndSave((previous) => {
-				const next = appReducer(previous, action);
-				const queued = next.authenticated ? mutationFor(action, next) : null;
-				if (queued) void enqueueMutation(queued);
-				return next;
-			});
+		async (action: Action) => {
+			const owner = stateRef.current.userId;
+			await commit(
+				(previous) =>
+					previous.userId !== owner ? previous : appReducer(previous, action),
+				action,
+			);
+			if (mutationFor(action, stateRef.current)) scheduleSync();
 		},
-		[setAndSave],
+		[commit, scheduleSync],
 	);
-	const syncNow = useCallback(async () => {
-		if (!stateRef.current.authenticated) return;
-		const network = await NetInfo.fetch();
-		if (!network.isConnected) {
-			setAndSave((x) => ({ ...x, syncStatus: "offline" }));
-			return;
-		}
-		setAndSave((x) => ({ ...x, syncStatus: "syncing" }));
-		try {
-			const pending = await pendingMutations();
-			if (pending.length) {
-				const results = await apiRequest<
-					{ mutationId: string; status: string }[]
-				>("/v1/sync", {
-					method: "POST",
-					body: JSON.stringify({ mutations: pending }),
-				});
-				await removeMutations(
-					results
-						.filter((x) => x.status === "applied")
-						.map((x) => x.mutationId),
-				);
-				await markAttempt(
-					results
-						.filter((x) => x.status !== "applied")
-						.map((x) => x.mutationId),
-				);
+	const syncNow = useCallback(() => {
+		if (flight.current) return flight.current;
+		const owner = stateRef.current.userId;
+		if (!owner || !stateRef.current.authenticated) return Promise.resolve();
+		const active = () =>
+			stateRef.current.userId === owner && stateRef.current.authenticated;
+		const run = (async () => {
+			const network = await NetInfo.fetch();
+			if (!network.isConnected || network.isInternetReachable === false) {
+				if (active()) await commit((x) => ({ ...x, syncStatus: "offline" }));
+				return;
 			}
-			const cursor = await getValue("sync-cursor");
-			const pulled = await apiRequest<SyncPull>(
-				`/v1/sync${cursor ? `?cursor=${encodeURIComponent(cursor)}` : ""}`,
-			);
-			setAndSave((current) => ({
-				...current,
-				profile: pulled.profile
-					? { ...current.profile, ...pulled.profile }
-					: current.profile,
-				goals: pulled.goals
-					? { ...current.goals, ...pulled.goals }
-					: current.goals,
-				water: mergeRows(
-					current.water,
-					pulled.water.map((x) => ({
-						id: x.id,
-						amountMl: x.amountMl,
-						date: x.date,
-						time: x.time,
-						deletedAt: x.deletedAt,
-					})),
-				),
-				meals: mergeRows(
-					current.meals,
-					pulled.meals.map((x) => ({
-						id: x.id,
-						name: x.name,
-						date: x.date,
-						time: x.time,
-						quantity: x.quantity,
-						unit: x.unit,
-						calories: x.calories,
-						deletedAt: x.deletedAt,
-					})),
-				),
-				activities: mergeRows(
-					current.activities,
-					pulled.activities.map((x) => ({
-						id: x.id,
-						type: x.type,
-						date: x.date,
-						durationMinutes: Math.max(1, Math.round(x.durationSeconds / 60)),
-						distanceKm: x.distanceMeters / 1000,
-						calories: x.calories,
-						route: x.route,
-						deletedAt: x.deletedAt,
-					})),
-				),
-				weights: mergeRows(
-					current.weights,
-					pulled.weights.map((x) => ({
-						id: x.id,
-						date: x.date,
-						weightKg: x.weightKg,
-						deletedAt: x.deletedAt,
-					})),
-				),
-				steps:
-					pulled.steps.find((x) => x.date === isoDate())?.steps ??
-					current.steps,
-				syncStatus: "idle",
-			}));
-			await setValue("sync-cursor", pulled.cursor);
-			setLastError(null);
-		} catch (error) {
-			setAndSave((x) => ({ ...x, syncStatus: "error" }));
-			setLastError(
-				error instanceof Error ? error.message : "Falha ao sincronizar",
-			);
-		}
-	}, [setAndSave]);
+			if (!active()) return;
+			await commit((x) => ({ ...x, syncStatus: "syncing" }));
+			try {
+				await writes.current;
+				await drainOutbox({
+					read: async () => {
+						await writes.current;
+						return active() ? pendingMutations(100, owner) : [];
+					},
+					push: async (mutations) =>
+						apiRequest<SyncResult[]>(
+							"/v1/sync",
+							{ method: "POST", body: JSON.stringify({ mutations }) },
+							true,
+							owner,
+						),
+					ack: (ids) => removeMutations(ids, owner),
+					fail: (ids) => markAttempt(ids, owner),
+				});
+				if (!active()) return;
+				const cursor = await getValue("sync-cursor", owner);
+				const pulled = await apiRequest<SyncPull>(
+					`/v1/sync${cursor ? `?cursor=${encodeURIComponent(cursor)}` : ""}`,
+					{},
+					true,
+					owner,
+				);
+				await commit(async (current) => {
+					if (!active()) return current;
+					const pending = await pendingMutations(1_000_000, owner);
+					const hasPending = (entity: string) =>
+						pending.some((x) => x.entity === entity);
+					return {
+						...current,
+						profile:
+							pulled.profile && !hasPending("profile")
+								? {
+										...current.profile,
+										name: pulled.profile.name ?? current.profile.name,
+										birthDate:
+											pulled.profile.birthDate ?? current.profile.birthDate,
+										weightKg: hasPending("weight")
+											? current.profile.weightKg
+											: (pulled.profile.weightKg ?? current.profile.weightKg),
+										heightCm:
+											pulled.profile.heightCm ?? current.profile.heightCm,
+										gender: pulled.profile.gender ?? current.profile.gender,
+										hasWeight: hasPending("weight")
+											? current.profile.hasWeight
+											: "weightKg" in pulled.profile
+												? pulled.profile.weightKg != null
+												: current.profile.hasWeight,
+										hasHeight:
+											"heightCm" in pulled.profile
+												? pulled.profile.heightCm != null
+												: current.profile.hasHeight,
+										avatar: pulled.profile.avatarUrl ?? current.profile.avatar,
+									}
+								: current.profile,
+						goals:
+							pulled.goals && !hasPending("goals")
+								? { ...current.goals, ...pulled.goals }
+								: current.goals,
+						water: mergeRows(current.water, pulled.water, pending, "water"),
+						meals: mergeRows(current.meals, pulled.meals, pending, "meal"),
+						activities: mergeRows(
+							current.activities,
+							pulled.activities.map((x) => ({
+								...x,
+								durationMinutes: x.durationSeconds / 60,
+								distanceKm: x.distanceMeters / 1000,
+							})),
+							pending,
+							"activity",
+						),
+						weights: mergeRows(
+							current.weights,
+							pulled.weights,
+							pending,
+							"weight",
+						),
+						dailySteps: hasPending("steps")
+							? current.dailySteps
+							: [
+									...new Map(
+										[...(current.dailySteps ?? []), ...pulled.steps].map(
+											(x) => [x.date, x],
+										),
+									).values(),
+								],
+						steps: hasPending("steps")
+							? current.steps
+							: (pulled.steps.find((x) => x.date === isoDate())?.steps ??
+								current.dailySteps?.find((x) => x.date === isoDate())?.steps ??
+								0),
+						syncStatus: pending.length ? "pending" : "idle",
+					};
+				});
+				await setValue("sync-cursor", pulled.cursor, owner);
+				setLastError(null);
+			} catch (error) {
+				if (!active()) return;
+				await commit((x) => ({ ...x, syncStatus: "error" }));
+				setLastError(
+					error instanceof Error ? error.message : "Falha ao sincronizar",
+				);
+				clearTimeout(syncTimer.current);
+				syncTimer.current = setTimeout(() => void syncRef.current(), 30_000);
+			}
+		})()
+			.catch((error) =>
+				setLastError(error instanceof Error ? error.message : "Falha de rede"),
+			)
+			.finally(async () => {
+				flight.current = null;
+				if (
+					active() &&
+					stateRef.current.syncStatus === "pending" &&
+					(await pendingCount(owner))
+				)
+					scheduleSync();
+			});
+		flight.current = run;
+		return run;
+	}, [commit, scheduleSync]);
+	syncRef.current = syncNow;
 	const acceptSession = useCallback(
 		async (result: AuthResult) => {
+			await writes.current;
 			await saveTokens(result.tokens);
-			setAndSave((current) => ({
-				...current,
-				profile: localProfile(result.profile),
+			setActiveUser(result.profile.id);
+			await migrateLegacyAccount(result.profile.id, result.profile.email);
+			const restored = migrateState(
+				await loadState(result.profile.id),
+				result.profile.id,
+			);
+			const pending = await pendingMutations(1_000_000, result.profile.id);
+			const pendingProfile = pending.some((row) => row.entity === "profile");
+			const pendingWeight = pending.some((row) => row.entity === "weight");
+			await commit(() => ({
+				...restored,
+				profile: {
+					...(pendingProfile
+						? { ...restored.profile, email: result.profile.email }
+						: localProfile(result.profile)),
+					...(pendingWeight
+						? {
+								weightKg: restored.profile.weightKg,
+								hasWeight: restored.profile.hasWeight,
+							}
+						: {}),
+				},
 				authenticated: true,
 			}));
 			await syncNow();
+			scheduleSync();
 		},
-		[setAndSave, syncNow],
+		[commit, scheduleSync, syncNow],
 	);
 	const login = useCallback(
 		async (email: string, password: string) =>
@@ -448,67 +348,164 @@ export function AppStateProvider({ children }: PropsWithChildren) {
 	);
 	const logout = useCallback(async () => {
 		const tokens = await loadTokens();
-		if (tokens)
-			await apiRequest<void>("/v1/auth/logout", {
-				method: "POST",
-				body: JSON.stringify({ refreshToken: tokens.refreshToken }),
-			}).catch(() => undefined);
+		const owner = stateRef.current.userId;
+		invalidateSession();
+		clearTimeout(syncTimer.current);
+		await writes.current;
 		await clearTokens();
-		await clearLocalData();
-		setState(initialState);
+		setActiveUser(null);
 		stateRef.current = initialState;
-	}, []);
+		setState(initialState);
+		if (tokens)
+			void publicRequest("/v1/auth/logout", {
+				refreshToken: tokens.refreshToken,
+			}).catch(() => {});
+		// Pending records remain scoped to their owner and can be resumed after login.
+		if (owner) setLastError(null);
+	}, [invalidateSession]);
 	const uploadAvatar = useCallback(
 		async (uri: string, mimeType = "image/jpeg") => {
+			const owner = stateRef.current.userId;
 			const data = new FormData();
 			data.append("file", {
 				uri,
 				type: mimeType,
 				name: `avatar.${mimeType.split("/")[1] ?? "jpg"}`,
 			} as unknown as Blob);
-			const profile = await apiRequest<ApiProfile>("/v1/profile/avatar", {
-				method: "POST",
-				body: data,
-			});
-			setAndSave((current) => ({ ...current, profile: localProfile(profile) }));
+			const profile = await apiRequest<ApiProfile>(
+				"/v1/profile/avatar",
+				{ method: "POST", body: data },
+				true,
+				owner,
+			);
+			await commit((current) =>
+				current.userId === owner
+					? {
+							...current,
+							profile: {
+								...current.profile,
+								avatar: profile.avatarUrl ?? undefined,
+							},
+						}
+					: current,
+			);
 		},
-		[setAndSave],
+		[commit],
 	);
-
 	useEffect(() => {
+		let stopped = false;
 		void (async () => {
-			await initDatabase();
-			const [saved, tokens] = await Promise.all([loadState(), loadTokens()]);
-			const restored = saved
-				? { ...initialState, ...saved, authenticated: Boolean(tokens) }
-				: { ...initialState, authenticated: Boolean(tokens) };
-			setState(restored);
-			stateRef.current = restored;
-			setLoading(false);
-			if (tokens) await syncNow();
+			try {
+				await initDatabase();
+				const tokens = await loadTokens();
+				const owner = tokens ? tokenClaims(tokens.accessToken).sub : undefined;
+				setActiveUser(owner ?? null);
+				if (owner) {
+					const scoped = await loadState(owner);
+					const legacy = scoped ? null : await loadLegacyState();
+					// v1 cleared cache on logout. A legacy authenticated snapshot belongs to
+					// the SecureStore session being migrated; a different login uses verified email.
+					if (
+						legacy?.authenticated &&
+						(!legacy.userId || legacy.userId === owner)
+					)
+						await migrateLegacyAccount(owner, legacy.profile.email);
+
+					const migrated = migrateState(await loadState(owner), owner);
+					if (!stopped) {
+						stateRef.current = { ...migrated, authenticated: true };
+						setState(stateRef.current);
+					}
+				}
+			} catch (error) {
+				if (!stopped)
+					setLastError(
+						error instanceof Error
+							? error.message
+							: "Falha ao carregar os dados",
+					);
+			} finally {
+				if (!stopped) {
+					setLoading(false);
+					scheduleSync();
+				}
+			}
 		})();
-	}, [syncNow]);
+		return () => {
+			stopped = true;
+			clearTimeout(syncTimer.current);
+		};
+	}, [scheduleSync]);
+	useEffect(() => {
+		if (
+			state.themeMode === "system" &&
+			state.darkMode !== (systemScheme === "dark")
+		)
+			void commit((x) => ({ ...x, darkMode: systemScheme === "dark" }));
+	}, [commit, systemScheme, state.themeMode, state.darkMode]);
 	useEffect(
 		() =>
 			NetInfo.addEventListener((network) => {
-				if (network.isConnected) void syncNow();
+				if (network.isConnected) scheduleSync();
 				else if (stateRef.current.authenticated)
-					setAndSave((x) => ({ ...x, syncStatus: "offline" }));
+					void commit((x) => ({ ...x, syncStatus: "offline" }));
 			}),
-		[setAndSave, syncNow],
+		[commit, scheduleSync],
 	);
 	useEffect(() => {
 		if (!state.authenticated) return;
-		let subscription: { remove(): void } | undefined;
+		let day = isoDate();
+		const checkDay = () => {
+			const nextDay = isoDate();
+			if (nextDay !== day) {
+				day = nextDay;
+				void commit((current) => ({
+					...current,
+					steps:
+						current.dailySteps?.find((row) => row.date === nextDay)?.steps ?? 0,
+				}));
+			}
+		};
+		const timer = setInterval(checkDay, 60_000);
+		const subscription = Lifecycle.addEventListener("change", (status) => {
+			if (status === "active") checkDay();
+		});
+		return () => {
+			clearInterval(timer);
+			subscription.remove();
+		};
+	}, [commit, state.authenticated]);
+
+	useEffect(() => {
+		if (!state.authenticated) return;
+		let stopped = false,
+			subscription: { remove(): void } | undefined;
+		let previousCount = 0;
 		void (async () => {
-			if (!(await Pedometer.isAvailableAsync())) return;
-			const permission = await Pedometer.requestPermissionsAsync();
-			if (permission.granted)
-				subscription = Pedometer.watchStepCount(({ steps }) =>
-					dispatch({ type: "STEPS_SET", value: steps }),
-				);
+			try {
+				if (!(await Pedometer.isAvailableAsync())) return;
+				const permission = await Pedometer.requestPermissionsAsync();
+				if (permission.granted && !stopped)
+					subscription = Pedometer.watchStepCount(({ steps }) => {
+						if (stopped) return;
+						const date = isoDate();
+						const delta = Math.max(0, steps - previousCount);
+						previousCount = steps;
+						if (delta)
+							void dispatch({
+								type: "STEPS_INCREMENT",
+								date,
+								value: delta,
+							}).catch(() => {});
+					});
+			} catch {
+				/* devices without a pedometer still support manual activities */
+			}
 		})();
-		return () => subscription?.remove();
+		return () => {
+			stopped = true;
+			subscription?.remove();
+		};
 	}, [dispatch, state.authenticated]);
 	const value = useMemo<ContextValue>(
 		() => ({
@@ -521,7 +518,7 @@ export function AppStateProvider({ children }: PropsWithChildren) {
 			logout,
 			syncNow,
 			uploadAvatar,
-			addActivity: (activity) =>
+			addActivity: async (activity) =>
 				dispatch({
 					type: "ACTIVITY_SAVE",
 					value: {
@@ -549,7 +546,6 @@ export function AppStateProvider({ children }: PropsWithChildren) {
 	);
 	return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 }
-
 export const useAppState = () => {
 	const value = useContext(AppContext);
 	if (!value)

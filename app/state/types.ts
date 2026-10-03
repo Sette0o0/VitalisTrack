@@ -9,6 +9,8 @@ export type Profile = {
 	heightCm: number;
 	gender: Gender;
 	avatar?: string;
+	hasWeight?: boolean;
+	hasHeight?: boolean;
 };
 export type Goals = {
 	waterMl: number;
@@ -37,6 +39,7 @@ export type Activity = {
 	id: string;
 	type: ActivityType;
 	date: string;
+	durationSeconds?: number;
 	durationMinutes: number;
 	distanceKm: number;
 	calories: number;
@@ -50,6 +53,9 @@ export type Activity = {
 };
 export type WeightEntry = { id: string; date: string; weightKg: number };
 export type AppState = {
+	schemaVersion?: 2;
+	userId?: string;
+	dailySteps?: { date: string; steps: number }[];
 	profile: Profile;
 	goals: Goals;
 	water: WaterEntry[];
@@ -59,5 +65,6 @@ export type AppState = {
 	steps: number;
 	authenticated: boolean;
 	darkMode: boolean;
-	syncStatus?: "idle" | "syncing" | "offline" | "error";
+	themeMode?: "system" | "light" | "dark";
+	syncStatus?: "idle" | "pending" | "syncing" | "offline" | "error";
 };

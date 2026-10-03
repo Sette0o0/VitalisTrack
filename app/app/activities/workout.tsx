@@ -1,293 +1,325 @@
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import Constants from "expo-constants";
 import * as Location from "expo-location";
 import { router, useLocalSearchParams } from "expo-router";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+	AppState as Lifecycle,
+	BackHandler,
+	StyleSheet,
+	View,
+} from "react-native";
+import { ActivityIndicator, Chip, HelperText, Text } from "react-native-paper";
 import MapView, { Marker, Polyline } from "react-native-maps";
-import { Header, Screen } from "@/components/vitalis/ui";
-import type { ThemeTokens } from "@/constants/theme";
+import { Button, Card, Header, Screen } from "@/components/vitalis/ui";
+import { useConfirm } from "@/components/vitalis/confirmation";
 import { useAppTheme } from "@/hooks/use-app-theme";
-import { calculatePace, formatPace, isoDate } from "@/lib/health";
+import {
+	calculateActivityCalories,
+	calculatePace,
+	formatPace,
+} from "@/lib/health";
 import { getValue, setValue } from "@/lib/local-database";
+import {
+	createWorkout,
+	restoreWorkout,
+	tickWorkout,
+	pauseWorkout,
+	recordPoint,
+	routeSegments,
+	type Workout,
+} from "@/lib/workout";
 import { useAppState } from "@/state/app-state";
 import type { ActivityType } from "@/state/types";
 
-type Point = {
-	latitude: number;
-	longitude: number;
-	altitude?: number | null;
-	accuracy?: number | null;
-	timestamp: string;
-};
-const radians = (value: number) => (value * Math.PI) / 180;
-function distanceMeters(a: Point, b: Point) {
-	const earth = 6_371_000,
-		dLat = radians(b.latitude - a.latitude),
-		dLon = radians(b.longitude - a.longitude);
-	const value =
-		Math.sin(dLat / 2) ** 2 +
-		Math.cos(radians(a.latitude)) *
-			Math.cos(radians(b.latitude)) *
-			Math.sin(dLon / 2) ** 2;
-	return earth * 2 * Math.atan2(Math.sqrt(value), Math.sqrt(1 - value));
-}
-
 export default function WorkoutScreen() {
+	const { type } = useLocalSearchParams<{
+		type?: ActivityType;
+	}>();
+	const requested: ActivityType =
+		type === "walk" || type === "cycling" ? type : "run";
+	const { state, dispatch } = useAppState(),
+		owner = state.userId;
 	const theme = useAppTheme(),
-		styles = useMemo(() => createStyles(theme), [theme]);
-	const params = useLocalSearchParams<{ type?: ActivityType }>();
-	const type = params.type ?? "run";
-	const { addActivity } = useAppState();
-	const [seconds, setSeconds] = useState(0),
-		[paused, setPaused] = useState(false);
-	const [route, setRoute] = useState<Point[]>([]),
-		[distance, setDistance] = useState(0);
-	const [gpsError, setGpsError] = useState("");
+		confirm = useConfirm();
+	const [workout, setWorkout] = useState<Workout>(() =>
+		createWorkout(requested),
+	);
+	const current = useRef(workout),
+		writes = useRef(Promise.resolve()),
+		finished = useRef(false);
+	const [ready, setReady] = useState(false),
+		[gpsError, setGpsError] = useState(""),
+		[gpsReady, setGpsReady] = useState(false);
+	const [foreground, setForeground] = useState(
+			Lifecycle.currentState === "active",
+		),
+		[retry, setRetry] = useState(0);
 	const map = useRef<MapView>(null);
-
+	const update = (next: Workout) => {
+		current.current = next;
+		setWorkout(next);
+	};
+	const persist = useCallback(() => {
+		const snapshot = current.current;
+		const operation = writes.current.then(() =>
+			finished.current
+				? undefined
+				: setValue("active-workout", JSON.stringify(snapshot), owner),
+		);
+		writes.current = operation.catch(() => {
+			setGpsError(
+				"Não foi possível salvar o treino no aparelho. Tente novamente.",
+			);
+		});
+		return operation;
+	}, [owner]);
 	useEffect(() => {
+		let stopped = false;
+		void getValue("active-workout", owner)
+			.then((raw) => {
+				if (stopped) return;
+				const restored = restoreWorkout(raw, requested);
+				update(restored);
+				setReady(true);
+			})
+			.catch(() =>
+				setGpsError(
+					"Não foi possível restaurar o treino. Volte e tente novamente.",
+				),
+			);
+		return () => {
+			stopped = true;
+		};
+	}, [owner, requested]);
+	useEffect(() => {
+		if (ready) void persist().catch(() => {});
+	}, [ready, workout, persist]);
+	useEffect(() => {
+		const subscription = Lifecycle.addEventListener("change", (status) => {
+			setForeground(status === "active");
+			if (status !== "active" && ready) {
+				update(pauseWorkout(current.current, true));
+				void persist().catch(() => {});
+			}
+		});
+		return () => subscription.remove();
+	}, [ready, persist]);
+	useEffect(() => {
+		if (!ready || workout.paused || !foreground || !gpsReady) return;
+		update({ ...current.current, lastTick: Date.now() });
+		const timer = setInterval(() => update(tickWorkout(current.current)), 1000);
+		return () => clearInterval(timer);
+	}, [ready, workout.paused, foreground, gpsReady]);
+	useEffect(() => {
+		if (!ready || workout.paused || !foreground) {
+			setGpsReady(false);
+			return;
+		}
+		let stopped = false,
+			subscription: Location.LocationSubscription | undefined;
+		const fail = (message: string) => {
+			if (!stopped) {
+				setGpsError(message);
+				setGpsReady(false);
+				update(pauseWorkout(current.current, true));
+			}
+		};
 		void (async () => {
-			const saved = await getValue("active-workout");
-			if (!saved) return;
 			try {
-				const value = JSON.parse(saved);
-				if (value.type === type) {
-					setSeconds(value.seconds ?? 0);
-					setDistance(value.distance ?? 0);
-					setRoute(value.route ?? []);
-					setPaused(Boolean(value.paused));
+				const permission = await Location.requestForegroundPermissionsAsync();
+				if (stopped) return;
+				if (!permission.granted)
+					return fail(
+						"Permita a localização para iniciar a rota. Você pode registrar uma atividade manualmente.",
+					);
+				if (!(await Location.hasServicesEnabledAsync()))
+					return fail("Ative a localização do celular para retomar o treino.");
+				if (stopped) return;
+				const listener = await Location.watchPositionAsync(
+					{
+						accuracy: Location.Accuracy.High,
+						timeInterval: 2000,
+						distanceInterval: 3,
+					},
+					(location) => {
+						if (stopped) return;
+						const point = {
+							...location.coords,
+							timestamp: new Date(location.timestamp).toISOString(),
+						};
+						update(recordPoint(current.current, point));
+						map.current?.animateCamera({ center: point, zoom: 16 });
+					},
+					() =>
+						fail("GPS indisponível. Confira a localização e retome o treino."),
+				);
+				if (stopped) listener.remove();
+				else {
+					subscription = listener;
+					setGpsError("");
+					setGpsReady(true);
 				}
 			} catch {
-				/* estado incompleto é ignorado */
+				fail("Não foi possível iniciar o GPS. Confira a permissão e retome.");
 			}
 		})();
-	}, [type]);
-	useEffect(() => {
-		void setValue(
-			"active-workout",
-			JSON.stringify({ type, seconds, paused, route, distance }),
-		);
-	}, [type, seconds, paused, route, distance]);
-	useEffect(() => {
-		if (paused) return;
-		const timer = setInterval(() => setSeconds((value) => value + 1), 1000);
-		return () => clearInterval(timer);
-	}, [paused]);
-	useEffect(() => {
-		if (paused) return;
-		let subscription: Location.LocationSubscription | undefined;
-		void (async () => {
-			const permission = await Location.requestForegroundPermissionsAsync();
-			if (!permission.granted) {
-				setGpsError(
-					"Permissão de localização necessária para registrar a rota.",
-				);
-				return;
-			}
-			subscription = await Location.watchPositionAsync(
-				{
-					accuracy: Location.Accuracy.High,
-					timeInterval: 2000,
-					distanceInterval: 3,
-				},
-				(location) => {
-					const point: Point = {
-						latitude: location.coords.latitude,
-						longitude: location.coords.longitude,
-						altitude: location.coords.altitude,
-						accuracy: location.coords.accuracy,
-						timestamp: new Date(location.timestamp).toISOString(),
-					};
-					setRoute((current) => {
-						const previous = current.at(-1);
-						if (previous)
-							setDistance((value) => value + distanceMeters(previous, point));
-						return [...current, point];
-					});
-					map.current?.animateCamera({ center: point, zoom: 16 });
-				},
-				(message) => setGpsError(message),
-			);
-		})();
-		return () => subscription?.remove();
-	}, [paused]);
-
-	const finish = () =>
-		Alert.alert("Finalizar atividade?", "O treino será salvo e sincronizado.", [
-			{ text: "Continuar" },
-			{
-				text: "Finalizar",
-				onPress: () => {
-					addActivity({
-						type,
-						date: isoDate(),
-						durationMinutes: Math.max(1, Math.round(seconds / 60)),
-						distanceKm: Number((distance / 1000).toFixed(3)),
-						route,
-					});
-					void setValue("active-workout", "");
-					router.replace("/activities");
-				},
+		return () => {
+			stopped = true;
+			subscription?.remove();
+		};
+	}, [ready, workout.paused, foreground, retry]);
+	const leave = () => {
+		if (!ready) {
+			router.replace("/activities");
+			return;
+		}
+		update(pauseWorkout(current.current, true));
+		confirm(
+			"Sair do treino?",
+			"O treino ficará salvo e pausado para você continuar depois.",
+			async () => {
+				await persist();
+				router.replace("/activities");
 			},
-		]);
+			"Salvar e sair",
+		);
+	};
+	useEffect(() => {
+		const listener = BackHandler.addEventListener("hardwareBackPress", () => {
+			leave();
+			return true;
+		});
+		return () => listener.remove();
+	});
+	const finish = () => {
+		update(pauseWorkout(current.current, true));
+		confirm(
+			"Finalizar atividade?",
+			"O registro ficará salvo neste aparelho e será sincronizado quando houver conexão.",
+			async () => {
+				if (finished.current) return;
+				const saved = current.current,
+					seconds = Math.floor(saved.elapsedMs / 1000);
+				if (seconds < 1)
+					throw new Error("Registre ao menos um segundo de atividade.");
+				finished.current = true;
+				try {
+					await writes.current;
+					await dispatch({
+						type: "ACTIVITY_SAVE",
+						value: {
+							id: saved.id,
+							type: saved.type,
+							date: saved.date,
+							durationSeconds: seconds,
+							durationMinutes: seconds / 60,
+							distanceKm: saved.distance / 1000,
+							route: saved.route,
+							calories: calculateActivityCalories(
+								saved.type,
+								state.profile.weightKg,
+								seconds / 60,
+							),
+						},
+					});
+					await setValue("active-workout", "", owner);
+					router.replace("/activities");
+				} catch (error) {
+					finished.current = false;
+					throw error;
+				}
+			},
+			"Finalizar",
+		);
+	};
+	const seconds = Math.floor(workout.elapsedMs / 1000),
+		distanceKm = workout.distance / 1000;
 	const timer = `${String(Math.floor(seconds / 3600)).padStart(2, "0")}:${String(Math.floor(seconds / 60) % 60).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
-	const distanceKm = distance / 1000;
 	return (
-		<Screen scroll={false} style={{ padding: 0, gap: 0 }}>
-			<View style={{ paddingHorizontal: 16 }}>
-				<Header
-					title="Atividade em andamento"
-					onBack={() =>
-						Alert.alert("Cancelar treino?", "Os dados atuais serão perdidos.", [
-							{ text: "Continuar" },
-							{
-								text: "Cancelar treino",
-								style: "destructive",
-								onPress: () => {
-									void setValue("active-workout", "");
-									router.back();
-								},
-							},
-						])
-					}
-				/>
-			</View>
-			<View style={styles.map}>
-				<MapView
-					ref={map}
-					style={StyleSheet.absoluteFill}
-					initialRegion={{
-						latitude: -3.7319,
-						longitude: -38.5267,
-						latitudeDelta: 0.02,
-						longitudeDelta: 0.02,
-					}}
-					showsUserLocation
-				>
-					{route.length > 1 ? (
-						<Polyline
-							coordinates={route}
-							strokeColor={theme.primary}
-							strokeWidth={6}
-						/>
-					) : null}
-					{route[0] ? <Marker coordinate={route[0]} title="Início" /> : null}
-				</MapView>
-				<View style={styles.gps}>
-					<View
-						style={[styles.dot, gpsError && { backgroundColor: theme.error }]}
-					/>
-					<Text style={styles.gpsText}>
-						{gpsError || (paused ? "GPS pausado" : "GPS ativo")}
-					</Text>
-				</View>
-			</View>
-			<View style={styles.data}>
-				<Text style={styles.label}>TEMPO</Text>
-				<Text style={styles.timer}>{timer}</Text>
-				<View style={styles.metrics}>
-					<View>
-						<Text style={styles.value}>{distanceKm.toFixed(2)}</Text>
-						<Text style={styles.muted}>Distância (km)</Text>
+		<Screen>
+			<Header title="Atividade em andamento" onBack={leave} />
+			{!ready ? (
+				<ActivityIndicator accessibilityLabel="Restaurando treino" />
+			) : (
+				<>
+					<View style={{ height: 240, borderRadius: 24, overflow: "hidden" }}>
+						{Constants.expoConfig?.extra?.mapsConfigured ? (
+							<MapView
+								ref={map}
+								style={StyleSheet.absoluteFill}
+								initialRegion={{
+									latitude: workout.route[0]?.latitude ?? -3.7319,
+									longitude: workout.route[0]?.longitude ?? -38.5267,
+									latitudeDelta: 0.02,
+									longitudeDelta: 0.02,
+								}}
+								showsUserLocation={gpsReady}
+							>
+								{routeSegments(workout)
+									.filter((x) => x.length > 1)
+									.map((segment, i) => (
+										<Polyline
+											key={i}
+											coordinates={segment}
+											strokeColor={theme.primary}
+											strokeWidth={6}
+										/>
+									))}
+								{workout.route[0] && (
+									<Marker coordinate={workout.route[0]} title="Início" />
+								)}
+							</MapView>
+						) : (
+							<Card>
+								<Text>
+									Mapa indisponível neste momento. A rota continua sendo
+									registrada pelo GPS.
+								</Text>
+							</Card>
+						)}
 					</View>
-					<View>
-						<Text style={styles.value}>
+					<Chip icon={gpsReady ? "map-marker-check" : "map-marker-off"}>
+						{workout.paused
+							? "Treino pausado"
+							: gpsReady
+								? "GPS ativo"
+								: "Iniciando GPS"}
+					</Chip>
+					{gpsError ? (
+						<HelperText type="error" accessibilityLiveRegion="polite">
+							{gpsError}
+						</HelperText>
+					) : null}
+					<Card>
+						<Text variant="labelLarge">Tempo</Text>
+						<Text variant="displaySmall" accessibilityLabel={`Tempo ${timer}`}>
+							{timer}
+						</Text>
+						<Text variant="titleLarge">{distanceKm.toFixed(2)} km</Text>
+						<Text variant="bodyLarge">
+							Ritmo:{" "}
 							{distanceKm
 								? formatPace(calculatePace(seconds / 60, distanceKm))
-								: "0'00\""}
+								: "—"}{" "}
+							/km
 						</Text>
-						<Text style={styles.muted}>Ritmo (/km)</Text>
-					</View>
-					<View>
-						<Text style={styles.value}>{route.length}</Text>
-						<Text style={styles.muted}>Pontos GPS</Text>
-					</View>
-				</View>
-				<View style={styles.actions}>
-					<Pressable
-						onPress={() => setPaused((value) => !value)}
-						style={[styles.round, { backgroundColor: theme.primaryContainer }]}
-					>
-						<MaterialCommunityIcons
-							name={paused ? "play" : "pause"}
-							size={32}
-							color={theme.onPrimaryContainer}
-						/>
-						<Text style={styles.actionLabel}>
-							{paused ? "Retomar" : "Pausar"}
-						</Text>
-					</Pressable>
-					<Pressable
+					</Card>
+					<Button
+						title={workout.paused ? "Retomar" : "Pausar"}
+						icon={workout.paused ? "play" : "pause"}
+						onPress={() => {
+							update(pauseWorkout(current.current, !current.current.paused));
+							setRetry((x) => x + 1);
+						}}
+					/>
+					<Button
+						title="Finalizar"
+						variant="outline"
+						icon="stop"
 						onPress={finish}
-						style={[styles.round, { backgroundColor: theme.errorContainer }]}
-					>
-						<MaterialCommunityIcons
-							name="stop"
-							size={32}
-							color={theme.onErrorContainer}
-						/>
-						<Text style={styles.actionLabel}>Finalizar</Text>
-					</Pressable>
-				</View>
-			</View>
+					/>
+				</>
+			)}
 		</Screen>
 	);
 }
-const createStyles = (theme: ThemeTokens) =>
-	StyleSheet.create({
-		map: { height: 300, backgroundColor: theme.surfaceVariant },
-		gps: {
-			position: "absolute",
-			top: 15,
-			left: 15,
-			maxWidth: "90%",
-			flexDirection: "row",
-			alignItems: "center",
-			gap: 6,
-			backgroundColor: theme.surface,
-			borderRadius: 16,
-			paddingHorizontal: 10,
-			paddingVertical: 7,
-		},
-		dot: {
-			width: 8,
-			height: 8,
-			borderRadius: 4,
-			backgroundColor: theme.success,
-		},
-		gpsText: { color: theme.onSurface, fontWeight: "700", fontSize: 11 },
-		data: { flex: 1, padding: 20, alignItems: "center", gap: 12 },
-		label: {
-			color: theme.primary,
-			fontWeight: "900",
-			fontSize: 11,
-			letterSpacing: 1,
-		},
-		timer: {
-			color: theme.onSurface,
-			fontSize: 42,
-			fontWeight: "300",
-			fontVariant: ["tabular-nums"],
-		},
-		metrics: {
-			flexDirection: "row",
-			alignSelf: "stretch",
-			justifyContent: "space-around",
-		},
-		value: {
-			textAlign: "center",
-			color: theme.onSurface,
-			fontWeight: "900",
-			fontSize: 19,
-		},
-		muted: { color: theme.onSurfaceVariant, fontSize: 10, textAlign: "center" },
-		actions: { flexDirection: "row", gap: 36, marginTop: 8 },
-		round: {
-			width: 82,
-			height: 82,
-			borderRadius: 41,
-			alignItems: "center",
-			justifyContent: "center",
-		},
-		actionLabel: { color: theme.onSurface, fontWeight: "700", fontSize: 11 },
-	});

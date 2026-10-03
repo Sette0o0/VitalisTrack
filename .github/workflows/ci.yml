@@ -36,9 +36,21 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: Verify app workspace lockfile
+        working-directory: app
+        run: pnpm install --frozen-lockfile --lockfile-only --ignore-scripts
       - run: pnpm db:generate
       - run: pnpm --filter @vitalis/server db:deploy
       - run: pnpm typecheck
       - run: pnpm lint
-      - run: pnpm test
+      - run: pnpm --filter @vitalis/contracts test
+      - run: pnpm --filter vitalis-track test:coverage
+      - run: pnpm --filter @vitalis/server test
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: business-coverage
+          path: |
+            app/coverage/
+            server/coverage/
       - run: pnpm build

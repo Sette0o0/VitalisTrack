@@ -1,0 +1,12 @@
+Pkg.Revision=22.0
+Pkg.Path=cmdline-tools;22.0
+Pkg.Desc=Android SDK Command-line Tools
+
+hw.device.name=pixel_2
+hw.device.manufacturer=Google
+abi.type=x86_64
+target=android-36
+image.sysdir.1=system-images/android-36/google_apis/x86_64/
+hw.lcd.width=1080
+hw.lcd.height=1920
+hw.lcd.density=420

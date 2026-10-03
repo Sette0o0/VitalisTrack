@@ -52,9 +52,14 @@ export const profileSchema = z.object({
 export const profileUpdateSchema = z
 	.object({
 		name: z.string().trim().min(2).max(100).optional(),
-		birthDate: dateSchema.optional(),
+		birthDate: dateSchema
+			.refine(
+				(value) => value <= new Date().toISOString().slice(0, 10),
+				"Nascimento não pode estar no futuro",
+			)
+			.optional(),
 		weightKg: z.number().min(20).max(500).optional(),
-		heightCm: z.number().min(80).max(260).optional(),
+		heightCm: z.number().int().min(80).max(260).optional(),
 		gender: genderSchema.optional(),
 	})
 	.strict();
@@ -122,7 +127,7 @@ export const routePointSchema = z.object({
 	longitude: z.number().min(-180).max(180),
 	altitude: z.number().nullable().optional(),
 	accuracy: z.number().nonnegative().nullable().optional(),
-	timestamp: z.string(),
+	timestamp: z.iso.datetime({ offset: true }),
 });
 export const activitySchema = z.object({
 	id: idSchema,
@@ -182,7 +187,7 @@ export const syncMutationSchema = z.object({
 	action: mutationActionSchema,
 	entityId: idSchema.optional(),
 	payload: z.record(z.string(), z.unknown()).optional(),
-	clientUpdatedAt: z.string(),
+	clientUpdatedAt: z.iso.datetime({ offset: true }),
 });
 export const syncPushSchema = z.object({
 	mutations: z.array(syncMutationSchema).min(1).max(100),
@@ -212,4 +217,43 @@ export type AuthTokens = {
 	accessToken: string;
 	refreshToken: string;
 	expiresIn: number;
+};
+
+export type SyncResult = {
+	mutationId: string;
+	status: "applied" | "failed";
+	entityId?: string;
+	message?: string;
+};
+export type SyncPull = {
+	water: WaterEntry[];
+	meals: Meal[];
+	activities: Activity[];
+	weights: WeightEntry[];
+	steps: { date: string; steps: number; updatedAt?: string }[];
+	profile: Partial<Profile> | null;
+	goals: Partial<Goals> | null;
+	cursor: string;
+};
+
+export type ActivityStatistics = {
+	period: "week" | "month";
+	activityCount: number;
+	durationSeconds: number;
+	distanceMeters: number;
+	calories: number;
+	steps: number;
+	stepAverage: number;
+	previousStepAverage: number;
+	trend: "up" | "down" | "flat";
+	trendPercent: number | null;
+};
+export type ProgressStatistics = {
+	period: Period;
+	windowDays: number;
+	waterProgress: number;
+	calorieProgress: number;
+	stepProgress: number;
+	activityMinutes: number;
+	contributingDays: number;
 };

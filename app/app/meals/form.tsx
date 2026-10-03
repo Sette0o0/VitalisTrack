@@ -1,6 +1,11 @@
+import { mealInputSchema } from "@vitalis/contracts";
+import { parseInput, parseDecimal } from "@/lib/validation";
+import { useSubmit } from "@/hooks/use-submit";
+import { HelperText, SegmentedButtons } from "react-native-paper";
+import { DateField, TimeField } from "@/components/vitalis/date-field";
 import { router, useLocalSearchParams } from "expo-router";
 import { useMemo, useState } from "react";
-import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import {
 	Button,
 	Field,
@@ -12,13 +17,14 @@ import {
 import { radius, ThemeTokens } from "@/constants/theme";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { isoDate, newId } from "@/lib/health";
+import { goBackOrReplace } from "@/lib/navigation";
 import { useAppState } from "@/state/app-state";
-import type { Meal } from "@/state/types";
 
 export default function MealFormScreen() {
 	const theme = useAppTheme();
 	const styles = useMemo(() => createStyles(theme), [theme]);
 	const { id } = useLocalSearchParams<{ id?: string }>();
+	const { submit, saving, error } = useSubmit();
 	const { state, dispatch } = useAppState();
 	const existing = state.meals.find((x) => x.id === id);
 	const [name, setName] = useState(existing?.name ?? "");
@@ -33,45 +39,42 @@ export default function MealFormScreen() {
 	const [quantity, setQuantity] = useState(String(existing?.quantity ?? ""));
 	const [unit, setUnit] = useState<"g" | "mL">(existing?.unit ?? "g");
 	const [calories, setCalories] = useState(String(existing?.calories ?? ""));
-	const save = () => {
-		const q = Number(quantity),
-			c = Number(calories);
-		if (!name.trim() || q <= 0 || c < 0 || !/^\d{2}:\d{2}$/.test(time))
-			return Alert.alert(
-				"Dados inválidos",
-				"Preencha nome, horário, quantidade e calorias corretamente.",
-			);
-		const meal: Meal = {
-			id: existing?.id ?? newId("meal"),
-			name: name.trim(),
-			date,
-			time,
-			quantity: q,
-			unit,
-			calories: c,
-		};
-		dispatch({ type: "MEAL_SAVE", value: meal });
-		router.back();
-	};
+	const save = () =>
+		submit(async () => {
+			const meal = parseInput(mealInputSchema, {
+				id: existing?.id ?? newId(),
+				name: name.trim(),
+				date,
+				time,
+				quantity: parseDecimal(quantity),
+				unit,
+				calories: parseDecimal(calories),
+			});
+			await dispatch({ type: "MEAL_SAVE", value: meal });
+			goBackOrReplace(router, "/(tabs)/meals");
+		});
 	return (
 		<Screen>
 			<Header
 				title={existing ? "Editar refeição" : "Nova refeição"}
-				onBack={() => router.back()}
+				onBack={() => goBackOrReplace(router, "/(tabs)/meals")}
 			/>
 			<Title>{existing ? "Atualize o registro" : "O que você comeu?"}</Title>
-			<Muted>Os dados ficam apenas nesta sessão.</Muted>
+			<Muted>
+				Os registros ficam salvos no celular e são sincronizados quando há
+				conexão.
+			</Muted>
 			<Field label="Alimento ou refeição" value={name} onChangeText={setName} />
 			<View style={styles.row}>
 				<View style={{ flex: 1 }}>
-					<Field label="Data" value={date} onChangeText={setDate} />
+					<DateField value={date} onChange={setDate} />
 				</View>
 				<View style={{ flex: 1 }}>
-					<Field label="Horário" value={time} onChangeText={setTime} />
+					<TimeField value={time} onChange={setTime} />
 				</View>
 			</View>
-			<View style={styles.row}>
-				<View style={{ flex: 1 }}>
+			<View>
+				<View>
 					<Field
 						label="Quantidade"
 						keyboardType="decimal-pad"
@@ -79,27 +82,24 @@ export default function MealFormScreen() {
 						onChangeText={setQuantity}
 					/>
 				</View>
-				<View style={styles.segment}>
-					{(["g", "mL"] as const).map((x) => (
-						<Pressable
-							key={x}
-							onPress={() => setUnit(x)}
-							style={[
-								styles.segmentButton,
-								unit === x && styles.segmentSelected,
-							]}
-						>
-							<Text
-								style={{
-									color: unit === x ? theme.onPrimary : theme.onSurface,
-									fontWeight: "800",
-								}}
-							>
-								{x}
-							</Text>
-						</Pressable>
-					))}
-				</View>
+				<SegmentedButtons
+					value={unit}
+					onValueChange={(x) => setUnit(x as "g" | "mL")}
+					buttons={[
+						{
+							value: "g",
+							label: "Gramas",
+							style: { minHeight: 48, justifyContent: "center" },
+							labelStyle: { lineHeight: 30 },
+						},
+						{
+							value: "mL",
+							label: "mL",
+							style: { minHeight: 48, justifyContent: "center" },
+							labelStyle: { lineHeight: 30 },
+						},
+					]}
+				/>
 			</View>
 			<Field
 				label="Calorias (kcal)"
@@ -107,13 +107,18 @@ export default function MealFormScreen() {
 				value={calories}
 				onChangeText={setCalories}
 			/>
-			<Button title="Salvar refeição" onPress={save} />
+			<Button title="Salvar refeição" loading={saving} onPress={save} />
+			{error ? (
+				<HelperText type="error" accessibilityLiveRegion="polite">
+					{error}
+				</HelperText>
+			) : null}
 		</Screen>
 	);
 }
 const createStyles = (theme: ThemeTokens) =>
 	StyleSheet.create({
-		row: { flexDirection: "row", gap: 10, alignItems: "flex-end" },
+		row: { gap: 10 },
 		segment: {
 			height: 52,
 			flexDirection: "row",
