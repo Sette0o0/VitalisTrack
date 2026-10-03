@@ -1,13 +1,7 @@
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import { Link, router } from "expo-router";
+import { router } from "expo-router";
 import { useMemo, useState } from "react";
-import {
-	KeyboardAvoidingView,
-	Platform,
-	StyleSheet,
-	Text,
-	View,
-} from "react-native";
+import { KeyboardAvoidingView, Platform, StyleSheet, View } from "react-native";
 import {
 	Button,
 	Eyebrow,
@@ -21,7 +15,7 @@ import { useAppTheme } from "@/hooks/use-app-theme";
 import { loginSchema } from "@vitalis/contracts";
 import { parseInput } from "@/lib/validation";
 import { useSubmit } from "@/hooks/use-submit";
-import { HelperText } from "react-native-paper";
+import { HelperText, Text } from "react-native-paper";
 import { useAppState } from "@/state/app-state";
 
 export default function LoginScreen() {
@@ -79,12 +73,16 @@ export default function LoginScreen() {
 					) : null}
 					<Button title="Entrar" onPress={save} loading={saving} />
 				</View>
-				<Text style={styles.switch}>
-					Ainda não tem conta?{" "}
-					<Link href="/(auth)/register" style={styles.link}>
-						Criar conta
-					</Link>
-				</Text>
+				<View style={{ gap: 8 }}>
+					<Text variant="bodyMedium" style={styles.switch}>
+						Ainda não tem conta?
+					</Text>
+					<Button
+						title="Criar conta"
+						variant="text"
+						onPress={() => router.push("/(auth)/register")}
+					/>
+				</View>
 			</Screen>
 		</KeyboardAvoidingView>
 	);
@@ -104,5 +102,4 @@ const createStyles = (theme: ThemeTokens) =>
 		brandName: { fontSize: 22, color: theme.onSurface, fontWeight: "900" },
 		error: { color: theme.error, fontSize: 12 },
 		switch: { textAlign: "center", color: theme.onSurfaceVariant },
-		link: { color: theme.primary, fontWeight: "800" },
 	});

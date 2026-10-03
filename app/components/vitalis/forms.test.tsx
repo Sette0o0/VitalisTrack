@@ -2,6 +2,7 @@ import { fireEvent, render, waitFor } from "@testing-library/react-native";
 import { PaperProvider } from "react-native-paper";
 import { initialState } from "@/state/reducer";
 import RegisterScreen from "@/app/(auth)/register";
+import LoginScreen from "@/app/(auth)/login";
 import WaterScreen from "@/app/water";
 import MealForm from "@/app/meals/form";
 import { useAppState } from "@/state/app-state";
@@ -19,14 +20,36 @@ jest.mock(
 	() => jest.requireActual("react-native-safe-area-context/jest/mock").default,
 );
 const dispatch = jest.fn(async () => {}),
-	register = jest.fn(async () => {});
+	register = jest.fn(async () => {}),
+	login = jest.fn(async () => {});
 beforeEach(() => {
 	jest.clearAllMocks();
 	(useAppState as jest.Mock).mockReturnValue({
 		state: initialState,
 		dispatch,
 		register,
+		login,
 	});
+});
+test("login inicia vazio e valida o e-mail antes de enviar as credenciais", async () => {
+	const ui = render(
+		<PaperProvider>
+			<LoginScreen />
+		</PaperProvider>,
+	);
+	expect(ui.getByLabelText("E-mail").props.value).toBe("");
+	fireEvent.changeText(ui.getByLabelText("E-mail"), "invalido");
+	fireEvent.changeText(ui.getByLabelText("Senha"), "12345678");
+	fireEvent.press(ui.getByRole("button", { name: "Entrar" }));
+	await waitFor(() =>
+		expect(ui.getByText(/E-mail: valor inválido/)).toBeTruthy(),
+	);
+	expect(login).not.toHaveBeenCalled();
+	fireEvent.changeText(ui.getByLabelText("E-mail"), "PESSOA@example.com");
+	fireEvent.press(ui.getByRole("button", { name: "Entrar" }));
+	await waitFor(() =>
+		expect(login).toHaveBeenCalledWith("pessoa@example.com", "12345678"),
+	);
 });
 test("cadastro inicia vazio, anuncia erro e envia uma única solicitação válida", async () => {
 	const ui = render(
