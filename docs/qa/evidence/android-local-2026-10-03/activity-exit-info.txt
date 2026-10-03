@@ -1,0 +1,48 @@
+ACTIVITY MANAGER PROCESS EXIT INFO (dumpsys activity exit-info)
+Last Timestamp of Persistence Into Persistent Storage: 1969-12-31 21:00:00.000
+  package: com.vitalistrack.app
+    Historical Process Exit for uid=10216
+        ApplicationExitInfo #0:
+          timestamp=2026-10-03 14:58:53.177 pid=11560 realUid=10216 packageUid=10216 definingUid=10216 user=0
+          process=com.vitalistrack.app reason=10 (USER REQUESTED) subreason=21 (FORCE STOP) status=0
+          importance=100 pss=0.00 rss=0.00 description=stop com.vitalistrack.app due to from pid 11628 state=empty trace=null
+        ApplicationExitInfo #1:
+          timestamp=2026-10-03 14:58:48.201 pid=11481 realUid=10216 packageUid=10216 definingUid=10216 user=0
+          process=com.vitalistrack.app reason=10 (USER REQUESTED) subreason=21 (FORCE STOP) status=0
+          importance=100 pss=0.00 rss=0.00 description=stop com.vitalistrack.app due to from pid 11551 state=empty trace=null
+        ApplicationExitInfo #2:
+          timestamp=2026-10-03 14:58:43.152 pid=11406 realUid=10216 packageUid=10216 definingUid=10216 user=0
+          process=com.vitalistrack.app reason=10 (USER REQUESTED) subreason=21 (FORCE STOP) status=0
+          importance=100 pss=0.00 rss=0.00 description=stop com.vitalistrack.app due to from pid 11472 state=empty trace=null
+        ApplicationExitInfo #3:
+          timestamp=2026-10-03 14:58:38.209 pid=11327 realUid=10216 packageUid=10216 definingUid=10216 user=0
+          process=com.vitalistrack.app reason=10 (USER REQUESTED) subreason=21 (FORCE STOP) status=0
+          importance=100 pss=0.00 rss=0.00 description=stop com.vitalistrack.app due to from pid 11396 state=empty trace=null
+        ApplicationExitInfo #4:
+          timestamp=2026-10-03 14:58:33.341 pid=11249 realUid=10216 packageUid=10216 definingUid=10216 user=0
+          process=com.vitalistrack.app reason=10 (USER REQUESTED) subreason=21 (FORCE STOP) status=0
+          importance=100 pss=0.00 rss=0.00 description=stop com.vitalistrack.app due to from pid 11317 state=empty trace=null
+        ApplicationExitInfo #5:
+          timestamp=2026-10-03 14:58:28.338 pid=11173 realUid=10216 packageUid=10216 definingUid=10216 user=0
+          process=com.vitalistrack.app reason=10 (USER REQUESTED) subreason=21 (FORCE STOP) status=0
+          importance=100 pss=0.00 rss=0.00 description=stop com.vitalistrack.app due to from pid 11240 state=empty trace=null
+        ApplicationExitInfo #6:
+          timestamp=2026-10-03 14:58:23.550 pid=11095 realUid=10216 packageUid=10216 definingUid=10216 user=0
+          process=com.vitalistrack.app reason=10 (USER REQUESTED) subreason=21 (FORCE STOP) status=0
+          importance=100 pss=0.00 rss=0.00 description=stop com.vitalistrack.app due to from pid 11163 state=empty trace=null
+        ApplicationExitInfo #7:
+          timestamp=2026-10-03 14:58:18.666 pid=11018 realUid=10216 packageUid=10216 definingUid=10216 user=0
+          process=com.vitalistrack.app reason=10 (USER REQUESTED) subreason=21 (FORCE STOP) status=0
+          importance=100 pss=0.00 rss=0.00 description=stop com.vitalistrack.app due to from pid 11086 state=empty trace=null
+        ApplicationExitInfo #8:
+          timestamp=2026-10-03 14:58:13.826 pid=10940 realUid=10216 packageUid=10216 definingUid=10216 user=0
+          process=com.vitalistrack.app reason=10 (USER REQUESTED) subreason=21 (FORCE STOP) status=0
+          importance=100 pss=0.00 rss=0.00 description=stop com.vitalistrack.app due to from pid 11009 state=empty trace=null
+        ApplicationExitInfo #9:
+          timestamp=2026-10-03 14:58:08.759 pid=5856 realUid=10216 packageUid=10216 definingUid=10216 user=0
+          process=com.vitalistrack.app reason=10 (USER REQUESTED) subreason=21 (FORCE STOP) status=0
+          importance=100 pss=0.00 rss=283MB description=stop com.vitalistrack.app due to from pid 10931 state=empty trace=null
+        ApplicationExitInfo #10:
+          timestamp=2026-10-03 14:37:19.135 pid=2760 realUid=10216 packageUid=10216 definingUid=10216 user=0
+          process=com.vitalistrack.app reason=10 (USER REQUESTED) subreason=21 (FORCE STOP) status=0
+          importance=100 pss=0.00 rss=0.00 description=stop com.vitalistrack.app due to from pid 5845 state=empty trace=null

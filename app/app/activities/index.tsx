@@ -122,6 +122,7 @@ export default function ActivitiesScreen() {
 								<Chip
 									key={type}
 									style={{ minHeight: 48 }}
+									textStyle={{ minHeight: 36 }}
 									selected={filter === type}
 									onPress={() => setFilter(type)}
 									accessibilityLabel={

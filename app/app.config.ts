@@ -6,19 +6,6 @@ export default ({ config }: ConfigContext): ExpoConfig =>
 			...config,
 			name: config.name ?? "VitalisTrack",
 			slug: config.slug ?? "vitalis-track",
-			extra: {
-				...config.extra,
-				mapsConfigured: Boolean(process.env.GOOGLE_MAPS_API_KEY),
-			},
-			android: {
-				...config.android,
-				config: {
-					...config.android?.config,
-					...(process.env.GOOGLE_MAPS_API_KEY
-						? { googleMaps: { apiKey: process.env.GOOGLE_MAPS_API_KEY } }
-						: {}),
-				},
-			},
 		},
 		(mod) => {
 			const application = AndroidConfig.Manifest.getMainApplicationOrThrow(

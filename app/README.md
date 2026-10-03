@@ -11,10 +11,12 @@ esse lockfile compartilhado.
 
 ```bash
 pnpm install --frozen-lockfile
-pnpm start
+ANDROID_QA=true pnpm android
 ```
 
-No terminal do Expo, pressione `a` para abrir no Android/Expo Go.
+Esse comando gera e instala um build Android próprio com Metro. O mapa usa MapLibre e tiles HTTPS do OpenStreetMap, sem chave do Google ou cadastro em um provedor. O módulo nativo exige recompilar o APK; ele não está incluído no Expo Go. Para repetir o desenvolvimento após instalar o APK debug, use `pnpm start` e pressione `a`.
+
+Os créditos do OpenStreetMap ficam visíveis no mapa. As requisições identificam o VitalisTrack e usam o cache nativo; não há download de regiões offline. O GPS e o salvamento do treino continuam independentes da conexão do mapa. O servidor público de tiles tem capacidade limitada e disponibilidade sem garantia; siga a [política de uso do OSM](https://operations.osmfoundation.org/policies/tiles/) e use infraestrutura própria ou outro provedor ao ampliar o tráfego.
 
 ## Verificações
 

@@ -1,0 +1,254 @@
+--------- beginning of main
+10-03 14:58:53.714 11638 11638 I italistrack.app: Using CollectorTypeCMC GC.
+10-03 14:58:53.716 11638 11638 W italistrack.app: Unexpected CPU variant for x86: x86_64.
+10-03 14:58:53.716 11638 11638 W italistrack.app: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, goldmont-without-sha-xsaves, tremont, kabylake, alderlake, default
+10-03 14:58:53.718 11638 11638 E italistrack.app: Not starting debugger since process cannot load the jdwp agent.
+10-03 14:58:53.772 11638 11638 D nativeloader: Load libframework-connectivity-tiramisu-jni.so using APEX ns com_android_tethering for caller /apex/com.android.tethering/javalib/framework-connectivity-t.jar: ok
+10-03 14:58:53.901 11638 11638 D ApplicationLoaders: Returning zygote-cached class loader: /system/framework/org.apache.http.legacy.jar
+10-03 14:58:53.921 11638 11638 D nativeloader: Configuring clns-9 for other apk /data/app/~~JHCLLzYuH4WfPugWCTL_Vg==/com.vitalistrack.app-_Wi-B98cbivd9TSHHaXD8A==/base.apk. target_sdk_version=36, uses_libraries=, library_path=/data/app/~~JHCLLzYuH4WfPugWCTL_Vg==/com.vitalistrack.app-_Wi-B98cbivd9TSHHaXD8A==/lib/x86_64:/data/app/~~JHCLLzYuH4WfPugWCTL_Vg==/com.vitalistrack.app-_Wi-B98cbivd9TSHHaXD8A==/base.apk!/lib/x86_64, permitted_path=/data:/mnt/expand:/data/user/0/com.vitalistrack.app
+10-03 14:58:53.925 11638 11638 I italistrack.app: AssetManager2(0x73f3132d30d8) locale list changing from [] to [en-US]
+10-03 14:58:53.928 11638 11638 V GraphicsEnvironment: Currently set values for:
+10-03 14:58:53.928 11638 11638 V GraphicsEnvironment:   angle_gl_driver_selection_pkgs=[]
+10-03 14:58:53.928 11638 11638 V GraphicsEnvironment:   angle_gl_driver_selection_values=[]
+10-03 14:58:53.928 11638 11638 V GraphicsEnvironment: com.vitalistrack.app is not listed in per-application setting
+10-03 14:58:53.928 11638 11638 V GraphicsEnvironment: ANGLE allowlist from config: com.dreamgames.royalmatch com.dts.freefiremax com.dxx.firenow com.gramgames.mergedragons com.ludo.king com.mojang.minecraftpe com.my.defense com.nintendo.zaka com.os.airforce com.playrix.fishdomdd.gplay io.teslatech.callbreak jp.konami.prospia net.peakgames.toonblast
+10-03 14:58:53.928 11638 11638 V GraphicsEnvironment: com.vitalistrack.app is not listed in ANGLE allowlist or settings, returning default
+10-03 14:58:53.928 11638 11638 V GraphicsEnvironment: Neither updatable production driver nor prerelease driver is supported.
+10-03 14:58:53.945 11638 11638 D WM-WrkMgrInitializer: Initializing WorkManager with default configuration.
+10-03 14:58:53.950 11638 11638 W SoLoader: Initializing SoLoader: 0
+10-03 14:58:53.951 11638 11638 W SoLoader: Recording new base apk path: /data/app/~~JHCLLzYuH4WfPugWCTL_Vg==/com.vitalistrack.app-_Wi-B98cbivd9TSHHaXD8A==/base.apk
+10-03 14:58:53.951 11638 11638 W SoLoader: Previously recorded 0 base apk paths.
+10-03 14:58:53.951 11638 11638 I SoLoader: Preparing SO source: DirectorySoSource[root = /vendor/lib64 flags = 2]
+10-03 14:58:53.951 11638 11638 I SoLoader: Preparing SO source: DirectorySoSource[root = /system/lib64 flags = 2]
+10-03 14:58:53.951 11638 11638 I SoLoader: Preparing SO source: DirectApkSoSource[root = [/data/app/~~JHCLLzYuH4WfPugWCTL_Vg==/com.vitalistrack.app-_Wi-B98cbivd9TSHHaXD8A==/base.apk!/lib/x86_64]]
+10-03 14:58:53.954 11638 11638 I SoLoader: Preparing SO source: ApplicationSoSource[DirectorySoSource[root = /data/app/~~JHCLLzYuH4WfPugWCTL_Vg==/com.vitalistrack.app-_Wi-B98cbivd9TSHHaXD8A==/lib/x86_64 flags = 0]]
+10-03 14:58:53.955 11638 11638 I SoLoader: init finish: 4 SO sources prepared
+10-03 14:58:53.955 11638 11638 W SoLoader: SoLoader initialized: 8
+10-03 14:58:53.960 11638 11649 E ashmem  : Pinning is deprecated since Android Q. Please use trim or other methods.
+10-03 14:58:53.963 11638 11638 D nativeloader: Load /data/app/~~JHCLLzYuH4WfPugWCTL_Vg==/com.vitalistrack.app-_Wi-B98cbivd9TSHHaXD8A==/base.apk!/lib/x86_64/libc++_shared.so using class loader ns clns-9 (caller=/data/app/~~JHCLLzYuH4WfPugWCTL_Vg==/com.vitalistrack.app-_Wi-B98cbivd9TSHHaXD8A==/base.apk!classes2.dex): ok
+10-03 14:58:53.967 11638 11638 D nativeloader: Load /data/app/~~JHCLLzYuH4WfPugWCTL_Vg==/com.vitalistrack.app-_Wi-B98cbivd9TSHHaXD8A==/base.apk!/lib/x86_64/libjsi.so using class loader ns clns-9 (caller=/data/app/~~JHCLLzYuH4WfPugWCTL_Vg==/com.vitalistrack.app-_Wi-B98cbivd9TSHHaXD8A==/base.apk!classes2.dex): ok
+10-03 14:58:53.974 11638 11638 D nativeloader: Load /data/app/~~JHCLLzYuH4WfPugWCTL_Vg==/com.vitalistrack.app-_Wi-B98cbivd9TSHHaXD8A==/base.apk!/lib/x86_64/libfbjni.so using class loader ns clns-9 (caller=/data/app/~~JHCLLzYuH4WfPugWCTL_Vg==/com.vitalistrack.app-_Wi-B98cbivd9TSHHaXD8A==/base.apk!classes2.dex): ok
+10-03 14:58:53.977 11638 11638 D nativeloader: Load /data/app/~~JHCLLzYuH4WfPugWCTL_Vg==/com.vitalistrack.app-_Wi-B98cbivd9TSHHaXD8A==/base.apk!/lib/x86_64/libreactnative.so using class loader ns clns-9 (caller=/data/app/~~JHCLLzYuH4WfPugWCTL_Vg==/com.vitalistrack.app-_Wi-B98cbivd9TSHHaXD8A==/base.apk!classes2.dex): ok
+10-03 14:58:53.978 11638 11638 D jni_lib_merge: Entering merged library JNI_OnLoad.
+10-03 14:58:53.978 11638 11638 D jni_lib_merge: Preparing 12 pre-merged libs (including stub)
+10-03 14:58:53.978 11638 11638 D jni_lib_merge: Preparing to register libfabricjni_so.  onload_func: 0x73f1a5ab0ba0
+10-03 14:58:53.978 11638 11638 D jni_lib_merge: Preparing to register libreact_devsupportjni_so.  onload_func: 0x73f1a5b8c530
+10-03 14:58:53.978 11638 11638 D jni_lib_merge: Preparing to register libreact_featureflagsjni_so.  onload_func: 0x73f1a5b9f0a0
+10-03 14:58:53.978 11638 11638 D jni_lib_merge: Preparing to register libreact_newarchdefaults_so.  onload_func: 0x73f1a5bc5fa0
+10-03 14:58:53.978 11638 11638 D jni_lib_merge: Preparing to register libreactnativeblob_so.  onload_func: 0x73f1a5c6da50
+10-03 14:58:53.978 11638 11638 D jni_lib_merge: Preparing to register libreactnativejni_so.  onload_func: 0x73f1a5c888c0
+10-03 14:58:53.978 11638 11638 D jni_lib_merge: Preparing to register libreactnativejni_common_so.  onload_func: 0x73f1a5c8f150
+10-03 14:58:53.978 11638 11638 D jni_lib_merge: Preparing to register librninstance_so.  onload_func: 0x73f1a5cad450
+10-03 14:58:53.978 11638 11638 D jni_lib_merge: Preparing to register libturbomodulejsijni_so.  onload_func: 0x73f1a5d58b80
+10-03 14:58:53.978 11638 11638 D jni_lib_merge: Preparing to register libuimanagerjni_so.  onload_func: 0x73f1a5d60ab0
+10-03 14:58:53.978 11638 11638 D jni_lib_merge: Preparing to register libyoga_so.  onload_func: 0x73f1a5d68130
+10-03 14:58:53.978 11638 11638 D jni_lib_merge: About to register 11 actual methods.
+10-03 14:58:53.985 11638 11638 D nativeloader: Load /data/app/~~JHCLLzYuH4WfPugWCTL_Vg==/com.vitalistrack.app-_Wi-B98cbivd9TSHHaXD8A==/base.apk!/lib/x86_64/libreact_codegen_rnscreens.so using class loader ns clns-9 (caller=/data/app/~~JHCLLzYuH4WfPugWCTL_Vg==/com.vitalistrack.app-_Wi-B98cbivd9TSHHaXD8A==/base.apk!classes2.dex): ok
+10-03 14:58:53.985 11638 11638 D jni_lib_merge: Entering merged library JNI_OnLoad.
+10-03 14:58:53.985 11638 11638 D jni_lib_merge: Preparing 12 pre-merged libs (including stub)
+10-03 14:58:53.985 11638 11638 D jni_lib_merge: Preparing to register libfabricjni_so.  onload_func: 0x73f1a5ab0ba0
+10-03 14:58:53.985 11638 11638 D jni_lib_merge: Preparing to register libreact_devsupportjni_so.  onload_func: 0x73f1a5b8c530
+10-03 14:58:53.985 11638 11638 D jni_lib_merge: Preparing to register libreact_featureflagsjni_so.  onload_func: 0x73f1a5b9f0a0
+10-03 14:58:53.985 11638 11638 D jni_lib_merge: Preparing to register libreact_newarchdefaults_so.  onload_func: 0x73f1a5bc5fa0
+10-03 14:58:53.985 11638 11638 D jni_lib_merge: Preparing to register libreactnativeblob_so.  onload_func: 0x73f1a5c6da50
+10-03 14:58:53.985 11638 11638 D jni_lib_merge: Preparing to register libreactnativejni_so.  onload_func: 0x73f1a5c888c0
+10-03 14:58:53.985 11638 11638 D jni_lib_merge: Preparing to register libreactnativejni_common_so.  onload_func: 0x73f1a5c8f150
+10-03 14:58:53.985 11638 11638 D jni_lib_merge: Preparing to register librninstance_so.  onload_func: 0x73f1a5cad450
+10-03 14:58:53.985 11638 11638 D jni_lib_merge: Preparing to register libturbomodulejsijni_so.  onload_func: 0x73f1a5d58b80
+10-03 14:58:53.985 11638 11638 D jni_lib_merge: Preparing to register libuimanagerjni_so.  onload_func: 0x73f1a5d60ab0
+10-03 14:58:53.985 11638 11638 D jni_lib_merge: Preparing to register libyoga_so.  onload_func: 0x73f1a5d68130
+10-03 14:58:53.985 11638 11638 D jni_lib_merge: About to register 11 actual methods.
+10-03 14:58:53.988 11638 11638 D nativeloader: Load /data/app/~~JHCLLzYuH4WfPugWCTL_Vg==/com.vitalistrack.app-_Wi-B98cbivd9TSHHaXD8A==/base.apk!/lib/x86_64/libreact_codegen_rnsvg.so using class loader ns clns-9 (caller=/data/app/~~JHCLLzYuH4WfPugWCTL_Vg==/com.vitalistrack.app-_Wi-B98cbivd9TSHHaXD8A==/base.apk!classes2.dex): ok
+10-03 14:58:53.989 11638 11638 D jni_lib_merge: Entering merged library JNI_OnLoad.
+10-03 14:58:53.989 11638 11638 D jni_lib_merge: Preparing 12 pre-merged libs (including stub)
+10-03 14:58:53.989 11638 11638 D jni_lib_merge: Preparing to register libfabricjni_so.  onload_func: 0x73f1a5ab0ba0
+10-03 14:58:53.989 11638 11638 D jni_lib_merge: Preparing to register libreact_devsupportjni_so.  onload_func: 0x73f1a5b8c530
+10-03 14:58:53.989 11638 11638 D jni_lib_merge: Preparing to register libreact_featureflagsjni_so.  onload_func: 0x73f1a5b9f0a0
+10-03 14:58:53.989 11638 11638 D jni_lib_merge: Preparing to register libreact_newarchdefaults_so.  onload_func: 0x73f1a5bc5fa0
+10-03 14:58:53.989 11638 11638 D jni_lib_merge: Preparing to register libreactnativeblob_so.  onload_func: 0x73f1a5c6da50
+10-03 14:58:53.989 11638 11638 D jni_lib_merge: Preparing to register libreactnativejni_so.  onload_func: 0x73f1a5c888c0
+10-03 14:58:53.989 11638 11638 D jni_lib_merge: Preparing to register libreactnativejni_common_so.  onload_func: 0x73f1a5c8f150
+10-03 14:58:53.989 11638 11638 D jni_lib_merge: Preparing to register librninstance_so.  onload_func: 0x73f1a5cad450
+10-03 14:58:53.989 11638 11638 D jni_lib_merge: Preparing to register libturbomodulejsijni_so.  onload_func: 0x73f1a5d58b80
+10-03 14:58:53.989 11638 11638 D jni_lib_merge: Preparing to register libuimanagerjni_so.  onload_func: 0x73f1a5d60ab0
+10-03 14:58:53.989 11638 11638 D jni_lib_merge: Preparing to register libyoga_so.  onload_func: 0x73f1a5d68130
+10-03 14:58:53.989 11638 11638 D jni_lib_merge: About to register 11 actual methods.
+10-03 14:58:53.992 11638 11638 D nativeloader: Load /data/app/~~JHCLLzYuH4WfPugWCTL_Vg==/com.vitalistrack.app-_Wi-B98cbivd9TSHHaXD8A==/base.apk!/lib/x86_64/libreact_codegen_safeareacontext.so using class loader ns clns-9 (caller=/data/app/~~JHCLLzYuH4WfPugWCTL_Vg==/com.vitalistrack.app-_Wi-B98cbivd9TSHHaXD8A==/base.apk!classes2.dex): ok
+10-03 14:58:53.994 11638 11638 D nativeloader: Load /data/app/~~JHCLLzYuH4WfPugWCTL_Vg==/com.vitalistrack.app-_Wi-B98cbivd9TSHHaXD8A==/base.apk!/lib/x86_64/libappmodules.so using class loader ns clns-9 (caller=/data/app/~~JHCLLzYuH4WfPugWCTL_Vg==/com.vitalistrack.app-_Wi-B98cbivd9TSHHaXD8A==/base.apk!classes2.dex): ok
+--------- beginning of system
+10-03 14:58:54.009 11638 11651 I DisplayManager: Choreographer implicitly registered for the refresh rate.
+10-03 14:58:54.016 11638 11638 I italistrack.app: AssetManager2(0x73f3132d2db8) locale list changing from [] to [en-US]
+10-03 14:58:54.018 11638 11638 D AppCompatDelegate: Checking for metadata for AppLocalesMetadataHolderService : Service not found
+10-03 14:58:54.018 11638 11638 I italistrack.app: AssetManager2(0x73f3132cd958) locale list changing from [] to [en-US]
+10-03 14:58:54.024 11638 11638 D CompatChangeReporter: Compat change id reported: 377864165; UID 10216; state: ENABLED
+10-03 14:58:54.025 11638 11638 D DesktopModeFlags: Toggle override initialized to: OVERRIDE_UNSET
+10-03 14:58:54.034 11638 11638 W unknown:BridgelessReact: ReactHost{0}.startSurface(surfaceId = 0): Schedule
+10-03 14:58:54.039 11638 11638 W unknown:BridgelessReact: ReactHost{0}.attachSurface(surfaceId = 0)
+10-03 14:58:54.040 11638 11656 W unknown:BridgelessReact: ReactHost{0}.getOrCreateReactInstanceTask()
+10-03 14:58:54.044 11638 11656 W unknown:BridgelessReact: ReactHost{0}.getOrCreateReactInstanceTask(): Start
+10-03 14:58:54.044 11638 11638 W WindowOnBackDispatcher: OnBackInvokedCallback is not enabled for the application.
+10-03 14:58:54.044 11638 11638 W WindowOnBackDispatcher: Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+10-03 14:58:54.046 11638 11656 W unknown:BridgelessReact: ReactHost{0}.getJSBundleLoader()
+10-03 14:58:54.047 11638 11656 W unknown:BridgelessReact: ReactHost{0}.getOrCreateReactContext(): Creating BridgelessReactContext
+10-03 14:58:54.048 11638 11638 W unknown:BridgelessReact: ReactHost{0}.onHostResume(activity)
+10-03 14:58:54.050 11638 11656 W unknown:BridgelessReact: ReactHost{0}.getOrCreateReactInstanceTask(): Creating ReactInstance
+10-03 14:58:54.055 11638 11638 W HWUI    : Unknown dataspace 0
+10-03 14:58:54.076 11638 11656 D nativeloader: Load /data/app/~~JHCLLzYuH4WfPugWCTL_Vg==/com.vitalistrack.app-_Wi-B98cbivd9TSHHaXD8A==/base.apk!/lib/x86_64/libhermes.so using class loader ns clns-9 (caller=/data/app/~~JHCLLzYuH4WfPugWCTL_Vg==/com.vitalistrack.app-_Wi-B98cbivd9TSHHaXD8A==/base.apk!classes2.dex): ok
+10-03 14:58:54.081 11638 11656 D nativeloader: Load /data/app/~~JHCLLzYuH4WfPugWCTL_Vg==/com.vitalistrack.app-_Wi-B98cbivd9TSHHaXD8A==/base.apk!/lib/x86_64/libhermestooling.so using class loader ns clns-9 (caller=/data/app/~~JHCLLzYuH4WfPugWCTL_Vg==/com.vitalistrack.app-_Wi-B98cbivd9TSHHaXD8A==/base.apk!classes2.dex): ok
+10-03 14:58:54.083 11638 11656 D jni_lib_merge: Entering merged library JNI_OnLoad.
+10-03 14:58:54.084 11638 11656 D jni_lib_merge: Preparing 4 pre-merged libs (including stub)
+10-03 14:58:54.084 11638 11656 D jni_lib_merge: Preparing to register libhermes_executor_so.  onload_func: 0x73f1a292c730
+10-03 14:58:54.084 11638 11656 D jni_lib_merge: Preparing to register libhermesinstancejni_so.  onload_func: 0x73f1a2933db0
+10-03 14:58:54.084 11638 11656 D jni_lib_merge: Preparing to register libjsijniprofiler_so.  onload_func: 0x73f1a2934540
+10-03 14:58:54.084 11638 11656 D jni_lib_merge: About to register 3 actual methods.
+10-03 14:58:54.097 11638 11651 I EGL_emulation: Opening libGLESv1_CM_emulation.so
+10-03 14:58:54.097 11638 11651 I EGL_emulation: Opening libGLESv2_emulation.so
+10-03 14:58:54.121 11638 11651 W HWUI    : Failed to initialize 101010-2 format, error = EGL_SUCCESS
+10-03 14:58:54.134 11638 11656 I ExpoModulesCore: ✅ AppContext was initialized
+10-03 14:58:54.225 11638 11656 W unknown:BridgelessReact: ReactHost{0}.getOrCreateReactInstanceTask(): Loading JS Bundle
+10-03 14:58:54.225 11638 11656 W unknown:BridgelessReact: ReactHost{0}.getOrCreateReactInstanceTask(): Calling DevSupportManagerBase.onNewReactContextCreated(reactContext)
+10-03 14:58:54.226 11638 11656 W unknown:BridgelessReact: ReactHost{0}.startSurface(surfaceId = 0): Execute
+10-03 14:58:54.241 11638 11638 W unknown:BridgelessReact: ReactContext.onHostResume()
+10-03 14:58:54.242 11638 11638 W unknown:BridgelessReact: ReactHost{0}.getOrCreateReactInstanceTask(): Executing ReactInstanceEventListeners
+10-03 14:58:54.245 11638 11658 D nativeloader: Load /data/app/~~JHCLLzYuH4WfPugWCTL_Vg==/com.vitalistrack.app-_Wi-B98cbivd9TSHHaXD8A==/base.apk!/lib/x86_64/libexpo-modules-core.so using class loader ns clns-9 (caller=/data/app/~~JHCLLzYuH4WfPugWCTL_Vg==/com.vitalistrack.app-_Wi-B98cbivd9TSHHaXD8A==/base.apk!classes2.dex): ok
+10-03 14:58:54.253 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.rnmaps.maps.MapUrlTileManager
+10-03 14:58:54.254 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.facebook.react.uimanager.LayoutShadowNode
+10-03 14:58:54.255 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.swmansion.rnscreens.ScreenFooterManager
+10-03 14:58:54.255 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.swmansion.rnscreens.gamma.tabs.TabScreenViewManager
+10-03 14:58:54.256 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.rnmaps.maps.MapManager
+10-03 14:58:54.257 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.swmansion.rnscreens.ScreenContainerViewManager
+10-03 14:58:54.257 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class expo.modules.kotlin.views.GroupViewManagerWrapper
+10-03 14:58:54.258 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.swmansion.rnscreens.gamma.tabs.TabsHostViewManager
+10-03 14:58:54.259 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.rnmaps.maps.MapMarkerManager
+10-03 14:58:54.259 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.rnmaps.maps.MapLocalTileManager
+10-03 14:58:54.260 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.swmansion.rnscreens.ModalScreenViewManager
+10-03 14:58:54.260 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.rnmaps.maps.MapPolylineManager
+10-03 14:58:54.261 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.rnmaps.maps.MapCircleManager
+10-03 14:58:54.261 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.th3rdwave.safeareacontext.SafeAreaViewManager
+10-03 14:58:54.262 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.th3rdwave.safeareacontext.SafeAreaViewShadowNode
+10-03 14:58:54.262 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.swmansion.rnscreens.ScreenViewManager
+10-03 14:58:54.262 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.swmansion.rnscreens.ScreenStackViewManager
+10-03 14:58:54.263 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.rnmaps.maps.MapCalloutManager
+10-03 14:58:54.263 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.th3rdwave.safeareacontext.SafeAreaProviderManager
+10-03 14:58:54.263 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.swmansion.rnscreens.SearchBarManager
+10-03 14:58:54.264 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.rnmaps.maps.MapGradientPolylineManager
+10-03 14:58:54.264 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.rnmaps.maps.MapHeatmapManager
+10-03 14:58:54.265 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.rnmaps.maps.MapWMSTileManager
+10-03 14:58:54.265 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.swmansion.rnscreens.ScreenStackHeaderConfigViewManager
+10-03 14:58:54.266 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.swmansion.rnscreens.ScreenContentWrapperManager
+10-03 14:58:54.266 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.rnmaps.maps.MapPolygonManager
+10-03 14:58:54.266 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.swmansion.rnscreens.ScreenStackHeaderSubviewManager
+10-03 14:58:54.266 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.rnmaps.maps.MapOverlayManager
+10-03 14:58:54.288 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.horcrux.svg.RenderableViewManager$DefsViewManager
+10-03 14:58:54.289 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.horcrux.svg.VirtualViewManager$RenderableShadowNode
+10-03 14:58:54.290 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.horcrux.svg.RenderableViewManager$FeMergeManager
+10-03 14:58:54.291 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.facebook.react.views.safeareaview.ReactSafeAreaViewManager
+10-03 14:58:54.291 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.facebook.react.views.safeareaview.ReactSafeAreaViewShadowNode
+10-03 14:58:54.292 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.horcrux.svg.RenderableViewManager$LinearGradientManager
+10-03 14:58:54.294 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.horcrux.svg.RenderableViewManager$FeGaussianBlurManager
+10-03 14:58:54.296 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.facebook.react.views.progressbar.ReactProgressBarViewManager
+10-03 14:58:54.296 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.facebook.react.views.progressbar.ProgressBarShadowNode
+10-03 14:58:54.297 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.facebook.react.views.scroll.ReactHorizontalScrollViewManager
+10-03 14:58:54.299 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.facebook.react.views.text.ReactTextViewManager
+10-03 14:58:54.300 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.facebook.react.views.text.ReactTextShadowNode
+10-03 14:58:54.301 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.horcrux.svg.RenderableViewManager$FeColorMatrixManager
+10-03 14:58:54.302 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.facebook.react.views.scroll.ReactHorizontalScrollContainerViewManager
+10-03 14:58:54.303 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.horcrux.svg.RenderableViewManager$ClipPathViewManager
+10-03 14:58:54.304 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.horcrux.svg.RenderableViewManager$SymbolManager
+10-03 14:58:54.306 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.horcrux.svg.RenderableViewManager$PatternManager
+10-03 14:58:54.307 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.horcrux.svg.RenderableViewManager$FeBlendManager
+10-03 14:58:54.308 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.facebook.react.views.view.ReactViewManager
+10-03 14:58:54.309 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.horcrux.svg.SvgViewManager
+10-03 14:58:54.311 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.facebook.react.views.switchview.ReactSwitchManager
+10-03 14:58:54.311 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.facebook.react.views.switchview.ReactSwitchShadowNode
+10-03 14:58:54.312 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.horcrux.svg.RenderableViewManager$UseViewManager
+10-03 14:58:54.313 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.horcrux.svg.RenderableViewManager$CircleViewManager
+10-03 14:58:54.315 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.horcrux.svg.RenderableViewManager$TSpanViewManager
+10-03 14:58:54.316 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.horcrux.svg.RenderableViewManager$FilterManager
+10-03 14:58:54.317 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.horcrux.svg.RenderableViewManager$MarkerManager
+10-03 14:58:54.320 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.swmansion.gesturehandler.react.RNGestureHandlerButtonViewManager
+10-03 14:58:54.321 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.facebook.react.views.modal.ReactModalHostManager
+10-03 14:58:54.322 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.horcrux.svg.RenderableViewManager$ForeignObjectManager
+10-03 14:58:54.324 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.horcrux.svg.RenderableViewManager$EllipseViewManager
+10-03 14:58:54.325 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.horcrux.svg.RenderableViewManager$LineViewManager
+10-03 14:58:54.326 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.facebook.react.views.text.frescosupport.FrescoBasedReactTextInlineImageViewManager
+10-03 14:58:54.326 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.facebook.react.views.text.frescosupport.FrescoBasedReactTextInlineImageShadowNode
+10-03 14:58:54.327 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.horcrux.svg.RenderableViewManager$FeFloodManager
+10-03 14:58:54.328 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.horcrux.svg.RenderableViewManager$GroupViewManager
+10-03 14:58:54.330 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.horcrux.svg.RenderableViewManager$TextViewManager
+10-03 14:58:54.331 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.horcrux.svg.RenderableViewManager$ImageViewManager
+10-03 14:58:54.332 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.horcrux.svg.RenderableViewManager$FeCompositeManager
+10-03 14:58:54.333 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.facebook.react.views.image.ReactImageManager
+10-03 14:58:54.334 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.horcrux.svg.RenderableViewManager$RadialGradientManager
+10-03 14:58:54.335 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.horcrux.svg.RenderableViewManager$MaskManager
+10-03 14:58:54.337 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.facebook.react.views.unimplementedview.ReactUnimplementedViewManager
+10-03 14:58:54.338 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.horcrux.svg.RenderableViewManager$RectViewManager
+10-03 14:58:54.339 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.horcrux.svg.RenderableViewManager$TextPathViewManager
+10-03 14:58:54.340 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.facebook.react.views.scroll.ReactScrollViewManager
+10-03 14:58:54.341 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.horcrux.svg.RenderableViewManager$FeOffsetManager
+10-03 14:58:54.343 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.horcrux.svg.RenderableViewManager$PathViewManager
+10-03 14:58:54.344 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.facebook.react.views.drawer.ReactDrawerLayoutManager
+10-03 14:58:54.345 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.facebook.react.views.text.ReactVirtualTextViewManager
+10-03 14:58:54.345 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.facebook.react.views.text.ReactVirtualTextShadowNode
+10-03 14:58:54.346 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.facebook.react.views.swiperefresh.SwipeRefreshLayoutManager
+10-03 14:58:54.347 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.facebook.react.views.text.ReactRawTextManager
+10-03 14:58:54.347 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.facebook.react.views.text.ReactRawTextShadowNode
+10-03 14:58:54.347 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.facebook.react.views.textinput.ReactTextInputManager
+10-03 14:58:54.348 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.facebook.react.views.textinput.ReactTextInputShadowNode
+10-03 14:58:54.349 11638 11658 W unknown:ViewManagerPropertyUpdater: Could not find generated setter for class com.swmansion.gesturehandler.react.RNGestureHandlerRootViewManager
+10-03 14:58:54.353 11638 11658 W BridgelessReactContext: [WARNING] Bridgeless doesn't support CatalystInstance. Accessing an API that's not part of the new architecture is not encouraged usage.
+10-03 14:58:54.356 11638 11658 I ExpoModulesCore: ✅ JSI interop was installed
+10-03 14:58:54.359 11638 11658 I ExpoModulesCore: ✅ Constants were exported
+10-03 14:58:54.395 11638 11658 D nativeloader: Load /data/app/~~JHCLLzYuH4WfPugWCTL_Vg==/com.vitalistrack.app-_Wi-B98cbivd9TSHHaXD8A==/base.apk!/lib/x86_64/librnscreens.so using class loader ns clns-9 (caller=/data/app/~~JHCLLzYuH4WfPugWCTL_Vg==/com.vitalistrack.app-_Wi-B98cbivd9TSHHaXD8A==/base.apk!classes2.dex): ok
+10-03 14:58:54.400 11638 11658 I ReactNativeJS: Running "main"
+10-03 14:58:54.509 11638 11658 D nativeloader: Load /data/app/~~JHCLLzYuH4WfPugWCTL_Vg==/com.vitalistrack.app-_Wi-B98cbivd9TSHHaXD8A==/base.apk!/lib/x86_64/libworklets.so using class loader ns clns-9 (caller=/data/app/~~JHCLLzYuH4WfPugWCTL_Vg==/com.vitalistrack.app-_Wi-B98cbivd9TSHHaXD8A==/base.apk!classes2.dex): ok
+10-03 14:58:54.528 11638 11658 D nativeloader: Load /data/app/~~JHCLLzYuH4WfPugWCTL_Vg==/com.vitalistrack.app-_Wi-B98cbivd9TSHHaXD8A==/base.apk!/lib/x86_64/libreanimated.so using class loader ns clns-9 (caller=/data/app/~~JHCLLzYuH4WfPugWCTL_Vg==/com.vitalistrack.app-_Wi-B98cbivd9TSHHaXD8A==/base.apk!classes2.dex): ok
+10-03 14:58:54.642 11638 11638 W [RNScreens]: backTitleVisible prop is not available on Android
+10-03 14:58:54.645 11638 11638 W [RNScreens]: backTitleFontFamily prop is not available on Android
+10-03 14:58:54.645 11638 11638 W [RNScreens]: disableBackButtonMenu prop is not available on Android
+10-03 14:58:54.645 11638 11638 W [RNScreens]: largeTitleFontFamily prop is not available on Android
+10-03 14:58:54.645 11638 11638 W [RNScreens]: largeTitleFontWeight prop is not available on Android
+10-03 14:58:54.645 11638 11638 W [RNScreens]: largeTitleHideShadow prop is not available on Android
+10-03 14:58:54.651 11638 11661 W unknown:ReactNative: StatusBarModule: Ignored status bar change, current activity is edge-to-edge.
+10-03 14:58:54.651 11638 11661 W unknown:ReactNative: StatusBarModule: Ignored status bar change, current activity is edge-to-edge.
+10-03 14:58:54.697 11638 11658 D nativeloader: Load /data/app/~~JHCLLzYuH4WfPugWCTL_Vg==/com.vitalistrack.app-_Wi-B98cbivd9TSHHaXD8A==/base.apk!/lib/x86_64/libexpo-sqlite.so using class loader ns clns-9 (caller=/data/app/~~JHCLLzYuH4WfPugWCTL_Vg==/com.vitalistrack.app-_Wi-B98cbivd9TSHHaXD8A==/base.apk!classes3.dex): ok
+10-03 14:58:54.919 11638 11661 W unknown:ReactNative: StatusBarModule: Ignored status bar change, current activity is edge-to-edge.
+10-03 14:58:54.920 11638 11661 W unknown:ReactNative: StatusBarModule: Ignored status bar change, current activity is edge-to-edge.
+10-03 14:58:54.942 11638 11638 W [RNScreens]: backTitleVisible prop is not available on Android
+10-03 14:58:54.955 11638 11638 W [RNScreens]: backTitleFontFamily prop is not available on Android
+10-03 14:58:54.956 11638 11638 W [RNScreens]: disableBackButtonMenu prop is not available on Android
+10-03 14:58:54.956 11638 11638 W [RNScreens]: largeTitleFontFamily prop is not available on Android
+10-03 14:58:54.956 11638 11638 W [RNScreens]: largeTitleFontWeight prop is not available on Android
+10-03 14:58:54.956 11638 11638 W [RNScreens]: largeTitleHideShadow prop is not available on Android
+10-03 14:58:55.156 11638 11638 D SplashScreenView: Building from parcel drawable: android.graphics.drawable.BitmapDrawable@1d23da1
+10-03 14:58:55.157 11638 11638 D SplashScreenView: Build android.window.SplashScreenView{e0c3787 V.E...... ......ID 0,0-0,0}
+10-03 14:58:55.157 11638 11638 D SplashScreenView: Icon: view: androidx.appcompat.widget.AppCompatImageView{d88f6b4 V.ED..... ......I. 0,0-0,0 #1020542 android:id/splashscreen_icon_view} drawable: android.graphics.drawable.BitmapDrawable@1d23da1 size: 504
+10-03 14:58:55.157 11638 11638 D SplashScreenView: Branding: view: android.view.View{1b412dd G.ED..... ......I. 0,0-0,0 #1020541 android:id/splashscreen_branding_view} drawable: null size w: 0 h: 0
+10-03 14:58:55.238 11638 11638 D InsetsController: hide(ime(), fromIme=false)
+10-03 14:58:55.238 11638 11638 I ImeTracker: com.vitalistrack.app:8912874c: onCancelled at PHASE_CLIENT_ALREADY_HIDDEN
+10-03 14:58:55.330 11638 11638 D SplashScreenView: remove starting view
+10-03 14:58:56.120 11638 11638 I Choreographer: Skipped 42 frames!  The application may be doing too much work on its main thread.
+10-03 14:58:56.168 11638 11668 I HWUI    : Davey! duration=786ms; Flags=0, FrameTimelineVsyncId=598104, IntendedVsync=1625450767413, Vsync=1625500767411, InputEventId=0, HandleInputStart=1625505766691, AnimationStart=1625505767082, PerformTraversalsStart=1625506761954, DrawStart=1625507347480, FrameDeadline=1625617434073, FrameStartTime=1625505763746, FrameInterval=16666666, WorkloadTarget=16666666, SyncQueued=1625518264713, SyncStart=1625581432111, IssueDrawCommandsStart=1625586819495, SwapBuffers=1626195092970, FrameCompleted=1626300899084, DequeueBufferDuration=2504, QueueBufferDuration=151013, GpuCompleted=1626300899084, SwapBuffersCompleted=1626294035137, DisplayPresentTime=0, CommandSubmissionCompleted=1626195092970, 
+10-03 14:58:56.203 11638 11691 I italistrack.app: AssetManager2(0x73f313302838) locale list changing from [] to [en-US]
+10-03 14:58:56.204 11638 11691 I WebViewFactory: Loading com.google.android.webview version 133.0.6943.137 (code 694313738)
+10-03 14:58:56.204 11638 11691 I italistrack.app: AssetManager2(0x73f313304db8) locale list changing from [] to [en-US]
+10-03 14:58:56.204 11638 11691 I italistrack.app: AssetManager2(0x73f313307c98) locale list changing from [] to [en-US]
+10-03 14:58:56.206 11638 11691 I italistrack.app: AssetManager2(0x73f313309bd8) locale list changing from [] to [en-US]
+10-03 14:58:56.206 11638 11691 I italistrack.app: AssetManager2(0x73f313303e18) locale list changing from [] to [en-US]
+10-03 14:58:56.206 11638 11691 V ResourcesManager: The following library key has been added: ResourcesKey{ mHash=2abeefa8 mResDir=null mSplitDirs=[] mOverlayDirs=[] mLibDirs=[/data/app/~~H0xioGIoUh3z7VkP4s_jCw==/com.google.android.webview-WJa0gQG2kR97_7IPNK1wBw==/WebViewGoogle.apk,/data/app/~~R3wgaMArmhdTq4Wd_K199A==/com.google.android.trichromelibrary_694313738-a2pbhD52tOObacNBYat1xA==/TrichromeLibrary.apk,/system_ext/framework/androidx.window.extensions.jar] mDisplayId=0 mOverrideConfig=v36 mCompatInfo={420dpi always-compat} mLoaders=[]}
+10-03 14:58:56.208 11638 11691 W italistrack.app: Failed to find entry 'classes.dex': Entry not found
+10-03 14:58:56.208 11638 11691 D nativeloader: Configuring clns-10 for other apk /data/app/~~R3wgaMArmhdTq4Wd_K199A==/com.google.android.trichromelibrary_694313738-a2pbhD52tOObacNBYat1xA==/TrichromeLibrary.apk. target_sdk_version=34, uses_libraries=ALL, library_path=/data/app/~~H0xioGIoUh3z7VkP4s_jCw==/com.google.android.webview-WJa0gQG2kR97_7IPNK1wBw==/lib/x86_64:/data/app/~~H0xioGIoUh3z7VkP4s_jCw==/com.google.android.webview-WJa0gQG2kR97_7IPNK1wBw==/WebViewGoogle.apk!/lib/x86_64:/data/app/~~R3wgaMArmhdTq4Wd_K199A==/com.google.android.trichromelibrary_694313738-a2pbhD52tOObacNBYat1xA==/TrichromeLibrary.apk!/lib/x86_64, permitted_path=/data:/mnt/expand
+10-03 14:58:56.209 11638 11691 D ApplicationLoaders: Returning zygote-cached class loader: /system_ext/framework/androidx.window.extensions.jar
+10-03 14:58:56.211 11638 11691 D nativeloader: Configuring clns-11 for other apk /data/app/~~H0xioGIoUh3z7VkP4s_jCw==/com.google.android.webview-WJa0gQG2kR97_7IPNK1wBw==/WebViewGoogle.apk. target_sdk_version=34, uses_libraries=, library_path=/data/app/~~H0xioGIoUh3z7VkP4s_jCw==/com.google.android.webview-WJa0gQG2kR97_7IPNK1wBw==/lib/x86_64:/data/app/~~H0xioGIoUh3z7VkP4s_jCw==/com.google.android.webview-WJa0gQG2kR97_7IPNK1wBw==/WebViewGoogle.apk!/lib/x86_64:/data/app/~~R3wgaMArmhdTq4Wd_K199A==/com.google.android.trichromelibrary_694313738-a2pbhD52tOObacNBYat1xA==/TrichromeLibrary.apk!/lib/x86_64, permitted_path=/data:/mnt/expand
+10-03 14:58:56.249 11638 11691 I cr_WVCFactoryProvider: version=133.0.6943.137 (694313738) minSdkVersion=29 isBundle=false multiprocess=true packageId=2
+10-03 14:58:56.253 11638 11691 D nativeloader: Load /data/app/~~R3wgaMArmhdTq4Wd_K199A==/com.google.android.trichromelibrary_694313738-a2pbhD52tOObacNBYat1xA==/TrichromeLibrary.apk!/lib/x86_64/libmonochrome_64.so using class loader ns clns-11 (caller=/data/app/~~H0xioGIoUh3z7VkP4s_jCw==/com.google.android.webview-WJa0gQG2kR97_7IPNK1wBw==/WebViewGoogle.apk): ok
+10-03 14:58:56.255 11638 11691 D nativeloader: Load /system/lib64/libwebviewchromium_plat_support.so using class loader ns clns-11 (caller=/data/app/~~H0xioGIoUh3z7VkP4s_jCw==/com.google.android.webview-WJa0gQG2kR97_7IPNK1wBw==/WebViewGoogle.apk): ok
+10-03 14:58:56.257 11638 11694 E chromium: [1003/145856.257635:ERROR:variations_seed_loader.cc(39)] Seed missing signature.
+10-03 14:58:56.261 11638 11694 I cr_VariationsUtils: Failed reading seed file "/data/user/0/com.vitalistrack.app/app_webview/variations_seed_new"
+10-03 14:58:56.261 11638 11694 I chromium: [INFO:variations_seed_loader.cc(67)] Failed to open file for reading.: No such file or directory (2)
+10-03 14:58:56.261 11638 11694 I cr_VariationsUtils: Failed reading seed file "/data/user/0/com.vitalistrack.app/app_webview/variations_seed"
+10-03 14:58:56.261 11638 11691 I cr_LibraryLoader: Successfully loaded native library
+10-03 14:58:56.262 11638 11691 I cr_CachingUmaRecorder: Flushed 6 samples from 6 histograms, 0 samples were dropped.
+10-03 14:58:56.320 11638 11668 I HWUI    : Davey! duration=848ms; Flags=0, FrameTimelineVsyncId=598187, IntendedVsync=1625584100741, Vsync=1626284100713, InputEventId=0, HandleInputStart=1626297260043, AnimationStart=1626297260433, PerformTraversalsStart=1626297619135, DrawStart=1626297756211, FrameDeadline=1626350767377, FrameStartTime=1626297031194, FrameInterval=16666666, WorkloadTarget=16666666, SyncQueued=1626298706660, SyncStart=1626332977414, IssueDrawCommandsStart=1626333099833, SwapBuffers=1626357818408, FrameCompleted=1626466920991, DequeueBufferDuration=5621, QueueBufferDuration=1151806, GpuCompleted=1626466823499, SwapBuffersCompleted=1626466920991, DisplayPresentTime=0, CommandSubmissionCompleted=1626357818408, 
+10-03 14:58:58.465 11638 11668 W italistrack.app: Cleared Reference was only reachable from finalizer (only reported once)
+10-03 14:58:58.488 11638 11668 I italistrack.app: Explicit concurrent mark compact GC freed 13MB AllocSpace bytes, 46(1976KB) LOS objects, 49% free, 6890KB/13MB, paused 310us,1.861ms total 79.613ms

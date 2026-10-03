@@ -1,18 +1,11 @@
-import Constants from "expo-constants";
 import * as Location from "expo-location";
 import { router, useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
-import {
-	AppState as Lifecycle,
-	BackHandler,
-	StyleSheet,
-	View,
-} from "react-native";
+import { AppState as Lifecycle, BackHandler } from "react-native";
 import { ActivityIndicator, Chip, HelperText, Text } from "react-native-paper";
-import MapView, { Marker, Polyline } from "react-native-maps";
+import { WorkoutMap } from "@/components/vitalis/workout-map";
 import { Button, Card, Header, Screen } from "@/components/vitalis/ui";
 import { useConfirm } from "@/components/vitalis/confirmation";
-import { useAppTheme } from "@/hooks/use-app-theme";
 import {
 	calculateActivityCalories,
 	calculatePace,
@@ -25,7 +18,6 @@ import {
 	tickWorkout,
 	pauseWorkout,
 	recordPoint,
-	routeSegments,
 	type Workout,
 } from "@/lib/workout";
 import { useAppState } from "@/state/app-state";
@@ -39,8 +31,7 @@ export default function WorkoutScreen() {
 		type === "walk" || type === "cycling" ? type : "run";
 	const { state, dispatch } = useAppState(),
 		owner = state.userId;
-	const theme = useAppTheme(),
-		confirm = useConfirm();
+	const confirm = useConfirm();
 	const [workout, setWorkout] = useState<Workout>(() =>
 		createWorkout(requested),
 	);
@@ -54,7 +45,6 @@ export default function WorkoutScreen() {
 			Lifecycle.currentState === "active",
 		),
 		[retry, setRetry] = useState(0);
-	const map = useRef<MapView>(null);
 	const update = (next: Workout) => {
 		current.current = next;
 		setWorkout(next);
@@ -126,7 +116,12 @@ export default function WorkoutScreen() {
 		};
 		void (async () => {
 			try {
-				const permission = await Location.requestForegroundPermissionsAsync();
+				let permission = await Location.getForegroundPermissionsAsync();
+				if (stopped) return;
+				// Reopening Android's permission activity pauses the workout even if
+				// permission was already granted. Request only when it is necessary.
+				if (!permission.granted)
+					permission = await Location.requestForegroundPermissionsAsync();
 				if (stopped) return;
 				if (!permission.granted)
 					return fail(
@@ -148,7 +143,6 @@ export default function WorkoutScreen() {
 							timestamp: new Date(location.timestamp).toISOString(),
 						};
 						update(recordPoint(current.current, point));
-						map.current?.animateCamera({ center: point, zoom: 16 });
 					},
 					() =>
 						fail("GPS indisponível. Confira a localização e retome o treino."),
@@ -242,42 +236,7 @@ export default function WorkoutScreen() {
 				<ActivityIndicator accessibilityLabel="Restaurando treino" />
 			) : (
 				<>
-					<View style={{ height: 240, borderRadius: 24, overflow: "hidden" }}>
-						{Constants.expoConfig?.extra?.mapsConfigured ? (
-							<MapView
-								ref={map}
-								style={StyleSheet.absoluteFill}
-								initialRegion={{
-									latitude: workout.route[0]?.latitude ?? -3.7319,
-									longitude: workout.route[0]?.longitude ?? -38.5267,
-									latitudeDelta: 0.02,
-									longitudeDelta: 0.02,
-								}}
-								showsUserLocation={gpsReady}
-							>
-								{routeSegments(workout)
-									.filter((x) => x.length > 1)
-									.map((segment, i) => (
-										<Polyline
-											key={i}
-											coordinates={segment}
-											strokeColor={theme.primary}
-											strokeWidth={6}
-										/>
-									))}
-								{workout.route[0] && (
-									<Marker coordinate={workout.route[0]} title="Início" />
-								)}
-							</MapView>
-						) : (
-							<Card>
-								<Text>
-									Mapa indisponível neste momento. A rota continua sendo
-									registrada pelo GPS.
-								</Text>
-							</Card>
-						)}
-					</View>
+					<WorkoutMap workout={workout} />
 					<Chip icon={gpsReady ? "map-marker-check" : "map-marker-off"}>
 						{workout.paused
 							? "Treino pausado"

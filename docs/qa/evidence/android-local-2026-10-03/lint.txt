@@ -1,0 +1,8 @@
+$ pnpm -r lint
+Scope: 3 of 4 workspace projects
+packages/contracts lint$ tsc --noEmit
+packages/contracts lint: Done
+server lint$ eslint src test --max-warnings=0
+app lint$ expo lint
+server lint: Done
+app lint: Done

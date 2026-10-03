@@ -6,7 +6,7 @@ Estado atual: preparado, **não executado**. Associar cada observação aos IDs 
 
 Abrir `app` no Android Studio. Em Device Manager usar `Vitalis_Compact_API24` e `Vitalis_Pixel_API36`, com Google APIs. Primeiro resolver KVM/virtualização no host e espaço; não usar execução por software para aprovar desempenho. Confirmar boot com `adb shell getprop sys.boot_completed` e serviço de pacotes disponível.
 
-Configurar `GOOGLE_MAPS_API_KEY` em `app/.env.local`, restrita ao pacote `com.vitalistrack.app` e certificado do APK; habilitar Maps SDK for Android. Configurar `EXPO_PUBLIC_API_URL=http://10.0.2.2:3000`. `ANDROID_QA=true` habilita HTTP apenas no manifest do build de QA; o script de QA define esse sinalizador. A configuração de produção mantém HTTP bloqueado.
+O mapa usa MapLibre com tiles HTTPS do OpenStreetMap, sem chave de API. Recompilar o APK após instalar a dependência nativa; não aprovar o mapa em Expo Go. Verificar tiles, créditos visíveis, linha da rota e marcadores inicial/atual. Configurar `EXPO_PUBLIC_API_URL=http://10.0.2.2:3000`. `ANDROID_QA=true` habilita HTTP apenas no manifest do build de QA; o script de QA define esse sinalizador. A configuração de produção mantém HTTP bloqueado.
 
 Em um PostgreSQL descartável, usar **somente** `vitalis_qa`. Exemplo de ambiente local:
 

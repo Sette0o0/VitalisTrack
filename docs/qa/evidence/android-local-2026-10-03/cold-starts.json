@@ -1,0 +1,72 @@
+[
+  {
+    "sample": 1,
+    "launch_state": "COLD",
+    "am_total_ms": 1569,
+    "ui_confirmed_with_dump_ms": 5015.9,
+    "output": "Starting: Intent { cmp=com.vitalistrack.app/.MainActivity }\nStatus: ok\nLaunchState: COLD\nActivity: com.vitalistrack.app/.MainActivity\nTotalTime: 1569\nWaitTime: 1580\nComplete\n"
+  },
+  {
+    "sample": 2,
+    "launch_state": "COLD",
+    "am_total_ms": 1361,
+    "ui_confirmed_with_dump_ms": 4747.9,
+    "output": "Starting: Intent { cmp=com.vitalistrack.app/.MainActivity }\nStatus: ok\nLaunchState: COLD\nActivity: com.vitalistrack.app/.MainActivity\nTotalTime: 1361\nWaitTime: 1385\nComplete\n"
+  },
+  {
+    "sample": 3,
+    "launch_state": "COLD",
+    "am_total_ms": 1518,
+    "ui_confirmed_with_dump_ms": 4772.2,
+    "output": "Starting: Intent { cmp=com.vitalistrack.app/.MainActivity }\nStatus: ok\nLaunchState: COLD\nActivity: com.vitalistrack.app/.MainActivity\nTotalTime: 1518\nWaitTime: 1530\nComplete\n"
+  },
+  {
+    "sample": 4,
+    "launch_state": "COLD",
+    "am_total_ms": 1445,
+    "ui_confirmed_with_dump_ms": 4725.8,
+    "output": "Starting: Intent { cmp=com.vitalistrack.app/.MainActivity }\nStatus: ok\nLaunchState: COLD\nActivity: com.vitalistrack.app/.MainActivity\nTotalTime: 1445\nWaitTime: 1449\nComplete\n"
+  },
+  {
+    "sample": 5,
+    "launch_state": "COLD",
+    "am_total_ms": 1572,
+    "ui_confirmed_with_dump_ms": 4959.6,
+    "output": "Starting: Intent { cmp=com.vitalistrack.app/.MainActivity }\nStatus: ok\nLaunchState: COLD\nActivity: com.vitalistrack.app/.MainActivity\nTotalTime: 1572\nWaitTime: 1603\nComplete\n"
+  },
+  {
+    "sample": 6,
+    "launch_state": "COLD",
+    "am_total_ms": 1395,
+    "ui_confirmed_with_dump_ms": 4767.1,
+    "output": "Starting: Intent { cmp=com.vitalistrack.app/.MainActivity }\nStatus: ok\nLaunchState: COLD\nActivity: com.vitalistrack.app/.MainActivity\nTotalTime: 1395\nWaitTime: 1429\nComplete\n"
+  },
+  {
+    "sample": 7,
+    "launch_state": "COLD",
+    "am_total_ms": 1387,
+    "ui_confirmed_with_dump_ms": 4846.2,
+    "output": "Starting: Intent { cmp=com.vitalistrack.app/.MainActivity }\nStatus: ok\nLaunchState: COLD\nActivity: com.vitalistrack.app/.MainActivity\nTotalTime: 1387\nWaitTime: 1389\nComplete\n"
+  },
+  {
+    "sample": 8,
+    "launch_state": "COLD",
+    "am_total_ms": 1610,
+    "ui_confirmed_with_dump_ms": 4978.4,
+    "output": "Starting: Intent { cmp=com.vitalistrack.app/.MainActivity }\nStatus: ok\nLaunchState: COLD\nActivity: com.vitalistrack.app/.MainActivity\nTotalTime: 1610\nWaitTime: 1616\nComplete\n"
+  },
+  {
+    "sample": 9,
+    "launch_state": "COLD",
+    "am_total_ms": 1418,
+    "ui_confirmed_with_dump_ms": 4911.6,
+    "output": "Starting: Intent { cmp=com.vitalistrack.app/.MainActivity }\nStatus: ok\nLaunchState: COLD\nActivity: com.vitalistrack.app/.MainActivity\nTotalTime: 1418\nWaitTime: 1443\nComplete\n"
+  },
+  {
+    "sample": 10,
+    "launch_state": "COLD",
+    "am_total_ms": 1488,
+    "ui_confirmed_with_dump_ms": 5041.9,
+    "output": "Starting: Intent { cmp=com.vitalistrack.app/.MainActivity }\nStatus: ok\nLaunchState: COLD\nActivity: com.vitalistrack.app/.MainActivity\nTotalTime: 1488\nWaitTime: 1558\nComplete\n"
+  }
+]

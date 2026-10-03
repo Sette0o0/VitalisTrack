@@ -2,6 +2,8 @@
 
 Os itens de implementação foram revisados em código. A [captura Android do cadastro](evidence/maestro-37127933080/auth-confirm-keyboard.png) mostra a tela clara e a falha do smoke com teclado aberto. Os itens de aprovação Android permanecem pendentes; essa captura isolada não aprova geometria de toque, fonte ampliada, temas ou TalkBack.
 
+Na [execução local em API 36 de 03/10/2026](testes-android-local-2026-10-03.md), telas claras/escuras, teclado, calendários, horários e diálogos foram exercitados nos fluxos registrados. Foi reproduzido D-12: os chips de filtro têm contêiner de 48 dp e área clicável de 32 dp, com toque inferior ignorado. A marcação de dimensões configuradas abaixo não equivale à aprovação da área efetiva. TalkBack, fonte ampliada, API 24 e a matriz completa continuam pendentes.
+
 ## Implementação verificada
 
 - [x] Paper 5 com MD3LightTheme/MD3DarkTheme; cores Vitalis e temas de navegação adaptados.

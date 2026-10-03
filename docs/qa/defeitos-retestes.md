@@ -1,6 +1,6 @@
 # Defeitos e retestes — Sprint 1
 
-As correções abaixo passam nos testes associados. O estado “corrigido em código” não equivale à aprovação dos fluxos no aparelho; todos exigem a matriz Android.
+As correções abaixo passam nos testes associados. O estado “corrigido em código” não equivale à aprovação dos fluxos no aparelho; todos exigem a matriz Android. A [execução local de 03/10/2026](testes-android-local-2026-10-03.md) exercitou os principais fluxos em API 36 e reproduziu D-12/D-13; não aprova a matriz inteira.
 
 | ID | Problema | Correção | Reteste obtido | Reteste Android |
 |---|---|---|---|---|
@@ -15,6 +15,8 @@ As correções abaixo passam nos testes associados. O estado “corrigido em có
 | D-09 | Componentes visuais sem padronização Material 3 e controles pequenos. | Paper MD3, temas, Appbar/BottomNavigation, diálogos/campos/calendários/FAB, alvos configurados ≥ 48 dp, insets e teclado. | Bundle Android, typecheck/lint, testes de formulário e 22 pares de contraste passam. | Checklist completo de aparência, fonte ampliada, TalkBack, foco, teclado e navegação Android. |
 | D-10 | Pool esgotava em sincronização massiva. | Limite de oito transações de sync simultâneas; erros liberam capacidade. | Teste do limitador e ensaio final com 1.000 operações: zero falhas e 900 registros únicos. | Estresse do app e API com tráfego real; avaliar latência B-03. |
 | D-11 | Smoke tocava na confirmação com teclado aberto e campo fora da área visível. | Ocultar teclado e rolar até cada campo antes do toque; diagnósticos centralizados no artefato da CI. | [Captura/hierarquia do run 37127933080](correcao-ci-cadastro.md) confirmam a causa; YAML e quatro testes de formulários passam. | Reexecutar smoke completo em API 36; exigir cadastro, água, reinício offline e logout concluídos. |
+| D-12 | Chip de filtro tem contêiner de 48 dp, mas área clicável de 32 dp; toque na faixa inferior é ignorado. | Aberto; ampliar área interativa, não apenas contêiner visual. | [API 36 local](testes-android-local-2026-10-03.md): toque na borda manteve seleção falsa; centro selecionou. Bounds e estados preservados. | Retestar todos os chips, fonte ampliada e TalkBack após correção. Reabre esse aspecto de D-09. |
+| D-13 | Retomar treino GPS mantém pausa/00:00:00 mesmo com permissão precisa concedida e localização ligada. | Aberto; revisar solicitação repetida de permissão e pausa por lifecycle. | [API 36 local](testes-android-local-2026-10-03.md): três tentativas, incluindo uma sem UIAutomator; sem assinatura de localização. Logs mostram atividade de permissão a cada retomada. | Concessão/negação, GPS ativo, rota conhecida, pausa, restauração e finalização única após correção. Reabre D-08. |
 
 | Pendência | Evidência/impacto | Condição para reteste |
 |---|---|---|
@@ -22,5 +24,7 @@ As correções abaixo passam nos testes associados. O estado “corrigido em có
 | B-02 — Maps SDK | Chave restrita ausente; mapa não exercitado em APK próprio. | Configurar chave para pacote/certificado e validar rota/polilinhas online no APK. |
 | B-03 — desempenho | Pico local p95 4,429 s; execução anterior chegou a ≈ 20 s; abertura/RAM/estabilidade Android não medidas. | Medir APK release, carga/rede controladas e tráfego normal; corrigir ou manter os limites não atingidos como pendência. |
 | E-01 — RNF9 | Wiki exige API 23; usuário escolheu API 24+, compatível com Expo 54. | Registrar exceção sem mudar a wiki; testar API 24 e 36. |
+
+Atualização local de 03/10/2026: B-01 foi superado para executar o APK já disponível com KVM e um AVD temporário em memória; a recompilação local e API 24 continuam sem validação. Os cenários de cadastro, água, reinício offline e logout passaram via ADB; o flow Maestro corrigido não foi executado nesta sessão. B-02 permanece: mapa indisponível sem chave. Em B-03, dez aberturas tiveram `TotalTime` nativo entre 1,361 e 1,610 s, sem medir diretamente a primeira UI utilizável; PSS no Home ≈ 132 MiB, acima da meta de 50 MB. Consulte o relatório local para condições, capturas, limites e dados completos.
 
 Para cada reteste no aparelho, registrar versão/hash do APK, AVD/API, modo de navegação, tema/fonte, rede, passos, esperado/obtido, captura/log e resultado. Regressões exigem reabrir o defeito e novo commit semântico com escopo claro.

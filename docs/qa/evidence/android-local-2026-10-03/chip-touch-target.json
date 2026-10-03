@@ -1,0 +1,25 @@
+{
+  "label": "Caminhada",
+  "density_dpi": 420,
+  "touch_bounds": [
+    540,
+    1649,
+    815,
+    1733
+  ],
+  "visual_bounds": [
+    537,
+    1646,
+    817,
+    1772
+  ],
+  "touch_height_dp": 32.0,
+  "visual_height_dp": 48.0,
+  "edge_tap": [
+    677,
+    1754
+  ],
+  "selected_before": "false",
+  "selected_after_edge": "false",
+  "selected_after_center": "true"
+}
