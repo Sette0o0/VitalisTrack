@@ -1,1 +1,0 @@
-66a654aea7136cf1b3c7622e5757d009bcb8bc4098882ee38df5bb0d50a0299f  artifacts/android/openstreetmap/vitalis-osm-api36-release.apk
