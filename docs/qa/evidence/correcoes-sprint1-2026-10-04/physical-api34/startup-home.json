@@ -1,0 +1,18 @@
+{
+  "screen": "home",
+  "samplesMs": [
+    1822,
+    1674,
+    1682,
+    1498,
+    1733,
+    1722,
+    1742,
+    2207,
+    1732,
+    1619
+  ],
+  "maxMs": 2207,
+  "allUnder3Seconds": true,
+  "method": "Physical API34. Device timestamp before am start; loaded provider + layout + 2 RAF; only QA PID logs, no global log clearing."
+}

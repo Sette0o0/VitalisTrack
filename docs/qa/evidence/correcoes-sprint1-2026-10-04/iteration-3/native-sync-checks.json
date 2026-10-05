@@ -1,0 +1,41 @@
+[
+  {
+    "serial": "emulator-5554",
+    "userId": "3640d7ca-0cce-48bd-985f-21ccd7d2a0de",
+    "queuedBefore": 6,
+    "pendingAvatarId": "fe14a96a-4a4b-4373-9da6-9e6b99f46c44",
+    "avatarAppliedOnce": true,
+    "queueAfter": 0,
+    "localCopyPreserved": true,
+    "remoteAvatarMatches": true,
+    "profileBirthDate": "2000-01-01",
+    "activeMeals": [
+      {
+        "id": "971c576f-738d-4ca3-b30c-ce026b7289bd",
+        "name": "Refeicao QA offline",
+        "calories": 300,
+        "quantity": 100.5,
+        "unit": "g"
+      },
+      {
+        "id": "6db38420-eb46-4945-8f12-b6a87a628a03",
+        "name": "Refeicao final QA",
+        "calories": 300,
+        "quantity": 100.5,
+        "unit": "g"
+      }
+    ]
+  },
+  {
+    "serial": "emulator-5556",
+    "userId": "5a4a15b1-9b93-4d92-a386-a5be1f1b86d0",
+    "queuedBefore": 1,
+    "pendingAvatarId": "325d483b-902e-4e75-82cc-1718ad97b2f5",
+    "avatarAppliedOnce": true,
+    "queueAfter": 0,
+    "localCopyPreserved": true,
+    "remoteAvatarMatches": true,
+    "profileBirthDate": "",
+    "activeMeals": []
+  }
+]

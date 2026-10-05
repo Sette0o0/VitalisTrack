@@ -1,0 +1,206 @@
+{
+  "serial": "emulator-5556",
+  "states": [
+    [
+      "5a4a15b1-9b93-4d92-a386-a5be1f1b86d0:app-state",
+      {
+        "schemaVersion": 2,
+        "dailySteps": [],
+        "themeMode": "dark",
+        "profile": {
+          "name": "QA offline 24h",
+          "email": "sprint1-api24-20261004@example.com",
+          "hasWeight": true,
+          "hasHeight": true,
+          "birthDate": "2000-01-01",
+          "weightKg": 69.5,
+          "heightCm": 175,
+          "gender": "Outro",
+          "avatar": "file:///data/user/0/com.vitalistrack.app/files/avatars/5a4a15b1-9b93-4d92-a386-a5be1f1b86d0/f3aa75c6-ef99-464a-83dd-b4e873bd443d.png",
+          "avatarRemoteUrl": "http://10.0.2.2:3011/uploads/avatars/5a4a15b1-9b93-4d92-a386-a5be1f1b86d0-325d483b-902e-4e75-82cc-1718ad97b2f5.png",
+          "avatarMutationId": "f3aa75c6-ef99-464a-83dd-b4e873bd443d"
+        },
+        "goals": {
+          "waterMl": 2000,
+          "calories": 2000,
+          "mealCalories": 700,
+          "steps": 10000,
+          "weightKg": 70,
+          "dailyDeficit": 400,
+          "userId": "5a4a15b1-9b93-4d92-a386-a5be1f1b86d0",
+          "updatedAt": "2026-10-04T12:44:20.522Z"
+        },
+        "water": [
+          {
+            "id": "cfa026fa-562c-4901-a6d2-18c803829577",
+            "amountMl": 200,
+            "date": "2026-10-04",
+            "time": "09:28",
+            "createdAt": "2026-10-04T12:28:08.410Z",
+            "updatedAt": "2026-10-04T12:28:08.410Z",
+            "deletedAt": null
+          },
+          {
+            "id": "8c0e8cd6-d1a8-44fa-900b-41066c8e6e4d",
+            "amountMl": 500,
+            "date": "2026-10-04",
+            "time": "09:28",
+            "createdAt": "2026-10-04T12:28:10.871Z",
+            "updatedAt": "2026-10-04T12:28:10.871Z",
+            "deletedAt": null
+          },
+          {
+            "id": "b2acc427-29da-4a79-b76a-65cd3876c621",
+            "amountMl": 1000,
+            "date": "2026-10-04",
+            "time": "09:28",
+            "createdAt": "2026-10-04T12:28:13.287Z",
+            "updatedAt": "2026-10-04T12:28:13.287Z",
+            "deletedAt": null
+          },
+          {
+            "amountMl": 200,
+            "date": "2026-10-04",
+            "time": "10:11",
+            "id": "da24da01-b863-4b85-b608-7f784d31d549"
+          }
+        ],
+        "meals": [
+          {
+            "id": "85f0b673-94bc-408a-9b71-cf5e39ba7c9c",
+            "name": "Refeicao 24h QA",
+            "date": "2026-10-04",
+            "time": "10:10",
+            "quantity": 100.5,
+            "unit": "g",
+            "calories": 300
+          }
+        ],
+        "activities": [
+          {
+            "id": "e2c014a9-ef26-424c-8df0-7524b10df87c",
+            "type": "run",
+            "date": "2026-10-04",
+            "durationSeconds": 1830,
+            "distanceMeters": 5200,
+            "route": [],
+            "durationMinutes": 30.5,
+            "distanceKm": 5.2,
+            "calories": 308
+          }
+        ],
+        "weights": [
+          {
+            "id": "108b20c4-f94d-4a11-9a22-af8a45fbebc2",
+            "date": "2026-10-04",
+            "weightKg": 69.5
+          }
+        ],
+        "steps": 0,
+        "authenticated": true,
+        "darkMode": true,
+        "syncStatus": "offline",
+        "userId": "5a4a15b1-9b93-4d92-a386-a5be1f1b86d0"
+      }
+    ]
+  ],
+  "queue": [
+    [
+      "5a4a15b1-9b93-4d92-a386-a5be1f1b86d0",
+      {
+        "mutationId": "9d259820-6fa6-45f1-a7d1-6bd65f259178",
+        "entity": "profile",
+        "action": "upsert",
+        "payload": {
+          "name": "QA offline 24h",
+          "birthDate": "2000-01-01",
+          "weightKg": 70,
+          "heightCm": 175,
+          "gender": "Outro"
+        },
+        "clientUpdatedAt": "2026-10-04T13:07:35.898Z",
+        "clientTimeZone": "America/Sao_Paulo"
+      }
+    ],
+    [
+      "5a4a15b1-9b93-4d92-a386-a5be1f1b86d0",
+      {
+        "mutationId": "f585db24-9f03-449e-9d8b-1829e75993e1",
+        "entity": "weight",
+        "action": "upsert",
+        "payload": {
+          "id": "108b20c4-f94d-4a11-9a22-af8a45fbebc2",
+          "date": "2026-10-04",
+          "weightKg": 69.5
+        },
+        "clientUpdatedAt": "2026-10-04T13:09:01.208Z"
+      }
+    ],
+    [
+      "5a4a15b1-9b93-4d92-a386-a5be1f1b86d0",
+      {
+        "mutationId": "9524c49b-dd8a-499c-9efd-a61cdaf44a8c",
+        "entity": "activity",
+        "action": "upsert",
+        "payload": {
+          "id": "e2c014a9-ef26-424c-8df0-7524b10df87c",
+          "type": "run",
+          "date": "2026-10-04",
+          "durationSeconds": 1830,
+          "distanceMeters": 5200,
+          "route": []
+        },
+        "entityId": "e2c014a9-ef26-424c-8df0-7524b10df87c",
+        "clientUpdatedAt": "2026-10-04T13:09:24.219Z"
+      }
+    ],
+    [
+      "5a4a15b1-9b93-4d92-a386-a5be1f1b86d0",
+      {
+        "mutationId": "68ce020d-3b4a-4c94-820d-53fa4afe1015",
+        "entity": "meal",
+        "action": "upsert",
+        "payload": {
+          "id": "85f0b673-94bc-408a-9b71-cf5e39ba7c9c",
+          "name": "Refeicao 24h QA",
+          "date": "2026-10-04",
+          "time": "10:10",
+          "quantity": 100.5,
+          "unit": "g",
+          "calories": 300
+        },
+        "entityId": "85f0b673-94bc-408a-9b71-cf5e39ba7c9c",
+        "clientUpdatedAt": "2026-10-04T13:11:04.301Z"
+      }
+    ],
+    [
+      "5a4a15b1-9b93-4d92-a386-a5be1f1b86d0",
+      {
+        "mutationId": "7eeba0d2-ad84-45d0-8c40-041e6ccb82e0",
+        "entity": "water",
+        "action": "upsert",
+        "payload": {
+          "amountMl": 200,
+          "date": "2026-10-04",
+          "time": "10:11",
+          "id": "da24da01-b863-4b85-b608-7f784d31d549"
+        },
+        "clientUpdatedAt": "2026-10-04T13:11:10.332Z"
+      }
+    ],
+    [
+      "5a4a15b1-9b93-4d92-a386-a5be1f1b86d0",
+      {
+        "mutationId": "f3aa75c6-ef99-464a-83dd-b4e873bd443d",
+        "entity": "avatar",
+        "action": "upsert",
+        "payload": {
+          "uri": "file:///data/user/0/com.vitalistrack.app/files/avatars/5a4a15b1-9b93-4d92-a386-a5be1f1b86d0/f3aa75c6-ef99-464a-83dd-b4e873bd443d.png",
+          "mimeType": "image/png"
+        },
+        "clientUpdatedAt": "2026-10-04T13:19:39.847Z"
+      }
+    ]
+  ],
+  "workouts": []
+}

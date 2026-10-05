@@ -1,0 +1,128 @@
+[
+  {
+    "capture": "api36-05-final-refeicao-editada-offline.xml",
+    "label": "Hoje",
+    "bounds": "[45,81][206,207]",
+    "widthDp": 61.33,
+    "heightDp": 48.0
+  },
+  {
+    "capture": "api36-05-final-refeicao-editada-offline.xml",
+    "label": "7 dias",
+    "bounds": "[232,81][465,207]",
+    "widthDp": 88.76,
+    "heightDp": 48.0
+  },
+  {
+    "capture": "api36-05-final-refeicao-editada-offline.xml",
+    "label": "30 dias",
+    "bounds": "[492,81][698,207]",
+    "widthDp": 78.48,
+    "heightDp": 48.0
+  },
+  {
+    "capture": "api36-05-final-refeicao-editada-offline.xml",
+    "label": "Todas as datas",
+    "bounds": "[45,233][383,359]",
+    "widthDp": 128.76,
+    "heightDp": 48.0
+  },
+  {
+    "capture": "api36-06-final-refeicao-300-offline.xml",
+    "label": "Hoje",
+    "bounds": "[45,81][206,207]",
+    "widthDp": 61.33,
+    "heightDp": 48.0
+  },
+  {
+    "capture": "api36-06-final-refeicao-300-offline.xml",
+    "label": "7 dias",
+    "bounds": "[232,81][465,207]",
+    "widthDp": 88.76,
+    "heightDp": 48.0
+  },
+  {
+    "capture": "api36-06-final-refeicao-300-offline.xml",
+    "label": "30 dias",
+    "bounds": "[492,81][698,207]",
+    "widthDp": 78.48,
+    "heightDp": 48.0
+  },
+  {
+    "capture": "api36-06-final-refeicao-300-offline.xml",
+    "label": "Todas as datas",
+    "bounds": "[45,233][383,359]",
+    "widthDp": 128.76,
+    "heightDp": 48.0
+  },
+  {
+    "capture": "api36-01-final-avatar-offline.xml",
+    "label": "Voltar",
+    "bounds": "[68,126][194,252]",
+    "widthDp": 48.0,
+    "heightDp": 48.0
+  },
+  {
+    "capture": "api36-01-final-avatar-offline.xml",
+    "label": "Selecionar dia, mês e ano de nascimento",
+    "bounds": "[902,1348][1028,1474]",
+    "widthDp": 48.0,
+    "heightDp": 48.0
+  },
+  {
+    "capture": "api36-08-final-refeicao-exclusao-confirmada.xml",
+    "label": "Todas as datas",
+    "bounds": "[45,105][383,231]",
+    "widthDp": 128.76,
+    "heightDp": 48.0
+  },
+  {
+    "capture": "api36-09-final-grafico-linha.xml",
+    "label": "Voltar",
+    "bounds": "[68,126][194,252]",
+    "widthDp": 48.0,
+    "heightDp": 48.0
+  },
+  {
+    "capture": "api24-08-final-avatar-offline.xml",
+    "label": "Voltar",
+    "bounds": "[39,72][111,144]",
+    "widthDp": 48.0,
+    "heightDp": 48.0
+  },
+  {
+    "capture": "api24-05-final-nascimento-futuro.xml",
+    "label": "Selecionar dia, mês e ano de nascimento",
+    "bounds": "[378,139][450,211]",
+    "widthDp": 48.0,
+    "heightDp": 48.0
+  },
+  {
+    "capture": "api24-03-final-agua-1900-95pct.xml",
+    "label": "Voltar",
+    "bounds": "[39,72][111,144]",
+    "widthDp": 48.0,
+    "heightDp": 48.0
+  },
+  {
+    "capture": "api24-02-final-meta-sem-ruido.xml",
+    "label": "Voltar",
+    "bounds": "[39,72][111,144]",
+    "widthDp": 48.0,
+    "heightDp": 48.0
+  },
+  {
+    "capture": "api24-10-final-agua-editada.xml",
+    "label": "Voltar",
+    "bounds": "[39,72][111,144]",
+    "widthDp": 48.0,
+    "heightDp": 48.0
+  },
+  {
+    "capture": "api24-11-final-agua-excluida.xml",
+    "label": "Voltar",
+    "bounds": "[39,72][111,144]",
+    "widthDp": 48.0,
+    "heightDp": 48.0
+  }
+]

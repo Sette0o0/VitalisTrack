@@ -1,24 +1,24 @@
 $ jest --runInBand
-PASS components/vitalis/workout-screen.test.tsx (8.887 s)
-PASS components/vitalis/forms.test.tsx
 PASS state/provider.test.tsx
-PASS lib/workout-map.test.ts
-PASS state/migration.test.ts
 PASS lib/api.test.ts
-PASS lib/workout.test.ts
+PASS state/selectors.test.ts
+PASS lib/local-database.test.ts
+PASS components/vitalis/forms.test.tsx (15.867 s)
+PASS state/app-state.test.ts
+PASS components/vitalis/workout-screen.test.tsx
 PASS lib/validation.test.ts
 PASS lib/use-session-refresh.test.ts
-PASS lib/local-database.test.ts
-PASS hooks/use-submit.test.ts
-PASS state/selectors.test.ts
-PASS lib/sync.test.ts
-PASS constants/theme.test.ts
 PASS state/mutations.test.ts
+PASS lib/sync.test.ts
+PASS lib/workout.test.ts
+PASS lib/workout-map.test.ts
+PASS state/migration.test.ts
+PASS constants/theme.test.ts
 PASS lib/health.test.ts
-PASS state/app-state.test.ts
+PASS hooks/use-submit.test.ts
 
 Test Suites: 17 passed, 17 total
 Tests:       103 passed, 103 total
 Snapshots:   0 total
-Time:        13.866 s, estimated 20 s
+Time:        21.568 s
 Ran all test suites.

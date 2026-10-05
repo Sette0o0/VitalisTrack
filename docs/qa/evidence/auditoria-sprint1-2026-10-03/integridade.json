@@ -1,0 +1,22 @@
+{
+  "checkedAt": "2026-10-04T00:33:47.623097+00:00",
+  "sourceFilesChecked": 111,
+  "wikiFilesChecked": 5,
+  "changedSourceFiles": [],
+  "changedWikiFiles": [],
+  "stories": 22,
+  "criteria": 89,
+  "criteriaMatchWikiExactly": true,
+  "counts": {
+    "Atendido no escopo verificado": 80,
+    "Parcial": 7,
+    "Não atendido": 2
+  },
+  "functionalStoryResults": {
+    "Atendida no escopo verificado": 17,
+    "Parcial": 3,
+    "Com falha": 2
+  },
+  "localLinksChecked": 111,
+  "missingLocalLinks": []
+}

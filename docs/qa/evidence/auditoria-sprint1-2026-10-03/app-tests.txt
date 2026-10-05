@@ -1,0 +1,50 @@
+$ jest --runInBand --coverage
+PASS lib/validation.test.ts
+PASS lib/health.test.ts
+PASS state/selectors.test.ts
+PASS state/mutations.test.ts
+PASS state/provider.test.tsx
+PASS state/app-state.test.ts
+PASS state/migration.test.ts
+PASS hooks/use-submit.test.ts
+PASS lib/date-filter.test.ts
+PASS lib/workout-map.test.ts
+PASS lib/use-session-refresh.test.ts
+PASS lib/api.test.ts
+PASS lib/sync.test.ts
+PASS lib/session.test.ts
+PASS lib/format.test.ts
+PASS lib/local-database.test.ts
+PASS lib/workout.test.ts
+PASS constants/theme.test.ts
+PASS components/vitalis/date-controls.test.tsx
+PASS components/vitalis/forms.test.tsx
+PASS components/vitalis/workout-screen.test.tsx
+-------------------------|---------|----------|---------|---------|-------------------------------------------------------------------------------------------------------------
+File                     | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                                                                                           
+-------------------------|---------|----------|---------|---------|-------------------------------------------------------------------------------------------------------------
+All files                |   86.19 |    69.31 |   81.73 |   89.16 |                                                                                                             
+ hooks                   |     100 |       75 |     100 |     100 |                                                                                                             
+  use-submit.ts          |     100 |       75 |     100 |     100 | 15                                                                                                          
+ lib                     |   90.83 |    77.64 |    90.9 |   93.83 |                                                                                                             
+  api.ts                 |   94.82 |    87.23 |   81.81 |   98.03 | 110                                                                                                         
+  health.ts              |   92.59 |    57.89 |    90.9 |   92.59 | 34-35                                                                                                       
+  local-database.ts      |   87.34 |    65.11 |   96.55 |   91.42 | 75,188-195                                                                                                  
+  session.ts             |   86.13 |    77.77 |   69.23 |   91.01 | 32-33,59,100-101,108,124-125                                                                                
+  sync.ts                |   96.87 |    83.33 |     100 |     100 | 17,30                                                                                                       
+  use-session-refresh.ts |   91.66 |    61.11 |    90.9 |   94.73 | 26                                                                                                          
+  validation.ts          |     100 |    91.66 |     100 |     100 | 11                                                                                                          
+  workout.ts             |      96 |    90.24 |     100 |   95.65 | 47                                                                                                          
+ state                   |   81.23 |    62.19 |   74.41 |   84.38 |                                                                                                             
+  app-state.tsx          |    73.6 |    53.59 |    58.1 |   78.11 | 142,188-195,245-271,279-289,363-369,403,411-425,457,466-467,486-487,496,501-503,523,539-547,577,610,614-619 
+  migration.ts           |     100 |    84.61 |     100 |     100 | 9-10                                                                                                        
+  mutations.ts           |     100 |    78.26 |     100 |     100 | 72-93                                                                                                       
+  reducer.ts             |     100 |    84.21 |     100 |     100 | 71-91,101,112-133,143                                                                                       
+  selectors.ts           |   97.14 |    63.88 |   94.87 |   98.11 | 79                                                                                                          
+-------------------------|---------|----------|---------|---------|-------------------------------------------------------------------------------------------------------------
+
+Test Suites: 21 passed, 21 total
+Tests:       142 passed, 142 total
+Snapshots:   0 total
+Time:        7.957 s
+Ran all test suites.

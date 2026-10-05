@@ -1,0 +1,32 @@
+import assert from "node:assert/strict";
+import { readFile, writeFile } from "node:fs/promises";
+import { prisma } from "../../../../server/src/lib/prisma.js";
+if (process.env.NODE_ENV !== "test" || !/\/vitalis_qa(?:\?|$)/.test(process.env.DATABASE_URL ?? "")) throw new Error("Use banco QA.");
+const dir="../docs/qa/evidence/correcoes-sprint1-2026-10-04/";
+const read=async (name:string)=>JSON.parse(await readFile(dir+name,"utf8"));
+const avatars=[];
+for (const [api,serial] of [[24,"emulator-5556"],[36,"emulator-5554"]] as const) {
+ const before=await read(`database-${serial}-before-reconnect.json`), after=await read(`database-${serial}-after-reconnect.json`);
+ const user=await prisma.user.findUniqueOrThrow({where:{email:`sprint1-api${api}-20261004@example.com`}});
+ assert.equal(after.queue.length,0);
+ const operation=before.queue.find((row:any)=>row[1].entity==="avatar")[1];
+ const markers=await prisma.processedMutation.count({where:{userId:user.id,mutationId:operation.mutationId}});
+ assert.equal(markers,1);
+ const local=after.states.find((row:any)=>row[0]===`${user.id}:app-state`)[1].profile;
+ const remote=await prisma.profile.findUniqueOrThrow({where:{userId:user.id}});
+ assert(local.avatar.startsWith("file://") && local.avatar.includes(operation.mutationId));
+ assert(local.avatarRemoteUrl.endsWith(remote.avatarPath));
+ for (const row of before.queue) assert.equal(await prisma.processedMutation.count({where:{userId:user.id,mutationId:row[1].mutationId}}),1);
+ avatars.push({api,mutationId:operation.mutationId,processedExactlyOnce:markers===1,queueDrained:true,localAvatar:local.avatar,remoteAvatar:remote.avatarPath});
+}
+const user=await prisma.user.findUniqueOrThrow({where:{email:"sprint1-api36-20261004@example.com"}});
+const meal=await prisma.meal.findMany({where:{userId:user.id,name:"Refeicao entrega QA"}});
+assert.equal(meal.length,1);assert.equal(meal[0].calories,300);assert.equal(meal[0].deletedAt,null);
+assert((await prisma.meal.findFirstOrThrow({where:{userId:user.id,name:"Refeicao final v4 QA"}})).deletedAt);
+const w=(await read("database-emulator-5554-gps-final.json")).workouts[0][1];
+const a=await prisma.activity.findMany({where:{userId:user.id,id:w.id},include:{route:{orderBy:{sequence:"asc"}}}});
+assert.equal(a.length,1);assert.equal(a[0].durationSeconds,Math.floor(w.elapsedMs/1000));assert(Math.abs(a[0].distanceMeters-w.distance)<.001);assert.equal(a[0].route.length,w.route.length);assert.deepEqual(w.segmentStarts,[0,3]);
+await writeFile(dir+"native-sync-checks.json",JSON.stringify({at:new Date().toISOString(),avatars,mealId:meal[0].id,mealCreatedEditedOnce:true,oldMealDeleted:true},null,2)+"\n");
+await writeFile(dir+"gps-final-checks.json",JSON.stringify({activityId:w.id,elapsedMs:w.elapsedMs,distanceMeters:w.distance,routePoints:w.route.length,segmentStarts:w.segmentStarts,pauseRestored:"00:00:12 / 0,11 km",resumed:"00:00:24 / 0,22 km",savedExactlyOnce:true,serverDurationSeconds:a[0].durationSeconds,serverDistanceMeters:a[0].distanceMeters,simulatedPositions:true},null,2)+"\n");
+console.log("Foto, refeições e GPS: concordância local/servidor e idempotência aprovadas.");
+await prisma.$disconnect();

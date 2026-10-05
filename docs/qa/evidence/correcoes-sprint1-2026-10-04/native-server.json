@@ -1,0 +1,604 @@
+{
+  "at": "2026-10-04T18:00:33.124Z",
+  "accounts": [
+    {
+      "api": 24,
+      "userId": "5a4a15b1-9b93-4d92-a386-a5be1f1b86d0",
+      "profile": {
+        "userId": "5a4a15b1-9b93-4d92-a386-a5be1f1b86d0",
+        "name": "QA offline 24h",
+        "birthDate": "2000-01-01T00:00:00.000Z",
+        "weightKg": 69.5,
+        "heightCm": 175,
+        "gender": "Outro",
+        "avatarPath": "/uploads/avatars/5a4a15b1-9b93-4d92-a386-a5be1f1b86d0-ce55e619-3ab7-4222-98a4-af02788f5467.png",
+        "updatedAt": "2026-10-04T13:47:07.950Z"
+      },
+      "avatarOperations": [
+        {
+          "mutationId": "8a3edcaf-7e13-4136-bc3c-0e1e31d4bcd2",
+          "result": {
+            "kind": "avatar",
+            "avatarPath": "/uploads/avatars/5a4a15b1-9b93-4d92-a386-a5be1f1b86d0-8a3edcaf-7e13-4136-bc3c-0e1e31d4bcd2.png"
+          }
+        },
+        {
+          "mutationId": "325d483b-902e-4e75-82cc-1718ad97b2f5",
+          "result": {
+            "kind": "avatar",
+            "avatarPath": "/uploads/avatars/5a4a15b1-9b93-4d92-a386-a5be1f1b86d0-325d483b-902e-4e75-82cc-1718ad97b2f5.png"
+          }
+        },
+        {
+          "mutationId": "f3aa75c6-ef99-464a-83dd-b4e873bd443d",
+          "result": {
+            "kind": "avatar",
+            "avatarPath": "/uploads/avatars/5a4a15b1-9b93-4d92-a386-a5be1f1b86d0-f3aa75c6-ef99-464a-83dd-b4e873bd443d.png"
+          }
+        },
+        {
+          "mutationId": "ce55e619-3ab7-4222-98a4-af02788f5467",
+          "result": {
+            "kind": "avatar",
+            "avatarPath": "/uploads/avatars/5a4a15b1-9b93-4d92-a386-a5be1f1b86d0-ce55e619-3ab7-4222-98a4-af02788f5467.png"
+          }
+        }
+      ],
+      "avatarFiles": [
+        "5a4a15b1-9b93-4d92-a386-a5be1f1b86d0-325d483b-902e-4e75-82cc-1718ad97b2f5.png",
+        "5a4a15b1-9b93-4d92-a386-a5be1f1b86d0-8a3edcaf-7e13-4136-bc3c-0e1e31d4bcd2.png",
+        "5a4a15b1-9b93-4d92-a386-a5be1f1b86d0-ce55e619-3ab7-4222-98a4-af02788f5467.png",
+        "5a4a15b1-9b93-4d92-a386-a5be1f1b86d0-f3aa75c6-ef99-464a-83dd-b4e873bd443d.png"
+      ],
+      "meals": [
+        {
+          "id": "85f0b673-94bc-408a-9b71-cf5e39ba7c9c",
+          "userId": "5a4a15b1-9b93-4d92-a386-a5be1f1b86d0",
+          "name": "Refeicao 24h QA",
+          "date": "2026-10-04T00:00:00.000Z",
+          "time": "10:10",
+          "quantity": 100.5,
+          "unit": "g",
+          "calories": 300,
+          "createdAt": "2026-10-04T13:24:44.090Z",
+          "updatedAt": "2026-10-04T13:24:44.090Z",
+          "deletedAt": null
+        }
+      ],
+      "water": [
+        {
+          "id": "cfa026fa-562c-4901-a6d2-18c803829577",
+          "userId": "5a4a15b1-9b93-4d92-a386-a5be1f1b86d0",
+          "amountMl": 200,
+          "date": "2026-10-04T00:00:00.000Z",
+          "time": "09:28",
+          "createdAt": "2026-10-04T12:28:08.410Z",
+          "updatedAt": "2026-10-04T12:28:08.410Z",
+          "deletedAt": null
+        },
+        {
+          "id": "8c0e8cd6-d1a8-44fa-900b-41066c8e6e4d",
+          "userId": "5a4a15b1-9b93-4d92-a386-a5be1f1b86d0",
+          "amountMl": 500,
+          "date": "2026-10-04T00:00:00.000Z",
+          "time": "09:28",
+          "createdAt": "2026-10-04T12:28:10.871Z",
+          "updatedAt": "2026-10-04T12:28:10.871Z",
+          "deletedAt": null
+        },
+        {
+          "id": "b2acc427-29da-4a79-b76a-65cd3876c621",
+          "userId": "5a4a15b1-9b93-4d92-a386-a5be1f1b86d0",
+          "amountMl": 1000,
+          "date": "2026-10-04T00:00:00.000Z",
+          "time": "09:28",
+          "createdAt": "2026-10-04T12:28:13.287Z",
+          "updatedAt": "2026-10-04T12:28:13.287Z",
+          "deletedAt": null
+        },
+        {
+          "id": "1275565c-a6cf-41ba-99e3-42f2121c594b",
+          "userId": "5a4a15b1-9b93-4d92-a386-a5be1f1b86d0",
+          "amountMl": 350200,
+          "date": "2026-10-04T00:00:00.000Z",
+          "time": "09:33",
+          "createdAt": "2026-10-04T12:33:12.290Z",
+          "updatedAt": "2026-10-04T12:45:25.995Z",
+          "deletedAt": "2026-10-04T12:45:25.994Z"
+        },
+        {
+          "id": "a3ac9000-425a-498a-a219-f6d2179ce4b4",
+          "userId": "5a4a15b1-9b93-4d92-a386-a5be1f1b86d0",
+          "amountMl": 300,
+          "date": "2026-10-04T00:00:00.000Z",
+          "time": "09:44",
+          "createdAt": "2026-10-04T12:44:08.324Z",
+          "updatedAt": "2026-10-04T12:55:18.200Z",
+          "deletedAt": "2026-10-04T12:55:18.200Z"
+        },
+        {
+          "id": "78531d71-87ad-4c45-8202-f16ad3c1c4a4",
+          "userId": "5a4a15b1-9b93-4d92-a386-a5be1f1b86d0",
+          "amountMl": 200,
+          "date": "2026-10-04T00:00:00.000Z",
+          "time": "10:50",
+          "createdAt": "2026-10-04T13:50:36.566Z",
+          "updatedAt": "2026-10-04T13:50:36.566Z",
+          "deletedAt": null
+        },
+        {
+          "id": "3091b498-a1b2-4cf6-b69c-1c9f19c88ed7",
+          "userId": "5a4a15b1-9b93-4d92-a386-a5be1f1b86d0",
+          "amountMl": 500,
+          "date": "2026-10-04T00:00:00.000Z",
+          "time": "10:50",
+          "createdAt": "2026-10-04T13:50:38.964Z",
+          "updatedAt": "2026-10-04T13:50:38.964Z",
+          "deletedAt": null
+        },
+        {
+          "id": "6cf237d7-3ca5-4776-8069-9663a62c347f",
+          "userId": "5a4a15b1-9b93-4d92-a386-a5be1f1b86d0",
+          "amountMl": 1000,
+          "date": "2026-10-04T00:00:00.000Z",
+          "time": "10:50",
+          "createdAt": "2026-10-04T13:50:41.220Z",
+          "updatedAt": "2026-10-04T13:50:41.220Z",
+          "deletedAt": null
+        },
+        {
+          "id": "a52b98cc-c02a-4aa0-8c20-b062901f1003",
+          "userId": "5a4a15b1-9b93-4d92-a386-a5be1f1b86d0",
+          "amountMl": 200,
+          "date": "2026-10-04T00:00:00.000Z",
+          "time": "10:51",
+          "createdAt": "2026-10-04T13:51:54.921Z",
+          "updatedAt": "2026-10-04T13:51:54.921Z",
+          "deletedAt": null
+        },
+        {
+          "id": "da24da01-b863-4b85-b608-7f784d31d549",
+          "userId": "5a4a15b1-9b93-4d92-a386-a5be1f1b86d0",
+          "amountMl": 300,
+          "date": "2026-10-04T00:00:00.000Z",
+          "time": "10:11",
+          "createdAt": "2026-10-04T13:24:44.102Z",
+          "updatedAt": "2026-10-04T13:53:11.411Z",
+          "deletedAt": "2026-10-04T13:53:11.411Z"
+        }
+      ],
+      "activities": 1,
+      "weights": [
+        {
+          "id": "108b20c4-f94d-4a11-9a22-af8a45fbebc2",
+          "userId": "5a4a15b1-9b93-4d92-a386-a5be1f1b86d0",
+          "date": "2026-10-04T00:00:00.000Z",
+          "weightKg": 69.5,
+          "createdAt": "2026-10-04T13:24:44.037Z",
+          "updatedAt": "2026-10-04T13:24:44.037Z",
+          "deletedAt": null
+        }
+      ],
+      "sessions": [
+        {
+          "id": "6b01c5f8-8780-41bf-8d4a-45b67c09a6ec",
+          "createdAt": "2026-10-04T11:52:43.347Z",
+          "revokedAt": "2026-10-04T12:18:10.294Z",
+          "replacedById": "a017f832-f1ec-44d3-a19e-b4a1f3d1b2bd"
+        },
+        {
+          "id": "a017f832-f1ec-44d3-a19e-b4a1f3d1b2bd",
+          "createdAt": "2026-10-04T12:18:10.298Z",
+          "revokedAt": "2026-10-04T12:32:10.099Z",
+          "replacedById": "c069a732-1193-4eed-879f-55686f3a7ccd"
+        },
+        {
+          "id": "c069a732-1193-4eed-879f-55686f3a7ccd",
+          "createdAt": "2026-10-04T12:32:10.100Z",
+          "revokedAt": "2026-10-04T12:46:10.101Z",
+          "replacedById": "642295cc-cc0e-4573-ad29-4bfcd55cf880"
+        },
+        {
+          "id": "642295cc-cc0e-4573-ad29-4bfcd55cf880",
+          "createdAt": "2026-10-04T12:46:10.103Z",
+          "revokedAt": "2026-10-04T13:00:10.286Z",
+          "replacedById": "61ed53a4-c29f-4fe8-a50f-591ebd55a3a0"
+        },
+        {
+          "id": "61ed53a4-c29f-4fe8-a50f-591ebd55a3a0",
+          "createdAt": "2026-10-04T13:00:10.287Z",
+          "revokedAt": "2026-10-04T13:01:42.979Z",
+          "replacedById": null
+        },
+        {
+          "id": "24b6a798-039c-4e79-86b0-8e39bb7e4c2e",
+          "createdAt": "2026-10-04T13:02:17.414Z",
+          "revokedAt": "2026-10-04T13:24:43.561Z",
+          "replacedById": "326949cd-ef64-46fe-85d9-bd79df4f9bb1"
+        },
+        {
+          "id": "326949cd-ef64-46fe-85d9-bd79df4f9bb1",
+          "createdAt": "2026-10-04T13:24:43.563Z",
+          "revokedAt": "2026-10-04T13:38:43.293Z",
+          "replacedById": "0dbe7103-84ad-48b0-925a-5b6d7b02234e"
+        },
+        {
+          "id": "0dbe7103-84ad-48b0-925a-5b6d7b02234e",
+          "createdAt": "2026-10-04T13:38:43.295Z",
+          "revokedAt": "2026-10-04T13:52:43.282Z",
+          "replacedById": "eb536610-d278-49f8-ac1d-ef698d00d8e7"
+        },
+        {
+          "id": "eb536610-d278-49f8-ac1d-ef698d00d8e7",
+          "createdAt": "2026-10-04T13:52:43.284Z",
+          "revokedAt": "2026-10-04T13:54:15.893Z",
+          "replacedById": null
+        },
+        {
+          "id": "f26e8800-da85-4c50-9908-9782e341171c",
+          "createdAt": "2026-10-04T13:54:50.711Z",
+          "revokedAt": null,
+          "replacedById": null
+        },
+        {
+          "id": "ff83afe6-e4a0-453e-a8f5-e7ff6f268a20",
+          "createdAt": "2026-10-04T17:56:35.340Z",
+          "revokedAt": null,
+          "replacedById": null
+        }
+      ]
+    },
+    {
+      "api": 36,
+      "userId": "3640d7ca-0cce-48bd-985f-21ccd7d2a0de",
+      "profile": {
+        "userId": "3640d7ca-0cce-48bd-985f-21ccd7d2a0de",
+        "name": "Pessoa QA",
+        "birthDate": "2000-01-01T00:00:00.000Z",
+        "weightKg": 71.3,
+        "heightCm": 175,
+        "gender": "Outro",
+        "avatarPath": "/uploads/avatars/3640d7ca-0cce-48bd-985f-21ccd7d2a0de-821e5b53-d6f1-411f-95ec-f5c17bac6b72.png",
+        "updatedAt": "2026-10-04T13:41:38.796Z"
+      },
+      "avatarOperations": [
+        {
+          "mutationId": "b8817bf5-bdb5-4346-9ba4-a8a7c9de6e59",
+          "result": {
+            "kind": "avatar",
+            "avatarPath": "/uploads/avatars/3640d7ca-0cce-48bd-985f-21ccd7d2a0de-b8817bf5-bdb5-4346-9ba4-a8a7c9de6e59.png"
+          }
+        },
+        {
+          "mutationId": "fe14a96a-4a4b-4373-9da6-9e6b99f46c44",
+          "result": {
+            "kind": "avatar",
+            "avatarPath": "/uploads/avatars/3640d7ca-0cce-48bd-985f-21ccd7d2a0de-fe14a96a-4a4b-4373-9da6-9e6b99f46c44.png"
+          }
+        },
+        {
+          "mutationId": "2e12184c-045b-4563-8312-13ed8dccd9ef",
+          "result": {
+            "kind": "avatar",
+            "avatarPath": "/uploads/avatars/3640d7ca-0cce-48bd-985f-21ccd7d2a0de-2e12184c-045b-4563-8312-13ed8dccd9ef.png"
+          }
+        },
+        {
+          "mutationId": "821e5b53-d6f1-411f-95ec-f5c17bac6b72",
+          "result": {
+            "kind": "avatar",
+            "avatarPath": "/uploads/avatars/3640d7ca-0cce-48bd-985f-21ccd7d2a0de-821e5b53-d6f1-411f-95ec-f5c17bac6b72.png"
+          }
+        }
+      ],
+      "avatarFiles": [
+        "3640d7ca-0cce-48bd-985f-21ccd7d2a0de-2e12184c-045b-4563-8312-13ed8dccd9ef.png",
+        "3640d7ca-0cce-48bd-985f-21ccd7d2a0de-821e5b53-d6f1-411f-95ec-f5c17bac6b72.png",
+        "3640d7ca-0cce-48bd-985f-21ccd7d2a0de-b8817bf5-bdb5-4346-9ba4-a8a7c9de6e59.png",
+        "3640d7ca-0cce-48bd-985f-21ccd7d2a0de-fe14a96a-4a4b-4373-9da6-9e6b99f46c44.png"
+      ],
+      "meals": [
+        {
+          "id": "f08c7e0a-1d4a-495b-82a0-0a18af1c93d1",
+          "userId": "3640d7ca-0cce-48bd-985f-21ccd7d2a0de",
+          "name": "Excluir QA",
+          "date": "2026-10-04T00:00:00.000Z",
+          "time": "08:59",
+          "quantity": 250,
+          "unit": "mL",
+          "calories": 100,
+          "createdAt": "2026-10-04T12:02:43.850Z",
+          "updatedAt": "2026-10-04T12:02:43.864Z",
+          "deletedAt": "2026-10-04T12:02:43.863Z"
+        },
+        {
+          "id": "971c576f-738d-4ca3-b30c-ce026b7289bd",
+          "userId": "3640d7ca-0cce-48bd-985f-21ccd7d2a0de",
+          "name": "Refeicao QA offline",
+          "date": "2026-10-04T00:00:00.000Z",
+          "time": "08:52",
+          "quantity": 100.5,
+          "unit": "g",
+          "calories": 300,
+          "createdAt": "2026-10-04T12:02:43.813Z",
+          "updatedAt": "2026-10-04T12:56:10.489Z",
+          "deletedAt": null
+        },
+        {
+          "id": "4c81a506-3a7b-453c-a897-ccbf968a2028",
+          "userId": "3640d7ca-0cce-48bd-985f-21ccd7d2a0de",
+          "name": "Excluir final QA",
+          "date": "2026-10-04T00:00:00.000Z",
+          "time": "09:53",
+          "quantity": 250,
+          "unit": "mL",
+          "calories": 100,
+          "createdAt": "2026-10-04T12:56:10.506Z",
+          "updatedAt": "2026-10-04T12:56:10.513Z",
+          "deletedAt": "2026-10-04T12:56:10.512Z"
+        },
+        {
+          "id": "6db38420-eb46-4945-8f12-b6a87a628a03",
+          "userId": "3640d7ca-0cce-48bd-985f-21ccd7d2a0de",
+          "name": "Refeicao final QA",
+          "date": "2026-10-04T00:00:00.000Z",
+          "time": "09:48",
+          "quantity": 100.5,
+          "unit": "g",
+          "calories": 300,
+          "createdAt": "2026-10-04T12:56:10.480Z",
+          "updatedAt": "2026-10-04T13:22:15.860Z",
+          "deletedAt": "2026-10-04T13:22:15.859Z"
+        },
+        {
+          "id": "3ce894a6-be82-4063-973e-4448c1b248c1",
+          "userId": "3640d7ca-0cce-48bd-985f-21ccd7d2a0de",
+          "name": "Refeicao entrega QA",
+          "date": "2026-10-04T00:00:00.000Z",
+          "time": "10:40",
+          "quantity": 100.5,
+          "unit": "g",
+          "calories": 300,
+          "createdAt": "2026-10-04T13:41:38.855Z",
+          "updatedAt": "2026-10-04T13:41:38.866Z",
+          "deletedAt": null
+        },
+        {
+          "id": "2e5a9614-2548-4abc-8829-65b84b461c8b",
+          "userId": "3640d7ca-0cce-48bd-985f-21ccd7d2a0de",
+          "name": "Refeicao final v4 QA",
+          "date": "2026-10-04T00:00:00.000Z",
+          "time": "10:20",
+          "quantity": 250,
+          "unit": "mL",
+          "calories": 300,
+          "createdAt": "2026-10-04T13:22:15.844Z",
+          "updatedAt": "2026-10-04T13:41:38.873Z",
+          "deletedAt": "2026-10-04T13:41:38.873Z"
+        }
+      ],
+      "water": [],
+      "activities": 1003,
+      "weights": [
+        {
+          "id": "4567e100-b03a-45c9-9548-9dcd0e2c098c",
+          "userId": "3640d7ca-0cce-48bd-985f-21ccd7d2a0de",
+          "date": "2026-09-21T00:00:00.000Z",
+          "weightKg": 71.3,
+          "createdAt": "2026-10-04T11:47:56.525Z",
+          "updatedAt": "2026-10-04T11:47:56.525Z",
+          "deletedAt": null
+        },
+        {
+          "id": "454514df-b7eb-4a69-8781-14891f9b906f",
+          "userId": "3640d7ca-0cce-48bd-985f-21ccd7d2a0de",
+          "date": "2026-09-22T00:00:00.000Z",
+          "weightKg": 71.2,
+          "createdAt": "2026-10-04T11:47:56.495Z",
+          "updatedAt": "2026-10-04T11:47:56.495Z",
+          "deletedAt": null
+        },
+        {
+          "id": "65ddcc20-be09-48a8-990a-d924ad29cb04",
+          "userId": "3640d7ca-0cce-48bd-985f-21ccd7d2a0de",
+          "date": "2026-09-23T00:00:00.000Z",
+          "weightKg": 71.1,
+          "createdAt": "2026-10-04T11:47:56.469Z",
+          "updatedAt": "2026-10-04T11:47:56.469Z",
+          "deletedAt": null
+        },
+        {
+          "id": "ca969c78-67c2-499d-9413-d01343c8bf65",
+          "userId": "3640d7ca-0cce-48bd-985f-21ccd7d2a0de",
+          "date": "2026-09-24T00:00:00.000Z",
+          "weightKg": 71,
+          "createdAt": "2026-10-04T11:47:56.446Z",
+          "updatedAt": "2026-10-04T11:47:56.446Z",
+          "deletedAt": null
+        },
+        {
+          "id": "6e6b0153-3d33-4d01-ae6f-693606d13363",
+          "userId": "3640d7ca-0cce-48bd-985f-21ccd7d2a0de",
+          "date": "2026-09-25T00:00:00.000Z",
+          "weightKg": 70.9,
+          "createdAt": "2026-10-04T11:47:56.421Z",
+          "updatedAt": "2026-10-04T11:47:56.421Z",
+          "deletedAt": null
+        },
+        {
+          "id": "ff202600-38d3-4a7e-887b-f797c7f3157f",
+          "userId": "3640d7ca-0cce-48bd-985f-21ccd7d2a0de",
+          "date": "2026-09-26T00:00:00.000Z",
+          "weightKg": 70.8,
+          "createdAt": "2026-10-04T11:47:56.398Z",
+          "updatedAt": "2026-10-04T11:47:56.398Z",
+          "deletedAt": null
+        },
+        {
+          "id": "6799563d-a18e-4757-9146-d6a33c12b392",
+          "userId": "3640d7ca-0cce-48bd-985f-21ccd7d2a0de",
+          "date": "2026-09-27T00:00:00.000Z",
+          "weightKg": 70.7,
+          "createdAt": "2026-10-04T11:47:56.373Z",
+          "updatedAt": "2026-10-04T11:47:56.373Z",
+          "deletedAt": null
+        },
+        {
+          "id": "33afe03d-657c-443f-97e3-ad68dba3ae79",
+          "userId": "3640d7ca-0cce-48bd-985f-21ccd7d2a0de",
+          "date": "2026-09-28T00:00:00.000Z",
+          "weightKg": 70.6,
+          "createdAt": "2026-10-04T11:47:56.348Z",
+          "updatedAt": "2026-10-04T11:47:56.348Z",
+          "deletedAt": null
+        },
+        {
+          "id": "3bebd4c4-c3a6-48f3-b2da-600e54bf22e3",
+          "userId": "3640d7ca-0cce-48bd-985f-21ccd7d2a0de",
+          "date": "2026-09-29T00:00:00.000Z",
+          "weightKg": 70.5,
+          "createdAt": "2026-10-04T11:47:56.323Z",
+          "updatedAt": "2026-10-04T11:47:56.323Z",
+          "deletedAt": null
+        },
+        {
+          "id": "d081216e-c842-4560-9f45-074f40a39bcc",
+          "userId": "3640d7ca-0cce-48bd-985f-21ccd7d2a0de",
+          "date": "2026-09-30T00:00:00.000Z",
+          "weightKg": 70.4,
+          "createdAt": "2026-10-04T11:47:56.296Z",
+          "updatedAt": "2026-10-04T11:47:56.296Z",
+          "deletedAt": null
+        },
+        {
+          "id": "3240bfcd-9942-40aa-9fd9-1ace74acf0ef",
+          "userId": "3640d7ca-0cce-48bd-985f-21ccd7d2a0de",
+          "date": "2026-10-01T00:00:00.000Z",
+          "weightKg": 70.3,
+          "createdAt": "2026-10-04T11:47:56.268Z",
+          "updatedAt": "2026-10-04T11:47:56.268Z",
+          "deletedAt": null
+        },
+        {
+          "id": "f1d6cecf-9449-43bc-8e95-ddafb0ca4dec",
+          "userId": "3640d7ca-0cce-48bd-985f-21ccd7d2a0de",
+          "date": "2026-10-02T00:00:00.000Z",
+          "weightKg": 70.2,
+          "createdAt": "2026-10-04T11:47:56.242Z",
+          "updatedAt": "2026-10-04T11:47:56.242Z",
+          "deletedAt": null
+        },
+        {
+          "id": "4c874ad8-4de8-474d-91e5-ee411cac9f4f",
+          "userId": "3640d7ca-0cce-48bd-985f-21ccd7d2a0de",
+          "date": "2026-10-03T00:00:00.000Z",
+          "weightKg": 70.1,
+          "createdAt": "2026-10-04T11:47:56.214Z",
+          "updatedAt": "2026-10-04T11:47:56.214Z",
+          "deletedAt": null
+        },
+        {
+          "id": "231ed2cc-4c16-4857-a64b-fda92e5f9363",
+          "userId": "3640d7ca-0cce-48bd-985f-21ccd7d2a0de",
+          "date": "2026-10-04T00:00:00.000Z",
+          "weightKg": 70,
+          "createdAt": "2026-10-04T11:47:56.177Z",
+          "updatedAt": "2026-10-04T11:47:56.177Z",
+          "deletedAt": null
+        }
+      ],
+      "sessions": [
+        {
+          "id": "afe5e4d3-d234-48c7-8552-c16c780d011b",
+          "createdAt": "2026-10-04T11:47:00.018Z",
+          "revokedAt": "2026-10-04T12:02:43.576Z",
+          "replacedById": "3a358011-e41a-45ee-b4a2-afc22460d349"
+        },
+        {
+          "id": "41101d29-2579-4117-88ba-e97a67fac1a7",
+          "createdAt": "2026-10-04T11:47:56.122Z",
+          "revokedAt": null,
+          "replacedById": null
+        },
+        {
+          "id": "3a358011-e41a-45ee-b4a2-afc22460d349",
+          "createdAt": "2026-10-04T12:02:43.600Z",
+          "revokedAt": "2026-10-04T12:16:43.772Z",
+          "replacedById": "2d16bf91-305d-46ce-984f-10a35c3697ee"
+        },
+        {
+          "id": "2d16bf91-305d-46ce-984f-10a35c3697ee",
+          "createdAt": "2026-10-04T12:16:43.775Z",
+          "revokedAt": "2026-10-04T12:30:43.710Z",
+          "replacedById": "370ba1b3-61ca-47b2-abc5-2f15ead7fd20"
+        },
+        {
+          "id": "370ba1b3-61ca-47b2-abc5-2f15ead7fd20",
+          "createdAt": "2026-10-04T12:30:43.713Z",
+          "revokedAt": "2026-10-04T12:56:10.190Z",
+          "replacedById": "880e9c9a-02b8-4190-8c99-2cdbac702fa1"
+        },
+        {
+          "id": "880e9c9a-02b8-4190-8c99-2cdbac702fa1",
+          "createdAt": "2026-10-04T12:56:10.192Z",
+          "revokedAt": "2026-10-04T13:10:10.773Z",
+          "replacedById": "b758f823-2666-4758-8263-039fe8205621"
+        },
+        {
+          "id": "b758f823-2666-4758-8263-039fe8205621",
+          "createdAt": "2026-10-04T13:10:10.774Z",
+          "revokedAt": "2026-10-04T13:24:10.660Z",
+          "replacedById": "24c47460-b903-4ce4-b519-63360c6bc094"
+        },
+        {
+          "id": "24c47460-b903-4ce4-b519-63360c6bc094",
+          "createdAt": "2026-10-04T13:24:10.662Z",
+          "revokedAt": "2026-10-04T13:38:10.586Z",
+          "replacedById": "b6c14c93-4057-426b-a685-fd8b137b58fd"
+        },
+        {
+          "id": "b6c14c93-4057-426b-a685-fd8b137b58fd",
+          "createdAt": "2026-10-04T13:38:10.589Z",
+          "revokedAt": "2026-10-04T13:52:11.091Z",
+          "replacedById": "da381453-30a9-4560-971c-686cbc573c74"
+        },
+        {
+          "id": "da381453-30a9-4560-971c-686cbc573c74",
+          "createdAt": "2026-10-04T13:52:11.092Z",
+          "revokedAt": "2026-10-04T13:57:48.380Z",
+          "replacedById": null
+        },
+        {
+          "id": "a93d1b06-7151-48da-98ca-c67d8a36e872",
+          "createdAt": "2026-10-04T13:58:25.574Z",
+          "revokedAt": "2026-10-04T14:12:25.951Z",
+          "replacedById": "ff6ee999-ff26-4722-b8d5-c4b26e1966f8"
+        },
+        {
+          "id": "ff6ee999-ff26-4722-b8d5-c4b26e1966f8",
+          "createdAt": "2026-10-04T14:12:25.953Z",
+          "revokedAt": "2026-10-04T14:26:25.940Z",
+          "replacedById": "06d8ec08-883a-4b40-bc7a-0d6c9506f489"
+        },
+        {
+          "id": "06d8ec08-883a-4b40-bc7a-0d6c9506f489",
+          "createdAt": "2026-10-04T14:26:25.941Z",
+          "revokedAt": "2026-10-04T14:40:25.881Z",
+          "replacedById": "b231d2ee-92c6-4356-aff6-2e20ff6a1236"
+        },
+        {
+          "id": "b231d2ee-92c6-4356-aff6-2e20ff6a1236",
+          "createdAt": "2026-10-04T14:40:25.883Z",
+          "revokedAt": "2026-10-04T17:27:04.302Z",
+          "replacedById": "cea2c20c-f24b-4e65-b69f-49dbb807790c"
+        },
+        {
+          "id": "cea2c20c-f24b-4e65-b69f-49dbb807790c",
+          "createdAt": "2026-10-04T17:27:04.308Z",
+          "revokedAt": null,
+          "replacedById": null
+        }
+      ]
+    }
+  ]
+}

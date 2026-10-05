@@ -1,0 +1,194 @@
+{
+  "method": "Current APK XML, fully visible sampled controls, density 240/420; nodes clipped at top/bottom viewport excluded. Not approval of every target.",
+  "samples": [
+    {
+      "api": 24,
+      "capture": "api24-02-final-avatar-offline.xml",
+      "label": "Voltar",
+      "widthDp": 48.0,
+      "heightDp": 48.0
+    },
+    {
+      "api": 24,
+      "capture": "api24-04-final-meta-zero.xml",
+      "label": "Voltar",
+      "widthDp": 48.0,
+      "heightDp": 48.0
+    },
+    {
+      "api": 36,
+      "capture": "api36-09-final-lista1000.xml",
+      "label": "Voltar",
+      "widthDp": 48.0,
+      "heightDp": 48.0
+    },
+    {
+      "api": 36,
+      "capture": "api36-09-final-lista1000.xml",
+      "label": "Hoje",
+      "widthDp": 61.33,
+      "heightDp": 48.0
+    },
+    {
+      "api": 36,
+      "capture": "api36-09-final-lista1000.xml",
+      "label": "7 dias",
+      "widthDp": 88.76,
+      "heightDp": 48.0
+    },
+    {
+      "api": 36,
+      "capture": "api36-09-final-lista1000.xml",
+      "label": "30 dias",
+      "widthDp": 78.48,
+      "heightDp": 48.0
+    },
+    {
+      "api": 36,
+      "capture": "api36-09-final-lista1000.xml",
+      "label": "Todas as datas",
+      "widthDp": 128.76,
+      "heightDp": 48.0
+    },
+    {
+      "api": 36,
+      "capture": "api36-16-final-gps-segmentos.xml",
+      "label": "Voltar",
+      "widthDp": 48.0,
+      "heightDp": 48.0
+    },
+    {
+      "api": 36,
+      "capture": "api36-04-final-refeicao-crud.xml",
+      "label": "Todas as datas",
+      "widthDp": 128.76,
+      "heightDp": 48.0
+    },
+    {
+      "api": 36,
+      "capture": "api36-01-final-avatar-offline.xml",
+      "label": "Voltar",
+      "widthDp": 48.0,
+      "heightDp": 48.0
+    },
+    {
+      "api": 36,
+      "capture": "api36-01-final-avatar-offline.xml",
+      "label": "Selecionar dia, mês e ano de nascimento",
+      "widthDp": 48.0,
+      "heightDp": 48.0
+    },
+    {
+      "api": 36,
+      "capture": "api36-11-final-lista-rolada.xml",
+      "label": "Voltar",
+      "widthDp": 48.0,
+      "heightDp": 48.0
+    },
+    {
+      "api": 36,
+      "capture": "api36-14-final-gps-deslocamento-pausado.xml",
+      "label": "Voltar",
+      "widthDp": 48.0,
+      "heightDp": 48.0
+    },
+    {
+      "api": 36,
+      "capture": "api36-17-final-gps-salvo.xml",
+      "label": "Voltar",
+      "widthDp": 48.0,
+      "heightDp": 48.0
+    },
+    {
+      "api": 36,
+      "capture": "api36-17-final-gps-salvo.xml",
+      "label": "Hoje",
+      "widthDp": 61.33,
+      "heightDp": 48.0
+    },
+    {
+      "api": 36,
+      "capture": "api36-17-final-gps-salvo.xml",
+      "label": "7 dias",
+      "widthDp": 88.76,
+      "heightDp": 48.0
+    },
+    {
+      "api": 36,
+      "capture": "api36-17-final-gps-salvo.xml",
+      "label": "30 dias",
+      "widthDp": 78.48,
+      "heightDp": 48.0
+    },
+    {
+      "api": 36,
+      "capture": "api36-17-final-gps-salvo.xml",
+      "label": "Todas as datas",
+      "widthDp": 128.76,
+      "heightDp": 48.0
+    },
+    {
+      "api": 36,
+      "capture": "api36-07-final-peso.xml",
+      "label": "Voltar",
+      "widthDp": 48.0,
+      "heightDp": 48.0
+    },
+    {
+      "api": 36,
+      "capture": "api36-10-final-ordenacao-tipo.xml",
+      "label": "Voltar",
+      "widthDp": 48.0,
+      "heightDp": 48.0
+    },
+    {
+      "api": 36,
+      "capture": "api36-15-final-gps-restaurado.xml",
+      "label": "Voltar",
+      "widthDp": 48.0,
+      "heightDp": 48.0
+    },
+    {
+      "api": 36,
+      "capture": "api36-13-final-gps-pausado.xml",
+      "label": "Voltar",
+      "widthDp": 48.0,
+      "heightDp": 48.0
+    },
+    {
+      "api": 36,
+      "capture": "api36-09b-final-todas1000.xml",
+      "label": "Voltar",
+      "widthDp": 48.0,
+      "heightDp": 48.0
+    },
+    {
+      "api": 36,
+      "capture": "api36-09b-final-todas1000.xml",
+      "label": "Hoje",
+      "widthDp": 61.33,
+      "heightDp": 48.0
+    },
+    {
+      "api": 36,
+      "capture": "api36-09b-final-todas1000.xml",
+      "label": "7 dias",
+      "widthDp": 70.48,
+      "heightDp": 48.0
+    },
+    {
+      "api": 36,
+      "capture": "api36-09b-final-todas1000.xml",
+      "label": "30 dias",
+      "widthDp": 78.48,
+      "heightDp": 48.0
+    },
+    {
+      "api": 36,
+      "capture": "api36-09b-final-todas1000.xml",
+      "label": "Todas as datas",
+      "widthDp": 147.05,
+      "heightDp": 48.0
+    }
+  ]
+}

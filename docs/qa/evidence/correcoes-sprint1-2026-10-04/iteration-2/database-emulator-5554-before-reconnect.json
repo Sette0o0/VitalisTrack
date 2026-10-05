@@ -1,0 +1,320 @@
+{
+  "serial": "emulator-5554",
+  "states": [
+    [
+      "3640d7ca-0cce-48bd-985f-21ccd7d2a0de:app-state",
+      {
+        "schemaVersion": 2,
+        "dailySteps": [
+          {
+            "date": "2026-10-04",
+            "steps": 1000,
+            "updatedAt": "2026-10-04T11:47:56.197Z"
+          },
+          {
+            "date": "2026-10-03",
+            "steps": 1000,
+            "updatedAt": "2026-10-04T11:47:56.229Z"
+          },
+          {
+            "date": "2026-10-02",
+            "steps": 1000,
+            "updatedAt": "2026-10-04T11:47:56.256Z"
+          },
+          {
+            "date": "2026-10-01",
+            "steps": 1000,
+            "updatedAt": "2026-10-04T11:47:56.282Z"
+          },
+          {
+            "date": "2026-09-30",
+            "steps": 1000,
+            "updatedAt": "2026-10-04T11:47:56.309Z"
+          },
+          {
+            "date": "2026-09-29",
+            "steps": 1000,
+            "updatedAt": "2026-10-04T11:47:56.335Z"
+          },
+          {
+            "date": "2026-09-28",
+            "steps": 1000,
+            "updatedAt": "2026-10-04T11:47:56.361Z"
+          },
+          {
+            "date": "2026-09-27",
+            "steps": 500,
+            "updatedAt": "2026-10-04T11:47:56.385Z"
+          },
+          {
+            "date": "2026-09-26",
+            "steps": 500,
+            "updatedAt": "2026-10-04T11:47:56.409Z"
+          },
+          {
+            "date": "2026-09-25",
+            "steps": 500,
+            "updatedAt": "2026-10-04T11:47:56.434Z"
+          },
+          {
+            "date": "2026-09-24",
+            "steps": 500,
+            "updatedAt": "2026-10-04T11:47:56.457Z"
+          },
+          {
+            "date": "2026-09-23",
+            "steps": 500,
+            "updatedAt": "2026-10-04T11:47:56.482Z"
+          },
+          {
+            "date": "2026-09-22",
+            "steps": 500,
+            "updatedAt": "2026-10-04T11:47:56.507Z"
+          },
+          {
+            "date": "2026-09-21",
+            "steps": 500,
+            "updatedAt": "2026-10-04T11:47:56.537Z"
+          }
+        ],
+        "themeMode": "system",
+        "profile": {
+          "name": "Pessoa QA",
+          "email": "sprint1-api36-20261004@example.com",
+          "hasWeight": true,
+          "hasHeight": true,
+          "birthDate": "2000-01-01",
+          "weightKg": 71.3,
+          "heightCm": 175,
+          "gender": "Outro",
+          "avatar": "file:///data/user/0/com.vitalistrack.app/files/avatars/3640d7ca-0cce-48bd-985f-21ccd7d2a0de/b8817bf5-bdb5-4346-9ba4-a8a7c9de6e59.png",
+          "avatarMutationId": "b8817bf5-bdb5-4346-9ba4-a8a7c9de6e59"
+        },
+        "goals": {
+          "waterMl": 2000,
+          "calories": 2000,
+          "mealCalories": 400,
+          "steps": 10000,
+          "weightKg": 65,
+          "dailyDeficit": 500,
+          "userId": "3640d7ca-0cce-48bd-985f-21ccd7d2a0de",
+          "updatedAt": "2026-10-04T11:47:56.550Z"
+        },
+        "water": [],
+        "meals": [
+          {
+            "id": "971c576f-738d-4ca3-b30c-ce026b7289bd",
+            "name": "Refeicao QA offline",
+            "date": "2026-10-04",
+            "time": "08:52",
+            "quantity": 100.5,
+            "unit": "g",
+            "calories": 300
+          }
+        ],
+        "activities": [],
+        "weights": [
+          {
+            "id": "231ed2cc-4c16-4857-a64b-fda92e5f9363",
+            "date": "2026-10-04",
+            "weightKg": 70,
+            "createdAt": "2026-10-04T11:47:56.177Z",
+            "updatedAt": "2026-10-04T11:47:56.177Z",
+            "deletedAt": null
+          },
+          {
+            "id": "4c874ad8-4de8-474d-91e5-ee411cac9f4f",
+            "date": "2026-10-03",
+            "weightKg": 70.1,
+            "createdAt": "2026-10-04T11:47:56.214Z",
+            "updatedAt": "2026-10-04T11:47:56.214Z",
+            "deletedAt": null
+          },
+          {
+            "id": "f1d6cecf-9449-43bc-8e95-ddafb0ca4dec",
+            "date": "2026-10-02",
+            "weightKg": 70.2,
+            "createdAt": "2026-10-04T11:47:56.242Z",
+            "updatedAt": "2026-10-04T11:47:56.242Z",
+            "deletedAt": null
+          },
+          {
+            "id": "3240bfcd-9942-40aa-9fd9-1ace74acf0ef",
+            "date": "2026-10-01",
+            "weightKg": 70.3,
+            "createdAt": "2026-10-04T11:47:56.268Z",
+            "updatedAt": "2026-10-04T11:47:56.268Z",
+            "deletedAt": null
+          },
+          {
+            "id": "d081216e-c842-4560-9f45-074f40a39bcc",
+            "date": "2026-09-30",
+            "weightKg": 70.4,
+            "createdAt": "2026-10-04T11:47:56.296Z",
+            "updatedAt": "2026-10-04T11:47:56.296Z",
+            "deletedAt": null
+          },
+          {
+            "id": "3bebd4c4-c3a6-48f3-b2da-600e54bf22e3",
+            "date": "2026-09-29",
+            "weightKg": 70.5,
+            "createdAt": "2026-10-04T11:47:56.323Z",
+            "updatedAt": "2026-10-04T11:47:56.323Z",
+            "deletedAt": null
+          },
+          {
+            "id": "33afe03d-657c-443f-97e3-ad68dba3ae79",
+            "date": "2026-09-28",
+            "weightKg": 70.6,
+            "createdAt": "2026-10-04T11:47:56.348Z",
+            "updatedAt": "2026-10-04T11:47:56.348Z",
+            "deletedAt": null
+          },
+          {
+            "id": "6799563d-a18e-4757-9146-d6a33c12b392",
+            "date": "2026-09-27",
+            "weightKg": 70.7,
+            "createdAt": "2026-10-04T11:47:56.373Z",
+            "updatedAt": "2026-10-04T11:47:56.373Z",
+            "deletedAt": null
+          },
+          {
+            "id": "ff202600-38d3-4a7e-887b-f797c7f3157f",
+            "date": "2026-09-26",
+            "weightKg": 70.8,
+            "createdAt": "2026-10-04T11:47:56.398Z",
+            "updatedAt": "2026-10-04T11:47:56.398Z",
+            "deletedAt": null
+          },
+          {
+            "id": "6e6b0153-3d33-4d01-ae6f-693606d13363",
+            "date": "2026-09-25",
+            "weightKg": 70.9,
+            "createdAt": "2026-10-04T11:47:56.421Z",
+            "updatedAt": "2026-10-04T11:47:56.421Z",
+            "deletedAt": null
+          },
+          {
+            "id": "ca969c78-67c2-499d-9413-d01343c8bf65",
+            "date": "2026-09-24",
+            "weightKg": 71,
+            "createdAt": "2026-10-04T11:47:56.446Z",
+            "updatedAt": "2026-10-04T11:47:56.446Z",
+            "deletedAt": null
+          },
+          {
+            "id": "65ddcc20-be09-48a8-990a-d924ad29cb04",
+            "date": "2026-09-23",
+            "weightKg": 71.1,
+            "createdAt": "2026-10-04T11:47:56.469Z",
+            "updatedAt": "2026-10-04T11:47:56.469Z",
+            "deletedAt": null
+          },
+          {
+            "id": "454514df-b7eb-4a69-8781-14891f9b906f",
+            "date": "2026-09-22",
+            "weightKg": 71.2,
+            "createdAt": "2026-10-04T11:47:56.495Z",
+            "updatedAt": "2026-10-04T11:47:56.495Z",
+            "deletedAt": null
+          },
+          {
+            "id": "4567e100-b03a-45c9-9548-9dcd0e2c098c",
+            "date": "2026-09-21",
+            "weightKg": 71.3,
+            "createdAt": "2026-10-04T11:47:56.525Z",
+            "updatedAt": "2026-10-04T11:47:56.525Z",
+            "deletedAt": null
+          }
+        ],
+        "steps": 1000,
+        "authenticated": true,
+        "darkMode": false,
+        "syncStatus": "offline",
+        "userId": "3640d7ca-0cce-48bd-985f-21ccd7d2a0de"
+      }
+    ]
+  ],
+  "queue": [
+    [
+      "3640d7ca-0cce-48bd-985f-21ccd7d2a0de",
+      {
+        "mutationId": "b8817bf5-bdb5-4346-9ba4-a8a7c9de6e59",
+        "entity": "avatar",
+        "action": "upsert",
+        "payload": {
+          "uri": "file:///data/user/0/com.vitalistrack.app/files/avatars/3640d7ca-0cce-48bd-985f-21ccd7d2a0de/b8817bf5-bdb5-4346-9ba4-a8a7c9de6e59.png",
+          "mimeType": "image/png"
+        },
+        "clientUpdatedAt": "2026-10-04T11:50:31.582Z"
+      }
+    ],
+    [
+      "3640d7ca-0cce-48bd-985f-21ccd7d2a0de",
+      {
+        "mutationId": "c8b314be-37ad-44a1-93dc-41563bdfbc82",
+        "entity": "meal",
+        "action": "upsert",
+        "payload": {
+          "id": "971c576f-738d-4ca3-b30c-ce026b7289bd",
+          "name": "Refeicao QA offline",
+          "date": "2026-10-04",
+          "time": "08:52",
+          "quantity": 100.5,
+          "unit": "g",
+          "calories": 450
+        },
+        "entityId": "971c576f-738d-4ca3-b30c-ce026b7289bd",
+        "clientUpdatedAt": "2026-10-04T11:53:11.522Z"
+      }
+    ],
+    [
+      "3640d7ca-0cce-48bd-985f-21ccd7d2a0de",
+      {
+        "mutationId": "5d37301e-38f3-45f7-b731-4c1f4407578b",
+        "entity": "meal",
+        "action": "upsert",
+        "payload": {
+          "id": "971c576f-738d-4ca3-b30c-ce026b7289bd",
+          "name": "Refeicao QA offline",
+          "date": "2026-10-04",
+          "time": "08:52",
+          "quantity": 100.5,
+          "unit": "g",
+          "calories": 300
+        },
+        "entityId": "971c576f-738d-4ca3-b30c-ce026b7289bd",
+        "clientUpdatedAt": "2026-10-04T11:57:54.389Z"
+      }
+    ],
+    [
+      "3640d7ca-0cce-48bd-985f-21ccd7d2a0de",
+      {
+        "mutationId": "0073eaab-414a-4194-bf16-d5994ea70e98",
+        "entity": "meal",
+        "action": "upsert",
+        "payload": {
+          "id": "f08c7e0a-1d4a-495b-82a0-0a18af1c93d1",
+          "name": "Excluir QA",
+          "date": "2026-10-04",
+          "time": "08:59",
+          "quantity": 250,
+          "unit": "mL",
+          "calories": 100
+        },
+        "entityId": "f08c7e0a-1d4a-495b-82a0-0a18af1c93d1",
+        "clientUpdatedAt": "2026-10-04T11:59:58.049Z"
+      }
+    ],
+    [
+      "3640d7ca-0cce-48bd-985f-21ccd7d2a0de",
+      {
+        "mutationId": "04dd2cd8-722d-45ad-9c12-494fb7e347e7",
+        "entity": "meal",
+        "action": "delete",
+        "entityId": "f08c7e0a-1d4a-495b-82a0-0a18af1c93d1",
+        "clientUpdatedAt": "2026-10-04T12:02:04.342Z"
+      }
+    ]
+  ]
+}

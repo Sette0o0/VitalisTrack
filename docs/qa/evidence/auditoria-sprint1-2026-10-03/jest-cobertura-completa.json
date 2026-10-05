@@ -1,0 +1,29 @@
+{
+  "preset": "jest-expo",
+  "testPathIgnorePatterns": [
+    "/node_modules/",
+    "/prot\u00f3tipo/"
+  ],
+  "moduleNameMapper": {
+    "^@/(.*)$": "<rootDir>/$1"
+  },
+  "collectCoverageFrom": [
+    "lib/**/*.ts",
+    "state/**/*.{ts,tsx}",
+    "hooks/use-submit.ts",
+    "!**/*.test.*"
+  ],
+  "coverageThreshold": {
+    "global": {
+      "lines": 70,
+      "statements": 70
+    }
+  },
+  "coverageReporters": [
+    "text",
+    "json-summary",
+    "lcov"
+  ],
+  "rootDir": "/home/rafael/Documentos/github/VitalisTrack/app",
+  "coverageDirectory": "/home/rafael/Documentos/github/VitalisTrack/docs/qa/evidence/auditoria-sprint1-2026-10-03/coverage-completa"
+}

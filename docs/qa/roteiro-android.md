@@ -1,3 +1,7 @@
+# Situação atual — 04/10/2026
+
+[Relatório final das correções](correcoes-sprint-1-2026-10-04.md) e [evidências](evidence/correcoes-sprint1-2026-10-04/README.md). Escopo Android API 24+, target 36; wiki alinhada. Proteção de main excluída e otimização de RAM adiada pelo usuário. Não executar alterações nessas duas frentes.
+
 # Roteiro de aprovação Android — Sprint 1
 
 Estado atual: preparado, **não executado**. Associar cada observação aos IDs `US-xxx.Cn` da [matriz](matriz-sprint-1.md); registrar defeito e repetir a regressão afetada após cada correção. Usar commits `fix(escopo): ...`, `test(escopo): ...` e `docs(qa): ...` após verificar cada mudança coerente.
@@ -62,18 +66,26 @@ Emulador conectado: `adb -s SERIAL emu geo fix LONGITUDE LATITUDE`. No Maestro, 
 6. Finalizar e repetir a ação/retry após resposta perdida: exatamente um registro com o ID estável. Editar duração/distância preservando rota.
 7. Repetir permissão negada, aproximação de localização, serviço GPS desligado, erro do provider e desmontagem/retomada. Conferir mensagem e ausência de assinatura/timer ativos fora do treino.
 
-Não aprovar o mapa usando Expo Go: o Maps SDK precisa ser exercitado no APK próprio com a chave configurada.
+Não aprovar o mapa usando Expo Go: MapLibre/OSM deve ser exercitado no APK próprio, incluindo tiles, créditos e polilinha; a implementação não depende de chave Google.
 
 ## Material, capturas e desempenho
 
 Executar todos os itens de [Material 3](material-3.md). Capturar Home, água/meta/erro, login/cadastro, perfil, refeições/calendário/limite, atividade manual/histórico/GPS/pausa, peso vazio/gráficos e progresso. Nomear capturas por API/tema/fonte/tela; vincular ao critério correspondente.
 
-No APK release, realizar pelo menos dez aberturas frias após `adb shell am force-stop com.vitalistrack.app`; registrar `adb shell am start -W -n com.vitalistrack.app/.MainActivity` e gravação até a primeira tela utilizável. `TotalTime` sozinho não mede o tempo até a interface React estar pronta. Coletar `adb shell dumpsys meminfo com.vitalistrack.app` (PSS/RSS, pico e após ciclos de mapa/listas), logcat de crashes/ANRs e listagem/busca/rolagem com 1.000 atividades.
+No APK release, realizar pelo menos dez aberturas frias após `adb shell am force-stop com.vitalistrack.app`; registrar `adb shell am start -W -n com.vitalistrack.app/.MainActivity` e gravação até a primeira tela utilizável. `TotalTime` sozinho não mede o tempo até a interface React estar pronta. RAM permanece adiada nesta entrega. Coletar logcat de crashes/ANRs e listagem/busca/rolagem com 1.000 atividades.
 
-Metas: abertura < 3 s, RAM ≤ 50 MB, API ≤ 2 s em condições normais e falhas < 1%. Registrar p50/p95/máximo, número de amostras e condições; valores não medidos são “pendentes”. Os limites não atingidos podem permanecer como pendências conforme a escolha do usuário, sem serem declarados atendidos.
+Metas deste escopo: abertura < 3 s, API ≤ 2 s em 4G+ estável e menos de dez falhas em 1.000 operações. RAM ≤ 50 MB está adiada, sem ser marcada atendida. Registrar p50/p95/máximo, número de amostras e condições; valores não medidos são “pendentes”. Os limites não atingidos podem permanecer como pendências conforme a escolha do usuário, sem serem declarados atendidos.
 
 ## Automação e aceite
 
-`CI` executa typecheck/lint/build, testes e cobertura. `Android QA` gera APK release, inicia API de QA, usa KVM/API 36 e prepara upload de APK/resultado Maestro. Ambos os workflows precisam de execução remota para confirmar seu funcionamento. O smoke Maestro cobre cadastro, atalhos de água, modo avião, reinício/cache e logout; **não substitui os demais fluxos desta matriz**.
+`CI` executa typecheck/lint/build, testes e cobertura. `Android QA` gera APK release, inicia API de QA, usa KVM/API 24 e 36 e prepara upload de APK/resultado Maestro. Ambos os workflows precisam de execução remota para confirmar seu funcionamento. O smoke Maestro cobre cadastro, atalhos de água, modo avião, reinício/cache e logout; **não substitui os demais fluxos desta matriz**.
 
 Após corrigir um defeito, executar seu reteste e regressão afetada; revisar staging e criar commit semântico. Somente aprovar os critérios funcionais/Material quando houver resultado Android correspondente. Guardar APK/hash, capturas, matriz preenchida, logs, cobertura e medições como um conjunto da mesma revisão.
+
+## Contratos novos e ensaio de foto
+
+Enviar `X-Client-Time-Zone` IANA; ausência UTC, inválido HTTP 400. Perfil na fila captura `clientTimeZone` na criação; relógio do servidor determina o dia civil da validação. Antes/depois da meia-noite, fusos positivos/negativos, bissexto e aniversário devem exercitar formulário, PATCH e sync.
+
+Selecionar JPEG/PNG/WebP ≤ 5 MiB offline; referência local e operação `avatar` devem existir juntas no SQLite. Reiniciar antes de reconectar; a prévia deve permanecer. Transportar arquivo por multipart com UUID em `Idempotency-Key`, em ordem entre lotes JSON; replays não reaplicam foto anterior. Conferir seleção posterior, troca de conta, falha de cópia/transação e resposta perdida nos testes regulares. Após confirmar, manter a cópia local atual e remover somente arquivos sem referência no estado/fila/envio.
+
+Para 24 horas reais, conferir o manifesto T0 do ensaio antes de interagir com o AVD. Não reconectar antes de T+24 h; não antecipar relógio. Registrar ações intermediárias e reinício, preservar os IDs da fila e comparar perfil/registros/ProcessedMutation depois da reconexão. Interrupção do ambiente ou alteração da versão torna o ensaio inconclusivo.

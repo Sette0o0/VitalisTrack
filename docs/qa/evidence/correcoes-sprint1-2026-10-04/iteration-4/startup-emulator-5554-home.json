@@ -1,0 +1,19 @@
+{
+  "serial": "emulator-5554",
+  "screen": "home",
+  "samplesMs": [
+    1147,
+    1134,
+    1215,
+    1141,
+    1202,
+    1213,
+    1070,
+    979,
+    1019,
+    1001
+  ],
+  "maxMs": 1215,
+  "allUnder3Seconds": true,
+  "method": "Device timestamp before am start; provider loaded, screen layout and two RAFs. KVM; headless software GPU; no physical-device certification."
+}

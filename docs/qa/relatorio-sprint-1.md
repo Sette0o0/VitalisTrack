@@ -1,5 +1,9 @@
 # Sprint 1 — implementação e verificação
 
+> **Registro histórico.** Parecer e evidências atuais: [correções de 04/10/2026](correcoes-sprint-1-2026-10-04.md). A proteção de `main` está excluída e RAM foi adiada por decisão do usuário.
+
+> **Relatório histórico de uma etapa anterior.** Para o parecer atual, os 89 critérios e as falhas reproduzidas, consulte a [auditoria completa de 03/10/2026](auditoria-sprint-1-2026-10-03.md). O smoke Android posterior passou e o mapa atual usa MapLibre/OSM; as pendências abaixo devem ser lidas no contexto da versão aqui indicada.
+
 Data: 03/10/2026. Branch: `codex/sprint-1-quality`. Base: `7ce5161`.
 
 Os seis blocos de correção foram implementados. A regressão automatizada passa, mas **a sprint ainda não está aprovada no Android**. O APK release foi instalado em um AVD remoto API 36 e o Maestro chegou ao formulário de cadastro, onde falhou ao tocar na confirmação de senha. Há captura e hierarquia dessa falha; o smoke completo, a matriz Android, o ensaio real offline de 24 horas e as medições de abertura/RAM permanecem pendentes.

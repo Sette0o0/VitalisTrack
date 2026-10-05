@@ -1,0 +1,10 @@
+import { prisma } from "../../../../server/src/lib/prisma.js";
+import { writeFile } from "node:fs/promises";
+if (process.env.NODE_ENV !== "test" || !/\/vitalis_qa(?:\?|$)/.test(process.env.DATABASE_URL ?? "")) throw new Error("Use banco QA.");
+const account = await prisma.user.findUniqueOrThrow({ where: { email: "sprint1-api36-20261004@example.com" } });
+if (await prisma.activity.count({ where: { userId: account.id } })) throw new Error("Fixture já tem atividades; não duplicar.");
+const rows = Array.from({length:1000},(_,i)=>({id:crypto.randomUUID(),userId:account.id,type:["walk","run","cycling"][i%3]!,date:new Date(Date.UTC(2026,9,4-i%30)),createdAt:new Date(),durationSeconds:1800,distanceMeters:3000,calories:200}));
+await prisma.activity.createMany({data:rows});
+await writeFile("../docs/qa/evidence/correcoes-sprint1-2026-10-04/seed-activities.json",JSON.stringify({userId:account.id,seeded:rows.length,ids:rows.map(x=>x.id)},null,2)+"\n");
+console.log(JSON.stringify({seeded:rows.length}));
+await prisma.$disconnect();

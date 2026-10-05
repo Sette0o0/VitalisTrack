@@ -1,0 +1,148 @@
+{
+  "serial": "emulator-5556",
+  "states": [
+    [
+      "5a4a15b1-9b93-4d92-a386-a5be1f1b86d0:app-state",
+      {
+        "schemaVersion": 2,
+        "dailySteps": [],
+        "themeMode": "system",
+        "profile": {
+          "name": "QA offline 24h",
+          "email": "sprint1-api24-20261004@example.com",
+          "hasWeight": true,
+          "hasHeight": true,
+          "birthDate": "2000-01-01",
+          "weightKg": 69.5,
+          "heightCm": 175,
+          "gender": "Outro",
+          "avatar": "http://10.0.2.2:3011/uploads/avatars/5a4a15b1-9b93-4d92-a386-a5be1f1b86d0-ce55e619-3ab7-4222-98a4-af02788f5467.png",
+          "avatarRemoteUrl": "http://10.0.2.2:3011/uploads/avatars/5a4a15b1-9b93-4d92-a386-a5be1f1b86d0-ce55e619-3ab7-4222-98a4-af02788f5467.png"
+        },
+        "goals": {
+          "waterMl": 2000,
+          "calories": 2000,
+          "mealCalories": 700,
+          "steps": 10000,
+          "weightKg": 70,
+          "dailyDeficit": 400,
+          "userId": "5a4a15b1-9b93-4d92-a386-a5be1f1b86d0",
+          "updatedAt": "2026-10-04T13:50:33.410Z"
+        },
+        "water": [
+          {
+            "id": "cfa026fa-562c-4901-a6d2-18c803829577",
+            "amountMl": 200,
+            "date": "2026-10-04",
+            "time": "09:28",
+            "createdAt": "2026-10-04T12:28:08.410Z",
+            "updatedAt": "2026-10-04T12:28:08.410Z",
+            "deletedAt": null
+          },
+          {
+            "id": "8c0e8cd6-d1a8-44fa-900b-41066c8e6e4d",
+            "amountMl": 500,
+            "date": "2026-10-04",
+            "time": "09:28",
+            "createdAt": "2026-10-04T12:28:10.871Z",
+            "updatedAt": "2026-10-04T12:28:10.871Z",
+            "deletedAt": null
+          },
+          {
+            "id": "b2acc427-29da-4a79-b76a-65cd3876c621",
+            "amountMl": 1000,
+            "date": "2026-10-04",
+            "time": "09:28",
+            "createdAt": "2026-10-04T12:28:13.287Z",
+            "updatedAt": "2026-10-04T12:28:13.287Z",
+            "deletedAt": null
+          },
+          {
+            "id": "78531d71-87ad-4c45-8202-f16ad3c1c4a4",
+            "amountMl": 200,
+            "date": "2026-10-04",
+            "time": "10:50",
+            "createdAt": "2026-10-04T13:50:36.566Z",
+            "updatedAt": "2026-10-04T13:50:36.566Z",
+            "deletedAt": null
+          },
+          {
+            "id": "3091b498-a1b2-4cf6-b69c-1c9f19c88ed7",
+            "amountMl": 500,
+            "date": "2026-10-04",
+            "time": "10:50",
+            "createdAt": "2026-10-04T13:50:38.964Z",
+            "updatedAt": "2026-10-04T13:50:38.964Z",
+            "deletedAt": null
+          },
+          {
+            "id": "6cf237d7-3ca5-4776-8069-9663a62c347f",
+            "amountMl": 1000,
+            "date": "2026-10-04",
+            "time": "10:50",
+            "createdAt": "2026-10-04T13:50:41.220Z",
+            "updatedAt": "2026-10-04T13:50:41.220Z",
+            "deletedAt": null
+          },
+          {
+            "id": "a52b98cc-c02a-4aa0-8c20-b062901f1003",
+            "amountMl": 200,
+            "date": "2026-10-04",
+            "time": "10:51",
+            "createdAt": "2026-10-04T13:51:54.921Z",
+            "updatedAt": "2026-10-04T13:51:54.921Z",
+            "deletedAt": null
+          }
+        ],
+        "meals": [
+          {
+            "id": "85f0b673-94bc-408a-9b71-cf5e39ba7c9c",
+            "name": "Refeicao 24h QA",
+            "date": "2026-10-04",
+            "time": "10:10",
+            "quantity": 100.5,
+            "unit": "g",
+            "calories": 300,
+            "createdAt": "2026-10-04T13:24:44.090Z",
+            "updatedAt": "2026-10-04T13:24:44.090Z",
+            "deletedAt": null
+          }
+        ],
+        "activities": [
+          {
+            "id": "e2c014a9-ef26-424c-8df0-7524b10df87c",
+            "type": "run",
+            "date": "2026-10-04",
+            "durationSeconds": 1830,
+            "distanceMeters": 5200,
+            "calories": 308,
+            "paceSecondsPerKm": 352,
+            "route": [],
+            "createdAt": "2026-10-04T13:24:44.075Z",
+            "updatedAt": "2026-10-04T13:24:44.075Z",
+            "deletedAt": null,
+            "durationMinutes": 30.5,
+            "distanceKm": 5.2
+          }
+        ],
+        "weights": [
+          {
+            "id": "108b20c4-f94d-4a11-9a22-af8a45fbebc2",
+            "date": "2026-10-04",
+            "weightKg": 69.5,
+            "createdAt": "2026-10-04T13:24:44.037Z",
+            "updatedAt": "2026-10-04T13:24:44.037Z",
+            "deletedAt": null
+          }
+        ],
+        "steps": 0,
+        "authenticated": true,
+        "darkMode": false,
+        "syncStatus": "idle",
+        "userId": "5a4a15b1-9b93-4d92-a386-a5be1f1b86d0"
+      }
+    ]
+  ],
+  "queue": [],
+  "workouts": []
+}

@@ -1,0 +1,11 @@
+$ pnpm --filter @vitalis/contracts build && pnpm --filter @vitalis/server build
+$ tsc -p tsconfig.json
+$ tsup ./src/index.ts --format esm --platform node --target node24 --out-dir dist --sourcemap --no-splitting
+CLI Building entry: src/index.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+CLI Target: node24
+ESM Build start
+ESM dist/index.js     104.04 KB
+ESM dist/index.js.map 229.57 KB
+ESM ⚡️ Build success in 63ms

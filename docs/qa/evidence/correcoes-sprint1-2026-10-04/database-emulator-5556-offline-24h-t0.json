@@ -1,0 +1,277 @@
+{
+  "serial": "emulator-5556",
+  "states": [
+    [
+      "5a4a15b1-9b93-4d92-a386-a5be1f1b86d0:app-state",
+      {
+        "schemaVersion": 2,
+        "dailySteps": [],
+        "themeMode": "system",
+        "profile": {
+          "name": "QA 24h final 2",
+          "email": "sprint1-api24-20261004@example.com",
+          "hasWeight": true,
+          "hasHeight": true,
+          "birthDate": "2000-01-01",
+          "weightKg": 69.4,
+          "heightCm": 175,
+          "gender": "Outro",
+          "avatar": "file:///data/user/0/com.vitalistrack.app/files/avatars/5a4a15b1-9b93-4d92-a386-a5be1f1b86d0/07b08e27-6543-4de3-b7b5-cb29e4ebfbd2.png",
+          "avatarRemoteUrl": "http://10.0.2.2:3011/uploads/avatars/5a4a15b1-9b93-4d92-a386-a5be1f1b86d0-ce55e619-3ab7-4222-98a4-af02788f5467.png",
+          "avatarMutationId": "07b08e27-6543-4de3-b7b5-cb29e4ebfbd2"
+        },
+        "goals": {
+          "waterMl": 2000,
+          "calories": 2000,
+          "mealCalories": 700,
+          "steps": 10000,
+          "weightKg": 70,
+          "dailyDeficit": 400,
+          "userId": "5a4a15b1-9b93-4d92-a386-a5be1f1b86d0",
+          "updatedAt": "2026-10-04T13:50:33.410Z"
+        },
+        "water": [
+          {
+            "id": "cfa026fa-562c-4901-a6d2-18c803829577",
+            "amountMl": 200,
+            "date": "2026-10-04",
+            "time": "09:28",
+            "createdAt": "2026-10-04T12:28:08.410Z",
+            "updatedAt": "2026-10-04T12:28:08.410Z",
+            "deletedAt": null
+          },
+          {
+            "id": "8c0e8cd6-d1a8-44fa-900b-41066c8e6e4d",
+            "amountMl": 500,
+            "date": "2026-10-04",
+            "time": "09:28",
+            "createdAt": "2026-10-04T12:28:10.871Z",
+            "updatedAt": "2026-10-04T12:28:10.871Z",
+            "deletedAt": null
+          },
+          {
+            "id": "b2acc427-29da-4a79-b76a-65cd3876c621",
+            "amountMl": 1000,
+            "date": "2026-10-04",
+            "time": "09:28",
+            "createdAt": "2026-10-04T12:28:13.287Z",
+            "updatedAt": "2026-10-04T12:28:13.287Z",
+            "deletedAt": null
+          },
+          {
+            "id": "78531d71-87ad-4c45-8202-f16ad3c1c4a4",
+            "amountMl": 200,
+            "date": "2026-10-04",
+            "time": "10:50",
+            "createdAt": "2026-10-04T13:50:36.566Z",
+            "updatedAt": "2026-10-04T13:50:36.566Z",
+            "deletedAt": null
+          },
+          {
+            "id": "3091b498-a1b2-4cf6-b69c-1c9f19c88ed7",
+            "amountMl": 500,
+            "date": "2026-10-04",
+            "time": "10:50",
+            "createdAt": "2026-10-04T13:50:38.964Z",
+            "updatedAt": "2026-10-04T13:50:38.964Z",
+            "deletedAt": null
+          },
+          {
+            "id": "6cf237d7-3ca5-4776-8069-9663a62c347f",
+            "amountMl": 1000,
+            "date": "2026-10-04",
+            "time": "10:50",
+            "createdAt": "2026-10-04T13:50:41.220Z",
+            "updatedAt": "2026-10-04T13:50:41.220Z",
+            "deletedAt": null
+          },
+          {
+            "id": "a52b98cc-c02a-4aa0-8c20-b062901f1003",
+            "amountMl": 200,
+            "date": "2026-10-04",
+            "time": "10:51",
+            "createdAt": "2026-10-04T13:51:54.921Z",
+            "updatedAt": "2026-10-04T13:51:54.921Z",
+            "deletedAt": null
+          },
+          {
+            "amountMl": 200,
+            "date": "2026-10-04",
+            "time": "15:11",
+            "id": "01c718d0-305b-40c2-ba4a-14933d36618b"
+          }
+        ],
+        "meals": [
+          {
+            "id": "85f0b673-94bc-408a-9b71-cf5e39ba7c9c",
+            "name": "Refeicao 24h QA",
+            "date": "2026-10-04",
+            "time": "10:10",
+            "quantity": 100.5,
+            "unit": "g",
+            "calories": 300,
+            "createdAt": "2026-10-04T13:24:44.090Z",
+            "updatedAt": "2026-10-04T13:24:44.090Z",
+            "deletedAt": null
+          },
+          {
+            "id": "dc0f98d5-7ea6-4fef-b449-e0c210d9a171",
+            "name": "Refeicao 24h final 2",
+            "date": "2026-10-04",
+            "time": "15:10",
+            "quantity": 100.5,
+            "unit": "g",
+            "calories": 300
+          }
+        ],
+        "activities": [
+          {
+            "id": "e2c014a9-ef26-424c-8df0-7524b10df87c",
+            "type": "run",
+            "date": "2026-10-04",
+            "durationSeconds": 1830,
+            "distanceMeters": 5200,
+            "calories": 308,
+            "paceSecondsPerKm": 352,
+            "route": [],
+            "createdAt": "2026-10-04T13:24:44.075Z",
+            "updatedAt": "2026-10-04T13:24:44.075Z",
+            "deletedAt": null,
+            "durationMinutes": 30.5,
+            "distanceKm": 5.2
+          },
+          {
+            "id": "9effbb25-4ac8-482b-8dc7-d9fabee213c1",
+            "type": "run",
+            "date": "2026-10-04",
+            "durationSeconds": 1830,
+            "distanceMeters": 5200,
+            "route": [],
+            "durationMinutes": 30.5,
+            "distanceKm": 5.2,
+            "calories": 310
+          }
+        ],
+        "weights": [
+          {
+            "id": "108b20c4-f94d-4a11-9a22-af8a45fbebc2",
+            "date": "2026-10-04",
+            "weightKg": 69.5,
+            "createdAt": "2026-10-04T13:24:44.037Z",
+            "updatedAt": "2026-10-04T13:24:44.037Z",
+            "deletedAt": null
+          },
+          {
+            "id": "d8865234-6046-4a42-a1d2-7597772cf104",
+            "date": "2026-10-04",
+            "weightKg": 69.4
+          }
+        ],
+        "steps": 0,
+        "authenticated": true,
+        "darkMode": false,
+        "syncStatus": "offline",
+        "userId": "5a4a15b1-9b93-4d92-a386-a5be1f1b86d0"
+      }
+    ]
+  ],
+  "queue": [
+    [
+      "5a4a15b1-9b93-4d92-a386-a5be1f1b86d0",
+      {
+        "mutationId": "53684320-4b99-433a-8b8f-7b24a6d1a1fa",
+        "entity": "profile",
+        "action": "upsert",
+        "payload": {
+          "name": "QA 24h final 2",
+          "birthDate": "2000-01-01",
+          "weightKg": 70,
+          "heightCm": 175,
+          "gender": "Outro"
+        },
+        "clientUpdatedAt": "2026-10-04T18:09:50.458Z",
+        "clientTimeZone": "America/Sao_Paulo"
+      }
+    ],
+    [
+      "5a4a15b1-9b93-4d92-a386-a5be1f1b86d0",
+      {
+        "mutationId": "07b08e27-6543-4de3-b7b5-cb29e4ebfbd2",
+        "entity": "avatar",
+        "action": "upsert",
+        "payload": {
+          "uri": "file:///data/user/0/com.vitalistrack.app/files/avatars/5a4a15b1-9b93-4d92-a386-a5be1f1b86d0/07b08e27-6543-4de3-b7b5-cb29e4ebfbd2.png",
+          "mimeType": "image/png"
+        },
+        "clientUpdatedAt": "2026-10-04T18:10:00.478Z"
+      }
+    ],
+    [
+      "5a4a15b1-9b93-4d92-a386-a5be1f1b86d0",
+      {
+        "mutationId": "ab166180-80cb-4d48-94d4-776b490b3246",
+        "entity": "meal",
+        "action": "upsert",
+        "payload": {
+          "id": "dc0f98d5-7ea6-4fef-b449-e0c210d9a171",
+          "name": "Refeicao 24h final 2",
+          "date": "2026-10-04",
+          "time": "15:10",
+          "quantity": 100.5,
+          "unit": "g",
+          "calories": 300
+        },
+        "entityId": "dc0f98d5-7ea6-4fef-b449-e0c210d9a171",
+        "clientUpdatedAt": "2026-10-04T18:10:29.830Z"
+      }
+    ],
+    [
+      "5a4a15b1-9b93-4d92-a386-a5be1f1b86d0",
+      {
+        "mutationId": "099fdad3-396f-428a-8fdb-e9b0c224ad41",
+        "entity": "activity",
+        "action": "upsert",
+        "payload": {
+          "id": "9effbb25-4ac8-482b-8dc7-d9fabee213c1",
+          "type": "run",
+          "date": "2026-10-04",
+          "durationSeconds": 1830,
+          "distanceMeters": 5200,
+          "route": []
+        },
+        "entityId": "9effbb25-4ac8-482b-8dc7-d9fabee213c1",
+        "clientUpdatedAt": "2026-10-04T18:10:54.028Z"
+      }
+    ],
+    [
+      "5a4a15b1-9b93-4d92-a386-a5be1f1b86d0",
+      {
+        "mutationId": "5f8fa873-46d7-4aca-a43d-e1d10961c77c",
+        "entity": "water",
+        "action": "upsert",
+        "payload": {
+          "amountMl": 200,
+          "date": "2026-10-04",
+          "time": "15:11",
+          "id": "01c718d0-305b-40c2-ba4a-14933d36618b"
+        },
+        "clientUpdatedAt": "2026-10-04T18:11:02.919Z"
+      }
+    ],
+    [
+      "5a4a15b1-9b93-4d92-a386-a5be1f1b86d0",
+      {
+        "mutationId": "eba0c36a-7c05-4d74-8b3c-166535f18861",
+        "entity": "weight",
+        "action": "upsert",
+        "payload": {
+          "id": "d8865234-6046-4a42-a1d2-7597772cf104",
+          "date": "2026-10-04",
+          "weightKg": 69.4
+        },
+        "clientUpdatedAt": "2026-10-04T18:11:18.106Z"
+      }
+    ]
+  ],
+  "workouts": []
+}

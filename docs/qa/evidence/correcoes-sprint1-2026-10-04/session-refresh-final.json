@@ -1,0 +1,12 @@
+{
+  "api": 36,
+  "apkSha256": "451715f40e3e7408096f08523fc1cd6b0cfccad474b8879e8cf93b39c1b8a221",
+  "previousCreatedAt": "2026-10-04T13:38:10.589Z",
+  "refreshedAt": "2026-10-04T13:52:11.092Z",
+  "jwtLifetimeSeconds": 900,
+  "elapsedSeconds": 840.503,
+  "secondsBeforeExpiry": 59.49699999999996,
+  "silent": true,
+  "clockAdvanced": false,
+  "httpEvidence": "http-native.jsonl"
+}

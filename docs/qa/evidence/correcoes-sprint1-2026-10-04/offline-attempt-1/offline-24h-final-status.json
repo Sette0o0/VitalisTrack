@@ -1,0 +1,169 @@
+{
+  "status": "inconclusive",
+  "t0": "2026-10-04T13:56:56.381476+00:00",
+  "notBefore": "2026-10-05T13:56:56.381476+00:00",
+  "serial": "emulator-5556",
+  "avd": "VitalisFixAPI24",
+  "userId": "5a4a15b1-9b93-4d92-a386-a5be1f1b86d0",
+  "email": "sprint1-api24-20261004@example.com",
+  "apkSha256": "451715f40e3e7408096f08523fc1cd6b0cfccad474b8879e8cf93b39c1b8a221",
+  "bootId": "6b81a790-7bda-4e0a-8b2e-1fb37b2ae432",
+  "deviceEpochSeconds": 1791122216,
+  "offlineAtT0": true,
+  "clockAdvanced": false,
+  "serverBaseline": "offline-24h-server-baseline.json",
+  "actions": [
+    {
+      "at": "2026-10-04T13:58:12.577517+00:00",
+      "action": "profile_offline",
+      "name": "QA 24h final",
+      "birthDate": "2000-01-01",
+      "heightCm": 175,
+      "weightKg": 70
+    },
+    {
+      "at": "2026-10-04T13:59:26.522113+00:00",
+      "action": "avatar_offline",
+      "source": "avatar-qa.png"
+    },
+    {
+      "at": "2026-10-04T13:59:55.448097+00:00",
+      "action": "meal_offline",
+      "name": "Refeicao 24h final",
+      "quantity": 100.5,
+      "unit": "g",
+      "calories": 300
+    },
+    {
+      "at": "2026-10-04T14:00:19.410413+00:00",
+      "action": "manual_activity_offline",
+      "durationMinutes": 30.5,
+      "distanceKm": 5.2
+    },
+    {
+      "at": "2026-10-04T14:00:28.103185+00:00",
+      "action": "water_offline",
+      "amountMl": 200
+    },
+    {
+      "at": "2026-10-04T14:00:43.203010+00:00",
+      "action": "weight_offline",
+      "weightKg": 69.4
+    }
+  ],
+  "stages": {},
+  "excluded": [
+    "main protection",
+    "RAM optimization"
+  ],
+  "snapshotT0": "database-emulator-5556-offline-24h-t0.json",
+  "queuedAtT0": [
+    {
+      "mutationId": "af1016cd-3487-4f5e-9063-f8df62bd3cf3",
+      "entity": "profile",
+      "action": "upsert",
+      "payload": {
+        "name": "QA 24h final",
+        "birthDate": "2000-01-01",
+        "weightKg": 70,
+        "heightCm": 175,
+        "gender": "Outro"
+      },
+      "clientUpdatedAt": "2026-10-04T13:58:11.558Z",
+      "clientTimeZone": "America/Sao_Paulo"
+    },
+    {
+      "mutationId": "97febc54-961e-46de-9f15-595cce322cdd",
+      "entity": "avatar",
+      "action": "upsert",
+      "payload": {
+        "uri": "file:///data/user/0/com.vitalistrack.app/files/avatars/5a4a15b1-9b93-4d92-a386-a5be1f1b86d0/97febc54-961e-46de-9f15-595cce322cdd.png",
+        "mimeType": "image/png"
+      },
+      "clientUpdatedAt": "2026-10-04T13:59:23.982Z"
+    },
+    {
+      "mutationId": "84571c10-9987-4c3e-9555-1752b8efbc20",
+      "entity": "meal",
+      "action": "upsert",
+      "payload": {
+        "id": "fcc0870d-6ba0-4359-89ae-39947ff4bc53",
+        "name": "Refeicao 24h final",
+        "date": "2026-10-04",
+        "time": "10:59",
+        "quantity": 100.5,
+        "unit": "g",
+        "calories": 300
+      },
+      "entityId": "fcc0870d-6ba0-4359-89ae-39947ff4bc53",
+      "clientUpdatedAt": "2026-10-04T13:59:52.947Z"
+    },
+    {
+      "mutationId": "8a285bd6-d5b1-4e6f-851d-148d8f468ad6",
+      "entity": "activity",
+      "action": "upsert",
+      "payload": {
+        "id": "2f69c6d6-d046-4019-bfe4-fff8214bf370",
+        "type": "run",
+        "date": "2026-10-04",
+        "durationSeconds": 1830,
+        "distanceMeters": 5200,
+        "route": []
+      },
+      "entityId": "2f69c6d6-d046-4019-bfe4-fff8214bf370",
+      "clientUpdatedAt": "2026-10-04T14:00:18.331Z"
+    },
+    {
+      "mutationId": "ba5a9540-bf0c-42bf-9416-731a0a9d7193",
+      "entity": "water",
+      "action": "upsert",
+      "payload": {
+        "amountMl": 200,
+        "date": "2026-10-04",
+        "time": "11:00",
+        "id": "f9d1e6e0-72c7-47c4-933a-d30231bb56aa"
+      },
+      "clientUpdatedAt": "2026-10-04T14:00:27.101Z"
+    },
+    {
+      "mutationId": "7fda6447-c7e0-4159-9cb2-3b10f5862e9d",
+      "entity": "weight",
+      "action": "upsert",
+      "payload": {
+        "id": "e92b0e8a-18c6-46a1-884d-ce0a48735057",
+        "date": "2026-10-04",
+        "weightKg": 69.4
+      },
+      "clientUpdatedAt": "2026-10-04T14:00:42.140Z"
+    }
+  ],
+  "profileAtT0": {
+    "name": "QA 24h final",
+    "email": "sprint1-api24-20261004@example.com",
+    "hasWeight": true,
+    "hasHeight": true,
+    "birthDate": "2000-01-01",
+    "weightKg": 69.4,
+    "heightCm": 175,
+    "gender": "Outro",
+    "avatar": "file:///data/user/0/com.vitalistrack.app/files/avatars/5a4a15b1-9b93-4d92-a386-a5be1f1b86d0/97febc54-961e-46de-9f15-595cce322cdd.png",
+    "avatarRemoteUrl": "http://10.0.2.2:3011/uploads/avatars/5a4a15b1-9b93-4d92-a386-a5be1f1b86d0-ce55e619-3ab7-4222-98a4-af02788f5467.png",
+    "avatarMutationId": "97febc54-961e-46de-9f15-595cce322cdd"
+  },
+  "restartVerifiedAt": "2026-10-04T14:01:28.923784+00:00",
+  "continuityCollectorSession": 50119,
+  "automationId": "reteste-offline-real-da-sprint-1",
+  "automationIntervalHours": 6,
+  "continuityFailure": {
+    "at": "2026-10-04T17:19:58.885212+00:00",
+    "elapsedSeconds": 12182.5,
+    "airplane": "1",
+    "network": "Active default network: none",
+    "bootId": "6b81a790-7bda-4e0a-8b2e-1fb37b2ae432",
+    "deviceEpochSeconds": 1791125274,
+    "passed": false,
+    "reason": "gap_between_samples"
+  },
+  "automationStatus": "deleted_after_interruption",
+  "hostRestarted": true
+}

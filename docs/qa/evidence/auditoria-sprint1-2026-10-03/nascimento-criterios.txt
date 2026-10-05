@@ -1,0 +1,28 @@
+FAIL docs/qa/evidence/auditoria-sprint1-2026-10-03/nascimento-criterios.test.tsx (12.615 s)
+  ✕ US-016.C3: nascimento de amanhã não pode ser salvo depois das 21h no Brasil (2236 ms)
+
+  ● US-016.C3: nascimento de amanhã não pode ser salvo depois das 21h no Brasil
+
+    expect(jest.fn()).not.toHaveBeenCalled()
+
+    Expected number of calls: 0
+    Received number of calls: 1
+
+    1: {"type": "PROFILE", "value": {"birthDate": "2026-10-04", "email": "qa@example.com", "gender": "Outro", "hasHeight": true, "hasWeight": true, "heightCm": 170, "name": "Pessoa QA", "weightKg": 70}}
+
+      21 |   expect(ui.getByText("Nascimento não pode estar no futuro.")).toBeTruthy();
+      22 |   await act(async () => fireEvent.press(ui.getByRole("button", { name: "Salvar perfil" })));
+    > 23 |   expect(dispatch).not.toHaveBeenCalled();
+         |                        ^
+      24 | });
+      25 |
+
+      at Object.toHaveBeenCalled (../docs/qa/evidence/auditoria-sprint1-2026-10-03/nascimento-criterios.test.tsx:23:24)
+      at asyncGeneratorStep (../node_modules/.pnpm/@babel+runtime@7.29.7/node_modules/@babel/runtime/helpers/asyncToGenerator.js:3:17)
+      at _next (../node_modules/.pnpm/@babel+runtime@7.29.7/node_modules/@babel/runtime/helpers/asyncToGenerator.js:17:9)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 1 total
+Snapshots:   0 total
+Time:        13.032 s
+Ran all test suites.

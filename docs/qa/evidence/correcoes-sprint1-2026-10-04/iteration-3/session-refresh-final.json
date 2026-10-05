@@ -1,0 +1,37 @@
+{
+  "api": 24,
+  "apkSha256": "69d21fd9bede1d756a4d2a9ca83e7867f9685b70a1c4bf5a7dedd3003616f349",
+  "jwtLifetimeSeconds": 900,
+  "previousSessionCreatedAt": "2026-10-04T12:32:10.100Z",
+  "refreshedAt": "2026-10-04T12:46:10.103Z",
+  "elapsedSeconds": 840.003,
+  "secondsBeforeExpiry": 59.99699999999996,
+  "http": [
+    {
+      "at": "2026-10-04T12:46:10.107Z",
+      "method": "POST",
+      "path": "/v1/auth/refresh",
+      "status": 200,
+      "ms": 18.394605999812484,
+      "client": "okhttp/4.12.0"
+    },
+    {
+      "at": "2026-10-04T12:56:10.198Z",
+      "method": "POST",
+      "path": "/v1/auth/refresh",
+      "status": 200,
+      "ms": 10.85700499964878,
+      "client": "okhttp/4.12.0"
+    },
+    {
+      "at": "2026-10-04T13:00:10.297Z",
+      "method": "POST",
+      "path": "/v1/auth/refresh",
+      "status": 200,
+      "ms": 24.28048999980092,
+      "client": "okhttp/4.12.0"
+    }
+  ],
+  "manualLoginDuringInterval": false,
+  "clockAdvanced": false
+}

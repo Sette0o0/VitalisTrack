@@ -1,0 +1,181 @@
+{
+  "status": "inconclusive",
+  "attempt": 2,
+  "t0": "2026-10-04T18:04:35.142803+00:00",
+  "notBefore": "2026-10-05T18:04:35.142803+00:00",
+  "serial": "emulator-5556",
+  "avd": "VitalisFixAPI24",
+  "userId": "5a4a15b1-9b93-4d92-a386-a5be1f1b86d0",
+  "email": "sprint1-api24-20261004@example.com",
+  "apkSha256": "451715f40e3e7408096f08523fc1cd6b0cfccad474b8879e8cf93b39c1b8a221",
+  "bootId": "8a27449e-a945-4168-9f83-a3471a19b41c",
+  "deviceEpochSeconds": 1791137074,
+  "offlineAtT0": true,
+  "clockAdvanced": false,
+  "serverBaseline": "offline-24h-server-baseline.json",
+  "actions": [
+    {
+      "at": "2026-10-04T18:09:51.468472+00:00",
+      "action": "profile_offline",
+      "name": "QA 24h final 2",
+      "birthDate": "2000-01-01",
+      "heightCm": 175,
+      "weightKg": 70
+    },
+    {
+      "at": "2026-10-04T18:10:03.057619+00:00",
+      "action": "avatar_offline",
+      "source": "VitalisQAphoto-20261004.png"
+    },
+    {
+      "at": "2026-10-04T18:10:30.910633+00:00",
+      "action": "meal_offline",
+      "name": "Refeicao 24h final 2",
+      "quantity": 100.5,
+      "unit": "g",
+      "calories": 300
+    },
+    {
+      "at": "2026-10-04T18:10:55.095269+00:00",
+      "action": "manual_activity_offline",
+      "durationMinutes": 30.5,
+      "distanceKm": 5.2
+    },
+    {
+      "at": "2026-10-04T18:11:03.908939+00:00",
+      "action": "water_offline",
+      "amountMl": 200
+    },
+    {
+      "at": "2026-10-04T18:11:19.150418+00:00",
+      "action": "weight_offline",
+      "weightKg": 69.4
+    }
+  ],
+  "stages": {},
+  "fixtureMealName": "Refeicao 24h final 2",
+  "runtimeDirectory": "/home/rafael/Documentos/github/VitalisTrack/artifacts/android/qa-runtime",
+  "previousAttempt": "offline-attempt-1/offline-24h-final-status.json",
+  "excluded": [
+    "main protection",
+    "RAM optimization"
+  ],
+  "queuedAtT0": [
+    {
+      "mutationId": "53684320-4b99-433a-8b8f-7b24a6d1a1fa",
+      "entity": "profile",
+      "action": "upsert",
+      "payload": {
+        "name": "QA 24h final 2",
+        "birthDate": "2000-01-01",
+        "weightKg": 70,
+        "heightCm": 175,
+        "gender": "Outro"
+      },
+      "clientUpdatedAt": "2026-10-04T18:09:50.458Z",
+      "clientTimeZone": "America/Sao_Paulo"
+    },
+    {
+      "mutationId": "07b08e27-6543-4de3-b7b5-cb29e4ebfbd2",
+      "entity": "avatar",
+      "action": "upsert",
+      "payload": {
+        "uri": "file:///data/user/0/com.vitalistrack.app/files/avatars/5a4a15b1-9b93-4d92-a386-a5be1f1b86d0/07b08e27-6543-4de3-b7b5-cb29e4ebfbd2.png",
+        "mimeType": "image/png"
+      },
+      "clientUpdatedAt": "2026-10-04T18:10:00.478Z"
+    },
+    {
+      "mutationId": "ab166180-80cb-4d48-94d4-776b490b3246",
+      "entity": "meal",
+      "action": "upsert",
+      "payload": {
+        "id": "dc0f98d5-7ea6-4fef-b449-e0c210d9a171",
+        "name": "Refeicao 24h final 2",
+        "date": "2026-10-04",
+        "time": "15:10",
+        "quantity": 100.5,
+        "unit": "g",
+        "calories": 300
+      },
+      "entityId": "dc0f98d5-7ea6-4fef-b449-e0c210d9a171",
+      "clientUpdatedAt": "2026-10-04T18:10:29.830Z"
+    },
+    {
+      "mutationId": "099fdad3-396f-428a-8fdb-e9b0c224ad41",
+      "entity": "activity",
+      "action": "upsert",
+      "payload": {
+        "id": "9effbb25-4ac8-482b-8dc7-d9fabee213c1",
+        "type": "run",
+        "date": "2026-10-04",
+        "durationSeconds": 1830,
+        "distanceMeters": 5200,
+        "route": []
+      },
+      "entityId": "9effbb25-4ac8-482b-8dc7-d9fabee213c1",
+      "clientUpdatedAt": "2026-10-04T18:10:54.028Z"
+    },
+    {
+      "mutationId": "5f8fa873-46d7-4aca-a43d-e1d10961c77c",
+      "entity": "water",
+      "action": "upsert",
+      "payload": {
+        "amountMl": 200,
+        "date": "2026-10-04",
+        "time": "15:11",
+        "id": "01c718d0-305b-40c2-ba4a-14933d36618b"
+      },
+      "clientUpdatedAt": "2026-10-04T18:11:02.919Z"
+    },
+    {
+      "mutationId": "eba0c36a-7c05-4d74-8b3c-166535f18861",
+      "entity": "weight",
+      "action": "upsert",
+      "payload": {
+        "id": "d8865234-6046-4a42-a1d2-7597772cf104",
+        "date": "2026-10-04",
+        "weightKg": 69.4
+      },
+      "clientUpdatedAt": "2026-10-04T18:11:18.106Z"
+    }
+  ],
+  "snapshotT0": "database-emulator-5556-offline-24h-t0.json",
+  "profileAtT0": {
+    "name": "QA 24h final 2",
+    "email": "sprint1-api24-20261004@example.com",
+    "hasWeight": true,
+    "hasHeight": true,
+    "birthDate": "2000-01-01",
+    "weightKg": 69.4,
+    "heightCm": 175,
+    "gender": "Outro",
+    "avatar": "file:///data/user/0/com.vitalistrack.app/files/avatars/5a4a15b1-9b93-4d92-a386-a5be1f1b86d0/07b08e27-6543-4de3-b7b5-cb29e4ebfbd2.png",
+    "avatarRemoteUrl": "http://10.0.2.2:3011/uploads/avatars/5a4a15b1-9b93-4d92-a386-a5be1f1b86d0-ce55e619-3ab7-4222-98a4-af02788f5467.png",
+    "avatarMutationId": "07b08e27-6543-4de3-b7b5-cb29e4ebfbd2"
+  },
+  "restartVerifiedAt": "2026-10-04T18:18:50.557937+00:00",
+  "continuityCollectorSession": 74512,
+  "sleepInhibitor": "temporary idle:sleep block tied to collector; released when collector ends",
+  "automationId": "reteste-offline-real-da-sprint-1",
+  "automationIntervalHours": 6,
+  "continuityFailure": {
+    "at": "2026-10-05T00:29:19.749232+00:00",
+    "elapsedSeconds": 23084.61,
+    "airplane": "1",
+    "network": "Active default network: none",
+    "bootId": "8a27449e-a945-4168-9f83-a3471a19b41c",
+    "deviceEpochSeconds": 1791142994,
+    "passed": false,
+    "reason": "gap_between_samples"
+  },
+  "interruptionChecks": "offline-24h-interruption-checks.json",
+  "finalSnapshot": "database-emulator-5556-offline-attempt-2-interrupted.json",
+  "reviewedAt": "2026-10-05T00:36:51.939151+00:00",
+  "avdStoppedAt": "2026-10-05T00:37:28.069181+00:00",
+  "collectorStatus": "exited_after_continuity_failure",
+  "sleepInhibitorStatus": "released",
+  "reconnected": false,
+  "automationStatus": "deleted_after_interruption",
+  "automationDeletedAt": "2026-10-05T00:38:46.220942+00:00"
+}

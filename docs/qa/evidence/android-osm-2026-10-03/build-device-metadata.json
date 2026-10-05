@@ -1,0 +1,33 @@
+{
+  "date": "2026-10-03",
+  "sourceCommit": "70156c947f41d698378438ae71b9404314a99db0",
+  "apkPath": "artifacts/android/openstreetmap/vitalis-osm-api36-release.apk",
+  "apkSha256": "66a654aea7136cf1b3c7622e5757d009bcb8bc4098882ee38df5bb0d50a0299f",
+  "package": "com.vitalistrack.app",
+  "versionName": "1.0.0",
+  "versionCode": 1,
+  "variant": "release QA, Android Debug signing",
+  "minSdk": 24,
+  "targetSdk": 36,
+  "device": "Local_OSM_QA_API36",
+  "android": "16",
+  "api": 36,
+  "abi": "x86_64",
+  "resolution": [
+    1080,
+    1920
+  ],
+  "densityDpi": 420,
+  "theme": "light",
+  "fontScalesTested": [
+    1.0,
+    1.5
+  ],
+  "acceleration": "KVM",
+  "renderer": "software",
+  "navigation": "gestures",
+  "apiUrl": "http://10.0.2.2:3000",
+  "databaseContainer": "vitalis-android-qa-20261003",
+  "database": "vitalis_qa",
+  "certificateSha256": "fac61745dc0903786fb9ede62a962b399f7348f0bb6f899b8332667591033b9c"
+}

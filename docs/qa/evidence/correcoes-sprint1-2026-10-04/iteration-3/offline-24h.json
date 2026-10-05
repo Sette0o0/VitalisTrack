@@ -1,0 +1,40 @@
+{
+  "status": "inconclusive",
+  "t0": "2026-10-04T13:06:02.323858+00:00",
+  "notBefore": "2026-10-05T13:06:02.323858+00:00",
+  "serial": "emulator-5556",
+  "avd": "VitalisFixAPI24",
+  "userId": "5a4a15b1-9b93-4d92-a386-a5be1f1b86d0",
+  "email": "sprint1-api24-20261004@example.com",
+  "apkSha256": "69d21fd9bede1d756a4d2a9ca83e7867f9685b70a1c4bf5a7dedd3003616f349",
+  "bootId": "6b81a790-7bda-4e0a-8b2e-1fb37b2ae432",
+  "deviceEpochSeconds": 1791119162,
+  "offlineAtT0": true,
+  "clockAdvanced": false,
+  "serverBaseline": "native-server.json",
+  "actions": [
+    {
+      "at": "2026-10-04T13:09:03.565182+00:00",
+      "action": "profile_and_weight_offline",
+      "name": "QA offline 24h",
+      "birthDate": "2000-01-01",
+      "heightCm": 175,
+      "weightKg": 69.5
+    },
+    {
+      "at": "2026-10-04T13:09:26.671718+00:00",
+      "action": "manual_activity_offline",
+      "durationMinutes": 30.5,
+      "distanceKm": 5.2
+    },
+    {
+      "at": "2026-10-04T13:11:11.342020+00:00",
+      "action": "meal_and_water_offline",
+      "meal": "Refeicao 24h QA",
+      "quantity": 100.5,
+      "calories": 300,
+      "waterAddedMl": 200
+    }
+  ],
+  "reason": "Recompila\u00e7\u00e3o ap\u00f3s corre\u00e7\u00e3o de r\u00f3tulo da navega\u00e7\u00e3o compacta; T0 ser\u00e1 reiniciado no APK final."
+}

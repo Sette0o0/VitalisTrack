@@ -1,0 +1,21 @@
+{
+  "apkSha256": "10fe589f316b9d4613d82e7a7e9926b9ffa6b0a46cdef714fc9cb2e3b5d45df6",
+  "model": "22111317PG",
+  "android": "14",
+  "api": 34,
+  "separatePackage": "com.vitalistrack.qa",
+  "waterMl": 1700,
+  "birthFutureBlockedWithOtherFieldsValid": true,
+  "savedBirthDate": "2000-01-01",
+  "avatarProcessedExactlyOnce": true,
+  "avatarOperation": "21b32d95-8e1b-4152-a7fb-ee52bc1b691e",
+  "previewSurvivedRestartWithoutApi": true,
+  "cacheRestoredAfterLogin": true,
+  "silentRefreshAt": "2026-10-04T18:02:37.086Z",
+  "secondsBeforeJwtExpiry": 59.54899999999998,
+  "startupHomeMaxMs": 2207,
+  "startupLoginMaxMs": 1752,
+  "transport": "USB ADB reverse -> API QA localhost; not 4G",
+  "talkbackComplete": "pending",
+  "physicalGpsWalk": "pending"
+}

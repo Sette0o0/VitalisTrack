@@ -1,0 +1,10 @@
+{
+  "before": {
+    "timer": "Tempo 00:02:29",
+    "distance": "0.12 km"
+  },
+  "afterMovementWhilePaused": {
+    "timer": "Tempo 00:02:29",
+    "distance": "0.12 km"
+  }
+}

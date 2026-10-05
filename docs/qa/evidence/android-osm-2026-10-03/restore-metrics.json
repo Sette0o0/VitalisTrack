@@ -1,0 +1,10 @@
+{
+  "beforeRestart": {
+    "timer": "Tempo 00:02:29",
+    "distance": "0.12 km"
+  },
+  "afterRestart": {
+    "timer": "Tempo 00:02:29",
+    "distance": "0.12 km"
+  }
+}
