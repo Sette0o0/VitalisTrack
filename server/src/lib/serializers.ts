@@ -22,6 +22,7 @@ export function serializeProfile(
 		} | null;
 	},
 	publicBaseUrl: string,
+	timeZone = "UTC",
 ) {
 	const profile = user.profile;
 	if (!profile) throw new Error("Perfil ausente");
@@ -36,7 +37,7 @@ export function serializeProfile(
 		avatarUrl: profile.avatarPath
 			? `${publicBaseUrl}${profile.avatarPath}`
 			: null,
-		age: calculateAge(profile.birthDate),
+		age: calculateAge(profile.birthDate, new Date(), timeZone),
 		updatedAt: profile.updatedAt.toISOString(),
 	};
 }

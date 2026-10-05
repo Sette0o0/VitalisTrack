@@ -53,8 +53,8 @@ export async function activityRoutes(raw: FastifyInstance) {
 				include: { route: { orderBy: { sequence: "asc" } } },
 				orderBy:
 					request.query.sort === "type"
-						? [{ type: "asc" }, { date: "desc" }]
-						: [{ date: "desc" }, { createdAt: "desc" }],
+							? [{ type: "asc" }, { date: "desc" }, { id: "desc" }]
+							: [{ date: "desc" }, { createdAt: "desc" }, { id: "desc" }],
 				take: request.query.limit + 1,
 				...(request.query.cursor
 					? { cursor: { id: request.query.cursor }, skip: 1 }

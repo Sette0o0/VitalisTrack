@@ -6,7 +6,7 @@ export default defineConfig({
 		coverage: {
 			provider: "v8",
 			include: [
-				"src/lib/{dates,health,auth,serializers,concurrency}.ts",
+				"src/lib/*.ts",
 				"src/routes/*.ts",
 			],
 			thresholds: { lines: 70, functions: 70, statements: 70, branches: 70 },

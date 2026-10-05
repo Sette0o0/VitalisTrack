@@ -2,6 +2,21 @@ import { z } from "zod";
 
 export const idSchema = z.uuid();
 export const dateSchema = z.iso.date();
+export const timeZoneSchema = z.string().min(1).max(100).refine((value) => {
+	try {
+		new Intl.DateTimeFormat("en", { timeZone: value }).format();
+		return true;
+	} catch { return false; }
+}, "Fuso horário inválido");
+export const deviceTimeZone = () => Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+export function calendarDate(timeZone = "UTC", now = new Date()) {
+	const parts = new Intl.DateTimeFormat("en", { timeZone, year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(now);
+	const part = (type: string) => parts.find((item) => item.type === type)!.value;
+	return `${part("year")}-${part("month")}-${part("day")}`;
+}
+export const birthDateError = (value: string, timeZone = "UTC", now = new Date()) =>
+	!dateSchema.safeParse(value).success ? "Informe uma data válida em dd/mm/aaaa."
+		: value > calendarDate(timeZone, now) ? "Nascimento não pode estar no futuro." : undefined;
 export const timeSchema = z
 	.string()
 	.regex(/^([01]\d|2[0-3]):[0-5]\d$/, "Use HH:mm");
@@ -49,20 +64,22 @@ export const profileSchema = z.object({
 	age: z.number().int().nonnegative().nullable(),
 	updatedAt: z.string(),
 });
-export const profileUpdateSchema = z
+export const profileUpdateInputSchema = z
 	.object({
 		name: z.string().trim().min(2).max(100).optional(),
-		birthDate: dateSchema
-			.refine(
-				(value) => value <= new Date().toISOString().slice(0, 10),
-				"Nascimento não pode estar no futuro",
-			)
-			.optional(),
+		birthDate: dateSchema.optional(),
 		weightKg: z.number().min(20).max(500).optional(),
 		heightCm: z.number().int().min(80).max(260).optional(),
 		gender: genderSchema.optional(),
 	})
 	.strict();
+export const createProfileUpdateSchema = (timeZone = "UTC") => profileUpdateInputSchema.superRefine((value, ctx) => {
+	if (value.birthDate) {
+		const error = birthDateError(value.birthDate, timeZone);
+		if (error) ctx.addIssue({ code: "custom", path: ["birthDate"], message: error });
+	}
+});
+export const profileUpdateSchema = createProfileUpdateSchema();
 
 export const goalsSchema = z.object({
 	waterMl: z.number().int().positive(),
@@ -188,6 +205,7 @@ export const syncMutationSchema = z.object({
 	entityId: idSchema.optional(),
 	payload: z.record(z.string(), z.unknown()).optional(),
 	clientUpdatedAt: z.iso.datetime({ offset: true }),
+	clientTimeZone: timeZoneSchema.optional(),
 });
 export const syncPushSchema = z.object({
 	mutations: z.array(syncMutationSchema).min(1).max(100),

@@ -4,7 +4,7 @@ import {
 	activityInputSchema,
 	goalsUpdateSchema,
 	mealInputSchema,
-	profileUpdateSchema,
+	createProfileUpdateSchema,
 	routePointSchema,
 	syncPullQuerySchema,
 	syncPushSchema,
@@ -17,6 +17,7 @@ import { config } from "../config.js";
 import { requireAuth } from "../lib/auth.js";
 import { AppError } from "../lib/errors.js";
 import { parseDate } from "../lib/dates.js";
+import { clientTimeZone, isIanaTimeZone } from "../lib/client-time-zone.js";
 import {
 	calculateActivityCalories,
 	calculatePaceSeconds,
@@ -29,6 +30,13 @@ import {
 	serializeWater,
 	serializeWeight,
 } from "../lib/serializers.js";
+
+const syncRequestSchema = syncPushSchema.superRefine((value, ctx) => {
+	value.mutations.forEach((mutation, index) => {
+		if (mutation.clientTimeZone !== undefined && !isIanaTimeZone(mutation.clientTimeZone))
+			ctx.addIssue({ code: "custom", path: ["mutations", index, "clientTimeZone"], message: "Use um identificador IANA de fuso horário" });
+	});
+});
 
 const stepsPayload = z.object({
 	date: z.iso.date(),
@@ -46,20 +54,27 @@ const routeCreate = (route: Array<z.infer<typeof routePointSchema>>) =>
 
 const withSyncSlot = createLimiter(8);
 
+function replayResult(result: unknown) {
+	if (result && typeof result === "object" && "kind" in result && result.kind === "avatar")
+		throw new AppError(409, "IDEMPOTENCY_CONFLICT", "Identificador utilizado por outra operação");
+	return result;
+}
+
 async function applyMutation(
 	userId: string,
 	mutation: z.infer<typeof syncPushSchema>["mutations"][number],
+	timeZone = "UTC",
 ) {
 	const existing = await prisma.processedMutation.findUnique({
 		where: { userId_mutationId: { userId, mutationId: mutation.mutationId } },
 	});
-	if (existing) return existing.result;
+	if (existing) return replayResult(existing.result);
 	return await prisma.$transaction(async (tx) => {
 		await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${userId + ":" + mutation.mutationId}))`;
 		const replay = await tx.processedMutation.findUnique({
 			where: { userId_mutationId: { userId, mutationId: mutation.mutationId } },
 		});
-		if (replay) return replay.result;
+		if (replay) return replayResult(replay.result);
 		const apply = async () => {
 			if (mutation.action === "delete") {
 				if (
@@ -119,7 +134,7 @@ async function applyMutation(
 					);
 			}
 			if (mutation.entity === "profile") {
-				const data = profileUpdateSchema.parse(payload);
+				const data = createProfileUpdateSchema(mutation.clientTimeZone ?? timeZone).parse(payload);
 				const { birthDate, ...rest } = data;
 				await tx.profile.update({
 					where: { userId },
@@ -228,12 +243,12 @@ async function applyMutation(
 export async function syncRoutes(raw: FastifyInstance) {
 	const app = raw.withTypeProvider<ZodTypeProvider>();
 	app.addHook("preHandler", requireAuth);
-	app.post("/", { schema: { body: syncPushSchema } }, async (request) => {
+	app.post("/", { schema: { body: syncRequestSchema } }, async (request) => {
 		const results = [];
 		for (const mutation of request.body.mutations) {
 			try {
 				results.push(
-					await withSyncSlot(() => applyMutation(request.user.sub, mutation)),
+					await withSyncSlot(() => applyMutation(request.user.sub, mutation, clientTimeZone(request))),
 				);
 			} catch (error) {
 				results.push({

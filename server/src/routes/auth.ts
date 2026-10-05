@@ -11,6 +11,7 @@ import {
 import { prisma } from "../lib/prisma.js";
 import { serializeProfile } from "../lib/serializers.js";
 import { config } from "../config.js";
+import { clientTimeZone } from "../lib/client-time-zone.js";
 
 export async function authRoutes(raw: FastifyInstance) {
 	const app = raw.withTypeProvider<ZodTypeProvider>();
@@ -44,7 +45,7 @@ export async function authRoutes(raw: FastifyInstance) {
 				.code(201)
 				.send({
 					data: {
-						profile: serializeProfile(user, config.PUBLIC_BASE_URL),
+						profile: serializeProfile(user, config.PUBLIC_BASE_URL, clientTimeZone(request)),
 						tokens,
 					},
 				});
@@ -68,7 +69,7 @@ export async function authRoutes(raw: FastifyInstance) {
 		}
 		const tokens = await issueTokens(raw, user.id);
 		return {
-			data: { profile: serializeProfile(user, config.PUBLIC_BASE_URL), tokens },
+			data: { profile: serializeProfile(user, config.PUBLIC_BASE_URL, clientTimeZone(request)), tokens },
 		};
 	});
 

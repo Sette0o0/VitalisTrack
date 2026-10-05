@@ -23,6 +23,8 @@ import { activityRoutes } from "./routes/activities.js";
 import { weightRoutes } from "./routes/weights.js";
 import { aggregateRoutes } from "./routes/aggregates.js";
 import { syncRoutes } from "./routes/sync.js";
+import { clientTimeZone } from "./lib/client-time-zone.js";
+import { ZodError } from "zod";
 
 export async function buildApp() {
 	const app = Fastify({
@@ -31,6 +33,7 @@ export async function buildApp() {
 	});
 	app.setValidatorCompiler(validatorCompiler);
 	app.setSerializerCompiler(serializerCompiler);
+	app.addHook("onRequest", async (request) => { clientTimeZone(request); });
 	await app.register(cors, {
 		origin: config.CORS_ORIGIN === "*" ? true : config.CORS_ORIGIN.split(","),
 	});
@@ -66,6 +69,10 @@ export async function buildApp() {
 		}),
 	);
 	app.setErrorHandler((error, request, reply) => {
+		if (error instanceof ZodError)
+			return reply.code(400).send({ error: { code: "VALIDATION_ERROR", message: "Dados inválidos", details: error.issues, requestId: request.id } });
+		if ((error as { code?: string }).code === "FST_REQ_FILE_TOO_LARGE")
+			return reply.code(413).send({ error: { code: "FILE_TOO_LARGE", message: "A imagem deve ter no máximo 5 MB", requestId: request.id } });
 		if (hasZodFastifySchemaValidationErrors(error))
 			return reply.code(400).send({
 				error: {

@@ -2,13 +2,14 @@ export const parseDate = (value: string) => new Date(`${value}T00:00:00.000Z`);
 export const formatDate = (value: Date) => value.toISOString().slice(0, 10);
 export const iso = (value: Date | null) => value?.toISOString() ?? null;
 
-export function calculateAge(birthDate: Date | null, now = new Date()) {
+export function calculateAge(birthDate: Date | null, now = new Date(), timeZone = "UTC") {
 	if (!birthDate) return null;
-	const age = now.getUTCFullYear() - birthDate.getUTCFullYear();
+	const today = parseDate(calendarDate(timeZone, now));
+	const age = today.getUTCFullYear() - birthDate.getUTCFullYear();
 	const birthdayPending =
-		now.getUTCMonth() < birthDate.getUTCMonth() ||
-		(now.getUTCMonth() === birthDate.getUTCMonth() &&
-			now.getUTCDate() < birthDate.getUTCDate());
+		today.getUTCMonth() < birthDate.getUTCMonth() ||
+		(today.getUTCMonth() === birthDate.getUTCMonth() &&
+			today.getUTCDate() < birthDate.getUTCDate());
 	return age - Number(birthdayPending);
 }
 
@@ -23,3 +24,4 @@ export function dateWindow(
 	);
 	return { start, end };
 }
+import { calendarDate } from "@vitalis/contracts";

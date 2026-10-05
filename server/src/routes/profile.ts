@@ -1,16 +1,14 @@
-import { createWriteStream } from "node:fs";
-import { mkdir } from "node:fs/promises";
-import { extname, join } from "node:path";
-import { pipeline } from "node:stream/promises";
 import type { FastifyInstance } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
-import { goalsUpdateSchema, profileUpdateSchema } from "@vitalis/contracts";
+import { goalsUpdateSchema, profileUpdateInputSchema, createProfileUpdateSchema } from "@vitalis/contracts";
 import { config } from "../config.js";
 import { requireAuth } from "../lib/auth.js";
-import { AppError, notFound } from "../lib/errors.js";
+import { notFound } from "../lib/errors.js";
 import { parseDate } from "../lib/dates.js";
 import { prisma } from "../lib/prisma.js";
 import { serializeGoals, serializeProfile } from "../lib/serializers.js";
+import { clientTimeZone } from "../lib/client-time-zone.js";
+import { uploadAvatar } from "../lib/avatar-upload.js";
 
 async function getUser(userId: string) {
 	const user = await prisma.user.findUnique({
@@ -29,14 +27,15 @@ export async function profileRoutes(raw: FastifyInstance) {
 		data: serializeProfile(
 			await getUser(request.user.sub),
 			config.PUBLIC_BASE_URL,
+			clientTimeZone(request),
 		),
 	}));
 
 	app.patch(
 		"/profile",
-		{ schema: { body: profileUpdateSchema } },
+		{ schema: { body: profileUpdateInputSchema } },
 		async (request) => {
-			const { birthDate, ...data } = request.body;
+			const { birthDate, ...data } = createProfileUpdateSchema(clientTimeZone(request)).parse(request.body);
 			await prisma.profile.update({
 				where: { userId: request.user.sub },
 				data: {
@@ -48,40 +47,19 @@ export async function profileRoutes(raw: FastifyInstance) {
 				data: serializeProfile(
 					await getUser(request.user.sub),
 					config.PUBLIC_BASE_URL,
+					clientTimeZone(request),
 				),
 			};
 		},
 	);
 
 	app.post("/profile/avatar", async (request) => {
-		const file = await request.file();
-		if (!file) throw new AppError(400, "FILE_REQUIRED", "Envie uma imagem");
-		const allowed = new Map([
-			["image/jpeg", ".jpg"],
-			["image/png", ".png"],
-			["image/webp", ".webp"],
-		]);
-		if (!allowed.has(file.mimetype))
-			throw new AppError(415, "INVALID_FILE_TYPE", "Use JPEG, PNG ou WebP");
-		const directory = join(process.cwd(), "storage", "avatars");
-		await mkdir(directory, { recursive: true });
-		const extension = allowed.get(file.mimetype) ?? extname(file.filename);
-		const filename = `${request.user.sub}-${Date.now()}${extension}`;
-		await pipeline(file.file, createWriteStream(join(directory, filename)));
-		if (file.file.truncated)
-			throw new AppError(
-				413,
-				"FILE_TOO_LARGE",
-				"A imagem deve ter no máximo 5 MB",
-			);
-		await prisma.profile.update({
-			where: { userId: request.user.sub },
-			data: { avatarPath: `/uploads/avatars/${filename}` },
-		});
+		await uploadAvatar(request);
 		return {
 			data: serializeProfile(
 				await getUser(request.user.sub),
 				config.PUBLIC_BASE_URL,
+				clientTimeZone(request),
 			),
 		};
 	});
