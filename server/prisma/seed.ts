@@ -5,7 +5,7 @@ import { PrismaClient } from "../generated/prisma/client.js";
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
 const prisma = new PrismaClient({ adapter });
-const email = "ana@email.com";
+const email = "rafael@email.com";
 const passwordHash = await argon2.hash("12345678", { type: argon2.argon2id });
 await prisma.user.upsert({
 	where: { email },

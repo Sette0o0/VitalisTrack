@@ -15,7 +15,7 @@ npx pnpm db:seed
 npx pnpm dev:server
 ```
 
-Em outro terminal, execute `ANDROID_QA=true pnpm -C app android` para gerar e instalar o APK debug. Após instalado, use `pnpm dev:app` para iniciar o Metro. O mapa usa MapLibre/OpenStreetMap sem chave do Google e exige build próprio, conforme [instruções do app](app/README.md). O seed cria `ana@email.com` com senha `12345678`. A API fica em `http://localhost:3000`, o Swagger em `/docs` e os health checks em `/health` e `/ready`.
+Em outro terminal, execute `ANDROID_QA=true pnpm -C app android` para gerar e instalar o APK debug. Após instalado, use `pnpm dev:app` para iniciar o Metro. O mapa usa MapLibre/OpenStreetMap sem chave do Google e exige build próprio, conforme [instruções do app](app/README.md). O seed cria `rafael@email.com` com senha `12345678`. A API fica em `http://localhost:3000`, o Swagger em `/docs` e os health checks em `/health` e `/ready`.
 
 Copie `app/.env.example` para `app/.env.local`. Use `http://10.0.2.2:3000` no emulador Android; em aparelho físico, use o IP local do computador.
 

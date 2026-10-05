@@ -1,7 +1,7 @@
 export {};
 
 const baseUrl = process.env.API_URL ?? "http://localhost:3000";
-const email = process.env.LOAD_EMAIL ?? "ana@email.com";
+const email = process.env.LOAD_EMAIL ?? "rafael@email.com";
 const password = process.env.LOAD_PASSWORD ?? "12345678";
 const login = await fetch(`${baseUrl}/v1/auth/login`, {
 	method: "POST",
