@@ -27,3 +27,11 @@ test("pull preserva edições e exclusões pendentes", () => {
 	const pending = [mutation("a"), { ...mutation("b"), action: "delete" as const, entityId: "b" }];
 	expect(mergeRows([{ id: "a", name: "local" }, { id: "c", name: "c" }], incoming, pending, "meal")).toEqual([{ id: "a", name: "local" }]);
 });
+
+test("fila intercala JSON e avatar preservando ordem e separação de transporte", () => {
+ const { orderedBatch } = jest.requireActual("./sync");
+ const avatar = { mutationId: "photo", entity: "avatar", action: "upsert", payload: { uri: "file://photo", mimeType: "image/png" }, clientUpdatedAt: "now" };
+ expect(orderedBatch([mutation("a"), avatar, mutation("b")]).map((x: SyncMutation) => x.mutationId)).toEqual(["a"]);
+ expect(orderedBatch([avatar, mutation("b")])).toEqual([avatar]);
+ expect(orderedBatch([mutation("a"), mutation("b")]).map((x: SyncMutation) => x.mutationId)).toEqual(["a", "b"]);
+});

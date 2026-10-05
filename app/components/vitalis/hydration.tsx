@@ -1,3 +1,4 @@
+import { formatNumber } from "@/lib/format";
 import { View } from "react-native";
 import { Text } from "react-native-paper";
 import { useDailySummary, useAppState } from "@/state/app-state";
@@ -46,10 +47,10 @@ export function HydrationSummary({
 						variant={compact ? "headlineSmall" : "headlineMedium"}
 						style={{ color: t.onWaterContainer }}
 					>
-						{summary.water.toLocaleString("pt-BR")} mL
+						{formatNumber(summary.water)} mL
 					</Text>
 					<Text style={{ color: t.onWaterContainer }}>
-						Meta {state.goals.waterMl.toLocaleString("pt-BR")} mL ·{" "}
+						Meta {formatNumber(state.goals.waterMl)} mL ·{" "}
 						{Math.round(summary.waterProgress * 100)}%
 					</Text>
 					<ProgressBar value={summary.waterProgress} color={t.water} />

@@ -1,7 +1,10 @@
+import { StepTrend } from "@/components/vitalis/step-trend";
+import { selectActivityStats } from "@/state/selectors";
+import { formatDate, formatNumber } from "@/lib/format";
 import { router } from "expo-router";
 import { useMemo, useState } from "react";
 import { FlatList, View } from "react-native";
-import { Chip, IconButton, SegmentedButtons, Text } from "react-native-paper";
+import { Chip, IconButton, Text } from "react-native-paper";
 import {
 	Button,
 	Card,
@@ -9,11 +12,11 @@ import {
 	Header,
 	Screen,
 } from "@/components/vitalis/ui";
-import { DateField } from "@/components/vitalis/date-field";
+import { DateRangeFilter } from "@/components/vitalis/date-range-filter";
+import { filterByDateRange, recentDateRange, type DateRange } from "@/lib/date-filter";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { goBackOrReplace } from "@/lib/navigation";
 import { useAppState } from "@/state/app-state";
-import { selectActivityStats } from "@/state/selectors";
 import type { ActivityType } from "@/state/types";
 import { useConfirm } from "@/components/vitalis/confirmation";
 const names = { run: "Corrida", walk: "Caminhada", cycling: "Ciclismo" };
@@ -22,25 +25,27 @@ export default function ActivitiesScreen() {
 		theme = useAppTheme(),
 		confirm = useConfirm();
 	const [filter, setFilter] = useState<ActivityType | "all">("all"),
-		[date, setDate] = useState(""),
-		[sort, setSort] = useState<"date" | "type">("date"),
-		[period, setPeriod] = useState<"week" | "month">("week");
-	const stats = selectActivityStats(state, period);
+		[range, setRange] = useState<DateRange | null>(() => recentDateRange(7)),
+		[sort, setSort] = useState<"date" | "type">("date");
 	const list = useMemo(
 		() =>
-			state.activities
-				.filter(
-					(x) =>
-						(filter === "all" || x.type === filter) &&
-						(!date || x.date === date),
-				)
+			filterByDateRange(state.activities, range)
+				.filter((x) => filter === "all" || x.type === filter)
 				.sort((a, b) =>
 					sort === "date"
-						? b.date.localeCompare(a.date)
-						: a.type.localeCompare(b.type),
+						? b.date.localeCompare(a.date) || b.id.localeCompare(a.id)
+						: a.type.localeCompare(b.type) || b.date.localeCompare(a.date) || b.id.localeCompare(a.id),
 				),
-		[state.activities, filter, date, sort],
+		[state.activities, filter, range, sort],
 	);
+	const stats = list.reduce((totals, activity) => ({
+		durationSeconds: totals.durationSeconds + (activity.durationSeconds ?? activity.durationMinutes * 60),
+		distanceMeters: totals.distanceMeters + activity.distanceKm * 1000,
+		calories: totals.calories + activity.calories,
+	}), { durationSeconds: 0, distanceMeters: 0, calories: 0 });
+	const trend = selectActivityStats(state, "week");
+	const steps = filterByDateRange(state.dailySteps ?? [], range)
+		.reduce((total, row) => total + row.steps, 0);
 	return (
 		<Screen scroll={false}>
 			<Header
@@ -54,41 +59,16 @@ export default function ActivitiesScreen() {
 				contentContainerStyle={{ gap: 12, paddingBottom: 16 }}
 				ListHeaderComponent={
 					<View style={{ gap: 16 }}>
-						<SegmentedButtons
-							value={period}
-							onValueChange={(x) => setPeriod(x as "week" | "month")}
-							buttons={[
-								{
-									value: "week",
-									label: "7 dias",
-									style: { minHeight: 48, justifyContent: "center" },
-									labelStyle: { lineHeight: 30 },
-								},
-								{
-									value: "month",
-									label: "30 dias",
-									style: { minHeight: 48, justifyContent: "center" },
-									labelStyle: { lineHeight: 30 },
-								},
-							]}
-						/>
+						<DateRangeFilter value={range} onChange={setRange} />
 						<Card>
-							<Text variant="titleLarge">{stats.activityCount} atividades</Text>
+							<Text variant="titleLarge">{formatNumber(list.length)} {list.length === 1 ? "atividade" : "atividades"}</Text>
+							<StepTrend trend={trend.trend} trendPercent={trend.trendPercent} />
 							<Text>
-								{(stats.durationSeconds / 60).toFixed(1)} min ·{" "}
-								{(stats.distanceMeters / 1000).toFixed(2)} km · {stats.calories}{" "}
+								{formatNumber(stats.durationSeconds / 60, 1)} min ·{" "}
+								{formatNumber(stats.distanceMeters / 1000, 2)} km · {formatNumber(stats.calories)}{" "}
 								kcal
 							</Text>
-							<Text>{stats.steps.toLocaleString("pt-BR")} passos</Text>
-							<Text>
-								{stats.trend === "up"
-									? "↑"
-									: stats.trend === "down"
-										? "↓"
-										: "→"}{" "}
-								Média de passos: {stats.stepAverage.toFixed(0)} · anterior:{" "}
-								{stats.previousStepAverage.toFixed(0)}
-							</Text>
+							<Text>{formatNumber(steps)} passos no período</Text>
 						</Card>
 						<Text variant="titleLarge">Iniciar atividade</Text>
 						<View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
@@ -110,12 +90,6 @@ export default function ActivitiesScreen() {
 							title="Registrar atividade manual"
 							icon="plus"
 							onPress={() => router.push("/activities/form")}
-						/>
-						<DateField
-							label="Filtrar por data"
-							value={date}
-							onChange={setDate}
-							optional
 						/>
 						<View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
 							{(["all", "run", "walk", "cycling"] as const).map((type) => (
@@ -151,12 +125,11 @@ export default function ActivitiesScreen() {
 					<Card>
 						<Text variant="titleMedium">{names[item.type]}</Text>
 						<Text>
-							{item.date} · {item.distanceKm.toFixed(2)} km ·{" "}
-							{(item.durationSeconds
+							{formatDate(item.date)} · {formatNumber(item.distanceKm, 2)} km ·{" "}
+							{formatNumber(item.durationSeconds
 								? item.durationSeconds / 60
-								: item.durationMinutes
-							).toFixed(1)}{" "}
-							min · {item.calories} kcal
+								: item.durationMinutes, 1)}{" "}
+							min · {formatNumber(item.calories)} kcal
 						</Text>
 						<View style={{ flexDirection: "row", justifyContent: "flex-end" }}>
 							<IconButton

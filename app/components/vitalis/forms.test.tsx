@@ -1,10 +1,12 @@
-import { fireEvent, render, waitFor } from "@testing-library/react-native";
+import { act, fireEvent, render, waitFor } from "@testing-library/react-native";
 import { PaperProvider } from "react-native-paper";
 import { initialState } from "@/state/reducer";
 import RegisterScreen from "@/app/(auth)/register";
 import LoginScreen from "@/app/(auth)/login";
 import WaterScreen from "@/app/water";
 import MealForm from "@/app/meals/form";
+import ActivitiesScreen from "@/app/activities";
+import { useLocalSearchParams } from "expo-router";
 import { useAppState } from "@/state/app-state";
 
 jest.mock("@/state/app-state", () => ({
@@ -13,7 +15,7 @@ jest.mock("@/state/app-state", () => ({
 }));
 jest.mock("expo-router", () => ({
 	router: { replace: jest.fn(), canGoBack: () => false },
-	useLocalSearchParams: () => ({}),
+	useLocalSearchParams: jest.fn(() => ({})),
 }));
 jest.mock(
 	"react-native-safe-area-context",
@@ -24,12 +26,55 @@ const dispatch = jest.fn(async () => {}),
 	login = jest.fn(async () => {});
 beforeEach(() => {
 	jest.clearAllMocks();
+	(useLocalSearchParams as jest.Mock).mockReturnValue({});
 	(useAppState as jest.Mock).mockReturnValue({
 		state: initialState,
 		dispatch,
 		register,
 		login,
+		biometrics: { enabled: false, available: true },
 	});
+});
+test("lista de atividades exibe data e medidas no formato brasileiro", async () => {
+	(useAppState as jest.Mock).mockReturnValue({
+		state: { ...initialState, activities: [{
+			id: "activity", type: "walk", date: "2026-04-08",
+			durationMinutes: 12.5, distanceKm: 1.25, calories: 123,
+		}] }, dispatch,
+	});
+	const ui = render(<PaperProvider><ActivitiesScreen /></PaperProvider>);
+	await act(async () => {});
+	fireEvent.press(ui.getByRole("button", { name: "Todas as datas" }));
+	expect(ui.getByText("08/04/2026 · 1,25 km · 12,5 min · 123 kcal")).toBeTruthy();
+});
+test("edição de refeição abre com vírgula e data brasileira", async () => {
+	(useLocalSearchParams as jest.Mock).mockReturnValue({ id: "meal" });
+	(useAppState as jest.Mock).mockReturnValue({
+		state: { ...initialState, meals: [{
+			id: "meal", name: "Café", date: "2026-04-08", time: "08:00",
+			quantity: 100.25, unit: "mL", calories: 80,
+		}] }, dispatch,
+	});
+	const ui = render(<PaperProvider><MealForm /></PaperProvider>);
+	await act(async () => {});
+	expect(ui.getByLabelText("Quantidade").props.value).toBe("100,25");
+	expect(ui.getByText("Data: 08/04/2026")).toBeTruthy();
+});
+test("entrada biométrica cancelada mantém login e permite nova tentativa", async () => {
+	const biometricLogin = jest.fn()
+		.mockRejectedValueOnce(new Error("Biometria não confirmada"))
+		.mockResolvedValueOnce(undefined);
+	(useAppState as jest.Mock).mockReturnValue({
+		state: initialState, login,
+		biometrics: { enabled: true, available: true },
+		loginWithBiometrics: biometricLogin,
+	});
+	const ui = render(<PaperProvider><LoginScreen /></PaperProvider>);
+	fireEvent.press(ui.getByRole("button", { name: "Entrar com biometria" }));
+	await waitFor(() => expect(ui.getByText("Biometria não confirmada")).toBeTruthy());
+	expect(login).not.toHaveBeenCalled();
+	fireEvent.press(ui.getByRole("button", { name: "Entrar com biometria" }));
+	await waitFor(() => expect(biometricLogin).toHaveBeenCalledTimes(2));
 });
 test("login inicia vazio e valida o e-mail antes de enviar as credenciais", async () => {
 	const ui = render(

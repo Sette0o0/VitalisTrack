@@ -1,3 +1,4 @@
+import { decimalInput, formatDate, formatNumber } from "@/lib/format";
 import { router } from "expo-router";
 import { useState } from "react";
 import { View } from "react-native";
@@ -31,9 +32,9 @@ export default function WeightScreen() {
 		{ state, dispatch } = useAppState(),
 		{ submit, saving, error } = useSubmit();
 	const [weight, setWeight] = useState(
-			state.profile.hasWeight === false ? "" : String(state.profile.weightKg),
+			state.profile.hasWeight === false ? "" : decimalInput(state.profile.weightKg),
 		),
-		[goal, setGoal] = useState(String(state.goals.weightKg)),
+		[goal, setGoal] = useState(decimalInput(state.goals.weightKg)),
 		[deficit, setDeficit] = useState(String(state.goals.dailyDeficit));
 	const bmi = calculateBmi(state.profile.weightKg, state.profile.heightCm),
 		weeks = weightGoalWeeks(
@@ -88,14 +89,14 @@ export default function WeightScreen() {
 			<Title>
 				{state.profile.hasWeight === false
 					? "Peso não informado"
-					: `${state.profile.weightKg.toFixed(1)} kg`}
+					: `${formatNumber(state.profile.weightKg, 1)} kg`}
 			</Title>
 			<Card>
 				<Text variant="titleLarge">
 					{state.profile.hasHeight === false ||
 					state.profile.hasWeight === false
 						? "Complete suas medidas no perfil"
-						: `IMC ${bmi.toFixed(1)}`}
+						: `IMC ${formatNumber(bmi, 1)}`}
 				</Text>
 				<Text>
 					{state.profile.hasHeight === false ||
@@ -120,7 +121,7 @@ export default function WeightScreen() {
 					<View
 						accessible
 						accessibilityLabel={entries
-							.map((x) => `${x.date}: ${x.weightKg} kg`)
+							.map((x) => `${formatDate(x.date)}: ${formatNumber(x.weightKg, 1)} kg`)
 							.join("; ")}
 					>
 						<Svg
@@ -147,7 +148,7 @@ export default function WeightScreen() {
 							))}
 						</Svg>
 						<Text>
-							{entries[0].date} a {entries.at(-1)?.date}
+							{formatDate(entries[0].date)} a {formatDate(entries.at(-1)!.date)}
 						</Text>
 					</View>
 				) : (
@@ -159,12 +160,12 @@ export default function WeightScreen() {
 						<View key={i} style={{ flex: 1, minWidth: 120, gap: 8 }}>
 							<Text>{i ? "Semana atual" : "Semana anterior"}</Text>
 							<Text variant="titleLarge">
-								{value === null ? "Sem registros" : `${value.toFixed(1)} kg`}
+								{value === null ? "Sem registros" : `${formatNumber(value, 1)} kg`}
 							</Text>
 							{value !== null && (
 								<View
 									accessible
-									accessibilityLabel={`${value.toFixed(1)} quilogramas`}
+									accessibilityLabel={`${formatNumber(value, 1)} quilogramas`}
 									style={{
 										height: (value / largest) * 90,
 										width: 48,
@@ -180,9 +181,7 @@ export default function WeightScreen() {
 					comparison.previousAverage !== null && (
 						<Text>
 							Variação:{" "}
-							{(comparison.currentAverage - comparison.previousAverage).toFixed(
-								1,
-							)}{" "}
+							{formatNumber(comparison.currentAverage - comparison.previousAverage, 1)}{" "}
 							kg
 						</Text>
 					)}

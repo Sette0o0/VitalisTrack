@@ -1,3 +1,4 @@
+import { useQaReady } from "@/hooks/use-qa-ready";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { router } from "expo-router";
 import { useMemo, useState } from "react";
@@ -19,9 +20,10 @@ import { HelperText, Text } from "react-native-paper";
 import { useAppState } from "@/state/app-state";
 
 export default function LoginScreen() {
+	const onReady = useQaReady("login");
 	const theme = useAppTheme();
 	const styles = useMemo(() => createStyles(theme), [theme]);
-	const { login } = useAppState();
+	const { login, biometrics, loginWithBiometrics } = useAppState();
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const { submit, saving, error } = useSubmit();
@@ -32,7 +34,7 @@ export default function LoginScreen() {
 			router.replace("/(tabs)");
 		});
 	return (
-		<Screen style={styles.screen}>
+		<Screen style={styles.screen} onLayout={onReady}>
 			<View style={styles.brand}>
 				<View style={styles.logo}>
 					<MaterialCommunityIcons
@@ -68,6 +70,27 @@ export default function LoginScreen() {
 					</HelperText>
 				) : null}
 				<Button title="Entrar" onPress={save} loading={saving} />
+				{biometrics.enabled ? (
+					<>
+						<Button
+							title="Entrar com biometria"
+							icon="fingerprint"
+							variant="outline"
+							disabled={saving || !biometrics.available}
+							onPress={() => submit(async () => {
+								await loginWithBiometrics();
+								router.replace("/(tabs)");
+							})}
+						/>
+						<Muted>
+							{biometrics.available
+								? "Use sua digital ou entre com e-mail e senha."
+								: "Biometria indisponível. Entre com e-mail e senha."}
+						</Muted>
+					</>
+				) : (
+					<Muted>Você pode ativar o login por biometria no Perfil após entrar.</Muted>
+				)}
 			</View>
 			<View style={{ gap: 8 }}>
 				<Text variant="bodyMedium" style={styles.switch}>

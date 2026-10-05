@@ -1,6 +1,7 @@
+import { formatNumber } from "@/lib/format";
 import { router } from "expo-router";
 import { View, useColorScheme } from "react-native";
-import { List, RadioButton, Text } from "react-native-paper";
+import { HelperText, List, RadioButton, Text } from "react-native-paper";
 import { ProfileAvatar } from "@/components/vitalis/avatar";
 import {
 	Button,
@@ -15,9 +16,9 @@ import { useSubmit } from "@/hooks/use-submit";
 import { calculateAge, calculateBmi, classifyBmi } from "@/lib/health";
 import { useAppState } from "@/state/app-state";
 export default function ProfileScreen() {
-	const { state, dispatch, logout, lastError } = useAppState(),
+	const { state, dispatch, logout, lastError, biometrics, setBiometricLogin } = useAppState(),
 		scheme = useColorScheme(),
-		{ submit, saving } = useSubmit(),
+		{ submit, saving, error } = useSubmit(),
 		p = state.profile;
 	const bmi =
 		p.hasWeight === false || p.hasHeight === false
@@ -72,7 +73,7 @@ export default function ProfileScreen() {
 					description={
 						p.hasWeight === false
 							? "Não informado"
-							: `${p.weightKg.toFixed(1)} kg`
+							: `${formatNumber(p.weightKg, 1)} kg`
 					}
 				/>
 				<List.Item
@@ -80,11 +81,11 @@ export default function ProfileScreen() {
 					description={
 						p.hasHeight === false
 							? "Não informada"
-							: `${(p.heightCm / 100).toFixed(2)} m`
+							: `${formatNumber(p.heightCm / 100, 2)} m`
 					}
 				/>
 				<Subtitle>
-					{bmi === null ? "IMC indisponível" : `IMC ${bmi.toFixed(1)}`}
+					{bmi === null ? "IMC indisponível" : `IMC ${formatNumber(bmi, 1)}`}
 				</Subtitle>
 				<Muted>
 					{bmi === null
@@ -96,6 +97,24 @@ export default function ProfileScreen() {
 					variant="text"
 					onPress={() => router.push("/weight")}
 				/>
+			</Card>
+			<Card>
+				<Subtitle>Login por biometria</Subtitle>
+				<Muted>
+					{biometrics.enabled
+						? "Ativado. Use sua digital para entrar ao iniciar o app. Sair da conta desativa esse acesso."
+						: biometrics.available
+							? "Use sua digital para entrar ao iniciar o app, sem digitar a senha."
+							: "Cadastre uma digital nas configurações de segurança do celular para ativar."}
+				</Muted>
+				<Button
+					title={biometrics.enabled ? "Desativar biometria" : "Ativar biometria"}
+					icon="fingerprint"
+					variant="outline"
+					disabled={saving || (!biometrics.enabled && !biometrics.available)}
+					onPress={() => submit(() => setBiometricLogin(!biometrics.enabled))}
+				/>
+				{error && <HelperText type="error" accessibilityLiveRegion="polite">{error}</HelperText>}
 			</Card>
 			<Card>
 				<Subtitle>Aparência</Subtitle>

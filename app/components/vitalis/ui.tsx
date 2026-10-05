@@ -26,11 +26,13 @@ export function Screen({
 	children,
 	scroll = true,
 	style,
-}: PropsWithChildren<{ scroll?: boolean; style?: ViewStyle }>) {
+	onLayout,
+}: PropsWithChildren<{ scroll?: boolean; style?: ViewStyle; onLayout?: ComponentProps<typeof View>["onLayout"] }>) {
 	const theme = useAppTheme(),
 		insets = useSafeAreaInsets();
 	const content = (
 		<View
+			onLayout={onLayout}
 			style={[
 				styles.screen,
 				{
@@ -215,7 +217,8 @@ export function Header({
 			style={{ backgroundColor: "transparent" }}
 		>
 			{onBack && (
-				<Appbar.BackAction accessibilityLabel="Voltar" onPress={onBack} />
+				<Appbar.BackAction accessibilityLabel="Voltar" onPress={onBack}
+					style={{ width: 48, height: 48 }} />
 			)}
 			<Appbar.Content title={title} />
 			{action}

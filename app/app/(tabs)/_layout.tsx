@@ -1,5 +1,5 @@
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import { BottomNavigation } from "react-native-paper";
+import { BottomNavigation, Text } from "react-native-paper";
 import { CommonActions } from "@react-navigation/native";
 import { Tabs } from "expo-router";
 import { useAppTheme } from "@/hooks/use-app-theme";
@@ -44,6 +44,15 @@ export default function TabLayout() {
 					getLabelText={({ route }) =>
 						descriptors[route.key].options.title ?? route.name
 					}
+					renderLabel={({ route, color }) => (
+						<Text
+							variant="labelMedium"
+							allowFontScaling={false}
+							style={{ color, fontSize: 10, lineHeight: 16, height: 16, includeFontPadding: false, fontWeight: "700", textAlign: "center", textAlignVertical: "center" }}
+						>
+							{descriptors[route.key].options.title ?? route.name}
+						</Text>
+					)}
 					getAccessibilityLabel={({ route }) =>
 						descriptors[route.key].options.title ?? route.name
 					}

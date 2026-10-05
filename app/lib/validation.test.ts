@@ -13,10 +13,14 @@ test.each([
 	["70,5", 70.5],
 	[" 12.5 ", 12.5],
 	["0", 0],
+	["1.000,50", 1000.5],
+	["1.000", 1000],
+	["1.234.567,89", 1234567.89],
+	["-12,5", -12.5],
 ])("aceita decimal %s", (input, expected) =>
 	expect(parseDecimal(String(input))).toBe(expected),
 );
-test.each(["", "1,2,3", "Infinity", "1e3", "12mL", "1.000,50"])(
+test.each(["", "1,2,3", "Infinity", "1e3", "12mL", "1.23,45", "1,000.50", "1..000", "1.000,", "1 000,50"])(
 	"rejeita entrada ambígua %s",
 	(value) => expect(parseDecimal(value)).toBeNaN(),
 );

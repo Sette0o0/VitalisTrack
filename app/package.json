@@ -24,6 +24,7 @@
 		"@vitalis/contracts": "workspace:*",
 		"expo": "~54.0.36",
 		"expo-constants": "~18.0.13",
+		"expo-file-system": "~19.0.24",
 		"expo-font": "~14.0.12",
 		"expo-haptics": "~15.0.8",
 		"expo-image": "~3.0.11",
@@ -73,10 +74,10 @@
 			"^@/(.*)$": "<rootDir>/$1"
 		},
 		"collectCoverageFrom": [
-			"lib/{api,session,sync,local-database,health,validation,workout,use-session-refresh}.ts",
-			"state/{app-state,reducer,mutations,migration,selectors}.ts",
-			"state/app-state.tsx",
-			"hooks/use-submit.ts"
+			"lib/**/*.ts",
+			"state/**/*.{ts,tsx}",
+			"hooks/use-submit.ts",
+			"!**/*.test.*"
 		],
 		"coverageThreshold": {
 			"global": {

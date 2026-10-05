@@ -1,6 +1,5 @@
 import * as SQLite from "expo-sqlite";
-import type { AppState } from "@/state/types";
-import type { SyncMutation } from "@vitalis/contracts";
+import type { AppState, LocalMutation } from "@/state/types";
 
 let database: ReturnType<typeof SQLite.openDatabaseAsync> | null = null;
 let activeUser: string | null = null;
@@ -116,7 +115,7 @@ export async function migrateLegacyAccount(userId: string, email: string) {
 }
 export async function saveState(
 	state: AppState,
-	mutation?: SyncMutation | null,
+	mutation?: LocalMutation | null,
 ) {
 	if (!state.userId) return;
 	const db = await getDatabase();
@@ -148,7 +147,7 @@ export async function pendingMutations(limit = 100, userId = activeUser) {
 		userId ?? "",
 		limit,
 	);
-	return rows.map((row) => JSON.parse(row.mutation) as SyncMutation);
+	return rows.map((row) => JSON.parse(row.mutation) as LocalMutation);
 }
 export async function pendingCount(userId = activeUser) {
 	const db = await getDatabase();

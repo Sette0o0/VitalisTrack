@@ -35,12 +35,19 @@ import {
 } from "@/lib/local-database";
 import {
 	clearTokens,
+	disableBiometricLogin,
+	enableBiometricLogin,
+	getBiometricStatus,
 	loadTokens,
 	saveTokens,
 	tokenClaims,
+	unlockBiometricSession,
+	type BiometricStatus,
 } from "@/lib/session";
 import { useSessionRefresh } from "@/lib/use-session-refresh";
 import { drainOutbox, mergeRows } from "@/lib/sync";
+import { orderedBatch } from "@/lib/sync";
+import { cleanupAvatarFiles, persistAvatar, reconcileAvatar } from "@/lib/avatar-files";
 import { appReducer, initialState, type Action } from "./reducer";
 import { mutationFor } from "./mutations";
 import { migrateState } from "./migration";
@@ -60,6 +67,7 @@ const localProfile = (profile: ApiProfile): Profile => ({
 	heightCm: profile.heightCm ?? 170,
 	gender: profile.gender ?? "Outro",
 	avatar: profile.avatarUrl ?? undefined,
+	avatarRemoteUrl: profile.avatarUrl ?? undefined,
 });
 type ContextValue = {
 	state: AppState;
@@ -68,6 +76,9 @@ type ContextValue = {
 	lastError: string | null;
 	addActivity: (value: Omit<Activity, "id" | "calories">) => Promise<void>;
 	login: (email: string, password: string) => Promise<void>;
+	biometrics: BiometricStatus;
+	loginWithBiometrics: () => Promise<void>;
+	setBiometricLogin: (enabled: boolean) => Promise<void>;
 	register: (
 		name: string,
 		email: string,
@@ -85,9 +96,25 @@ export function AppStateProvider({ children }: PropsWithChildren) {
 		[loading, setLoading] = useState(true),
 		[lastError, setLastError] = useState<string | null>(null);
 	const systemScheme = useColorScheme();
+	const [biometrics, setBiometrics] = useState<BiometricStatus>({
+		enabled: false,
+		available: false,
+	});
 	const stateRef = useRef(state);
 	const writes = useRef<Promise<void>>(Promise.resolve());
 	const flight = useRef<Promise<void> | null>(null);
+	const flightOwner = useRef<string | undefined>(undefined);
+	const inFlightAvatars = useRef(new Set<string>());
+	const cleanupAvatars = useCallback(async (owner: string) => {
+		try {
+			const stored = await loadState(owner);
+			const pending = await pendingMutations(1_000_000, owner);
+			const references = new Set(inFlightAvatars.current);
+			if (stored?.profile.avatar) references.add(stored.profile.avatar);
+			for (const row of pending) if (row.entity === "avatar") references.add(row.payload.uri);
+			cleanupAvatarFiles(owner, references);
+		} catch { /* A failed cleanup must never roll back a saved photo. */ }
+	}, []);
 	const syncRef = useRef<() => Promise<void>>(async () => {});
 	const syncTimer = useRef<ReturnType<typeof setTimeout> | undefined>(
 		undefined,
@@ -152,8 +179,8 @@ export function AppStateProvider({ children }: PropsWithChildren) {
 		[commit, scheduleSync],
 	);
 	const syncNow = useCallback(() => {
-		if (flight.current) return flight.current;
 		const owner = stateRef.current.userId;
+		if (flight.current) return flightOwner.current === owner ? flight.current : Promise.resolve();
 		if (!owner || !stateRef.current.authenticated) return Promise.resolve();
 		const active = () =>
 			stateRef.current.userId === owner && stateRef.current.authenticated;
@@ -170,16 +197,31 @@ export function AppStateProvider({ children }: PropsWithChildren) {
 				await drainOutbox({
 					read: async () => {
 						await writes.current;
-						return active() ? pendingMutations(100, owner) : [];
+						return active() ? orderedBatch(await pendingMutations(100, owner)) : [];
 					},
-					push: async (mutations) =>
-						apiRequest<SyncResult[]>(
+					push: async (mutations) => {
+						const first = mutations[0];
+						if (first?.entity === "avatar") {
+							inFlightAvatars.current.add(first.payload.uri);
+							try {
+								const data = new FormData();
+								data.append("file", { uri: first.payload.uri, type: first.payload.mimeType, name: `avatar.${first.payload.mimeType.split("/")[1]}` } as unknown as Blob);
+								const profile = await apiRequest<ApiProfile>("/v1/profile/avatar", { method: "POST", headers: { "Idempotency-Key": first.mutationId }, body: data }, true, owner);
+								if (!active()) throw new Error("A sessão foi alterada");
+								await commit((current) => active() && current.profile.avatarMutationId === first.mutationId
+									? { ...current, profile: { ...current.profile, avatarRemoteUrl: profile.avatarUrl ?? undefined } }
+									: current);
+								return [{ mutationId: first.mutationId, status: "applied" as const }];
+							} finally { inFlightAvatars.current.delete(first.payload.uri); }
+						}
+						return apiRequest<SyncResult[]>(
 							"/v1/sync",
 							{ method: "POST", body: JSON.stringify({ mutations }) },
 							true,
 							owner,
-						),
-					ack: (ids) => removeMutations(ids, owner),
+						);
+					},
+					ack: async (ids) => { await removeMutations(ids, owner); await cleanupAvatars(owner); },
 					fail: (ids) => markAttempt(ids, owner),
 				});
 				if (!active()) return;
@@ -219,7 +261,7 @@ export function AppStateProvider({ children }: PropsWithChildren) {
 											"heightCm" in pulled.profile
 												? pulled.profile.heightCm != null
 												: current.profile.hasHeight,
-										avatar: pulled.profile.avatarUrl ?? current.profile.avatar,
+										...reconcileAvatar(current.profile, pulled.profile.avatarUrl ?? null, hasPending("avatar")),
 									}
 								: current.profile,
 						goals:
@@ -274,10 +316,12 @@ export function AppStateProvider({ children }: PropsWithChildren) {
 			}
 		})()
 			.catch((error) =>
-				setLastError(error instanceof Error ? error.message : "Falha de rede"),
+				{ if (active()) setLastError(error instanceof Error ? error.message : "Falha de rede"); },
 			)
 			.finally(async () => {
 				flight.current = null;
+				flightOwner.current = undefined;
+				if (stateRef.current.authenticated && stateRef.current.userId !== owner) { scheduleSync(); return; }
 				if (
 					active() &&
 					stateRef.current.syncStatus === "pending" &&
@@ -286,13 +330,15 @@ export function AppStateProvider({ children }: PropsWithChildren) {
 					scheduleSync();
 			});
 		flight.current = run;
+		flightOwner.current = owner;
 		return run;
-	}, [commit, scheduleSync]);
+	}, [commit, scheduleSync, cleanupAvatars]);
 	syncRef.current = syncNow;
 	const acceptSession = useCallback(
 		async (result: AuthResult) => {
 			await writes.current;
 			await saveTokens(result.tokens);
+			setBiometrics(await getBiometricStatus());
 			setActiveUser(result.profile.id);
 			await migrateLegacyAccount(result.profile.id, result.profile.email);
 			const restored = migrateState(
@@ -301,7 +347,8 @@ export function AppStateProvider({ children }: PropsWithChildren) {
 			);
 			const pending = await pendingMutations(1_000_000, result.profile.id);
 			const pendingProfile = pending.some((row) => row.entity === "profile");
-			const pendingWeight = pending.some((row) => row.entity === "weight");
+		const pendingWeight = pending.some((row) => row.entity === "weight");
+		const pendingAvatar = pending.some((row) => row.entity === "avatar");
 			await commit(() => ({
 				...restored,
 				profile: {
@@ -314,6 +361,7 @@ export function AppStateProvider({ children }: PropsWithChildren) {
 								hasWeight: restored.profile.hasWeight,
 							}
 						: {}),
+					...reconcileAvatar(restored.profile, result.profile.avatarUrl, pendingAvatar),
 				},
 				authenticated: true,
 			}));
@@ -346,6 +394,35 @@ export function AppStateProvider({ children }: PropsWithChildren) {
 			),
 		[acceptSession],
 	);
+	const setBiometricLogin = useCallback(async (enabled: boolean) => {
+		try {
+			if (enabled) await enableBiometricLogin();
+			else await disableBiometricLogin();
+		} catch {
+			throw new Error("Não foi possível alterar a biometria. Confirme sua digital ou tente novamente.");
+		} finally {
+			setBiometrics(await getBiometricStatus());
+		}
+	}, []);
+	const loginWithBiometrics = useCallback(async () => {
+		try {
+			const tokens = await unlockBiometricSession();
+			const owner = tokenClaims(tokens.accessToken).sub;
+			if (!owner) throw new Error("Entre com e-mail e senha para renovar sua sessão.");
+			await writes.current;
+			setActiveUser(owner);
+			const restored = migrateState(await loadState(owner), owner);
+			await commit(() => ({ ...restored, authenticated: true }));
+			await syncNow();
+			if (!(await loadTokens())) {
+				invalidateSession();
+				throw new Error("Sua sessão expirou. Entre com e-mail e senha para continuar.");
+			}
+			scheduleSync();
+		} finally {
+			setBiometrics(await getBiometricStatus());
+		}
+	}, [commit, invalidateSession, scheduleSync, syncNow]);
 	const logout = useCallback(async () => {
 		const tokens = await loadTokens();
 		const owner = stateRef.current.userId;
@@ -353,6 +430,7 @@ export function AppStateProvider({ children }: PropsWithChildren) {
 		clearTimeout(syncTimer.current);
 		await writes.current;
 		await clearTokens();
+		setBiometrics(await getBiometricStatus());
 		setActiveUser(null);
 		stateRef.current = initialState;
 		setState(initialState);
@@ -366,37 +444,32 @@ export function AppStateProvider({ children }: PropsWithChildren) {
 	const uploadAvatar = useCallback(
 		async (uri: string, mimeType = "image/jpeg") => {
 			const owner = stateRef.current.userId;
-			const data = new FormData();
-			data.append("file", {
-				uri,
-				type: mimeType,
-				name: `avatar.${mimeType.split("/")[1] ?? "jpg"}`,
-			} as unknown as Blob);
-			const profile = await apiRequest<ApiProfile>(
-				"/v1/profile/avatar",
-				{ method: "POST", body: data },
-				true,
-				owner,
-			);
-			await commit((current) =>
-				current.userId === owner
-					? {
-							...current,
-							profile: {
-								...current.profile,
-								avatar: profile.avatarUrl ?? undefined,
-							},
-						}
-					: current,
-			);
+			if (!owner || !stateRef.current.authenticated) throw new Error("Entre na sua conta para alterar a foto.");
+			const mutationId = newId();
+			const savedUri = persistAvatar(owner, mutationId, uri, mimeType);
+			// Protect the copy until its snapshot/outbox transaction has completed.
+			inFlightAvatars.current.add(savedUri);
+			try {
+				const action: Action = { type: "AVATAR_SAVE", uri: savedUri, mimeType, mutationId };
+				await commit((current) => {
+					if (current.userId !== owner || !current.authenticated) throw new Error("A sessão foi alterada");
+					return appReducer(current, action);
+				}, action);
+				scheduleSync();
+			} finally {
+				inFlightAvatars.current.delete(savedUri);
+				await cleanupAvatars(owner);
+			}
 		},
-		[commit],
+		[commit, scheduleSync, cleanupAvatars],
 	);
 	useEffect(() => {
 		let stopped = false;
 		void (async () => {
 			try {
 				await initDatabase();
+				const biometricStatus = await getBiometricStatus();
+				if (!stopped) setBiometrics(biometricStatus);
 				const tokens = await loadTokens();
 				const owner = tokens ? tokenClaims(tokens.accessToken).sub : undefined;
 				setActiveUser(owner ?? null);
@@ -428,6 +501,7 @@ export function AppStateProvider({ children }: PropsWithChildren) {
 				if (!stopped) {
 					setLoading(false);
 					scheduleSync();
+					if (stateRef.current.userId) void cleanupAvatars(stateRef.current.userId);
 				}
 			}
 		})();
@@ -435,7 +509,14 @@ export function AppStateProvider({ children }: PropsWithChildren) {
 			stopped = true;
 			clearTimeout(syncTimer.current);
 		};
-	}, [scheduleSync]);
+	}, [scheduleSync, cleanupAvatars]);
+	useEffect(() => {
+		const subscription = Lifecycle.addEventListener("change", (status) => {
+			if (status === "active")
+				void getBiometricStatus().then(setBiometrics).catch(() => {});
+		});
+		return () => subscription.remove();
+	}, []);
 	useEffect(() => {
 		if (
 			state.themeMode === "system" &&
@@ -514,6 +595,9 @@ export function AppStateProvider({ children }: PropsWithChildren) {
 			loading,
 			lastError,
 			login,
+			biometrics,
+			loginWithBiometrics,
+			setBiometricLogin,
 			register,
 			logout,
 			syncNow,
@@ -538,6 +622,9 @@ export function AppStateProvider({ children }: PropsWithChildren) {
 			loading,
 			lastError,
 			login,
+			biometrics,
+			loginWithBiometrics,
+			setBiometricLogin,
 			register,
 			logout,
 			syncNow,

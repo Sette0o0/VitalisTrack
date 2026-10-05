@@ -1,4 +1,4 @@
-import type { ApiError, ApiResponse, AuthTokens } from "@vitalis/contracts";
+import { deviceTimeZone, type ApiError, type ApiResponse, type AuthTokens } from "@vitalis/contracts";
 import { clearTokens, loadTokens, saveTokens, sessionExpiresAt, tokenClaims } from "./session";
 
 export const API_URL =
@@ -92,7 +92,8 @@ export async function apiRequest<T>(
 	const tokens = retry ? await ensureFreshSession() : await loadTokens();
 	if (expectedUserId && tokenClaims(tokens?.accessToken ?? "").sub !== expectedUserId)
   throw new ApiClientError(401, "STALE_SESSION", "A sessão foi alterada");
- const headers = new Headers(init.headers);
+const headers = new Headers(init.headers);
+	headers.set("x-client-time-zone", deviceTimeZone());
 	if (!(init.body instanceof FormData))
 		headers.set("content-type", "application/json");
 	if (tokens?.accessToken)
@@ -110,7 +111,7 @@ export const publicRequest = async <T>(path: string, body: unknown) =>
 	decode<T>(
 		await timedFetch(`${API_URL}${path}`, {
 			method: "POST",
-			headers: { "content-type": "application/json" },
+			headers: { "content-type": "application/json", "x-client-time-zone": deviceTimeZone() },
 			body: JSON.stringify(body),
 		}),
 	);

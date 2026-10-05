@@ -41,6 +41,7 @@ export const initialState: AppState = {
 };
 
 export type Action =
+	| { type: "AVATAR_SAVE"; uri: string; mimeType: string; mutationId: string }
 	| { type: "LOGIN" }
 	| { type: "LOGOUT" }
 	| { type: "SET_DARK"; value: boolean }
@@ -60,6 +61,8 @@ export type Action =
 
 export function appReducer(state: AppState, action: Action): AppState {
 	switch (action.type) {
+		case "AVATAR_SAVE":
+			return { ...state, profile: { ...state.profile, avatar: action.uri, avatarMutationId: action.mutationId } };
 		case "LOGIN":
 			return { ...state, authenticated: true };
 		case "LOGOUT":

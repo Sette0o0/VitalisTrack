@@ -1,3 +1,4 @@
+import { decimalInput } from "@/lib/format";
 import { mealInputSchema } from "@vitalis/contracts";
 import { parseInput, parseDecimal } from "@/lib/validation";
 import { useSubmit } from "@/hooks/use-submit";
@@ -34,9 +35,10 @@ export default function MealFormScreen() {
 			new Date().toLocaleTimeString("pt-BR", {
 				hour: "2-digit",
 				minute: "2-digit",
+				hour12: false,
 			}),
 	);
-	const [quantity, setQuantity] = useState(String(existing?.quantity ?? ""));
+	const [quantity, setQuantity] = useState(decimalInput(existing?.quantity));
 	const [unit, setUnit] = useState<"g" | "mL">(existing?.unit ?? "g");
 	const [calories, setCalories] = useState(String(existing?.calories ?? ""));
 	const save = () =>

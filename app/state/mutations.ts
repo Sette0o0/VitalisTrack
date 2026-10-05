@@ -1,6 +1,6 @@
-import type { SyncMutation } from "@vitalis/contracts";
+import { deviceTimeZone, type SyncMutation } from "@vitalis/contracts";
 import { newId, isoDate } from "@/lib/health";
-import type { AppState } from "./types";
+import type { AppState, LocalMutation } from "./types";
 import type { Action } from "./reducer";
 const createMutation = (
 	entity: SyncMutation["entity"],
@@ -14,12 +14,15 @@ const createMutation = (
 	payload,
 	entityId,
 	clientUpdatedAt: new Date().toISOString(),
+	...(entity === "profile" ? { clientTimeZone: deviceTimeZone() } : {}),
 });
 export function mutationFor(
 	action: Action,
 	next: AppState,
-): SyncMutation | null {
+): LocalMutation | null {
 	switch (action.type) {
+		case "AVATAR_SAVE":
+			return { mutationId: action.mutationId, entity: "avatar", action: "upsert", payload: { uri: action.uri, mimeType: action.mimeType }, clientUpdatedAt: new Date().toISOString() };
 		case "PROFILE": {
 			const { name, birthDate, weightKg, heightCm, gender } = action.value;
 			return createMutation("profile", "upsert", {

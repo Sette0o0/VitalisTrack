@@ -1,3 +1,14 @@
+import type { SyncMutation } from "@vitalis/contracts";
+export type AvatarMutation = {
+	mutationId: string;
+	entity: "avatar";
+	action: "upsert";
+	payload: { uri: string; mimeType: string } & Record<string, unknown>;
+	entityId?: never;
+	clientUpdatedAt: string;
+};
+export type LocalMutation = SyncMutation | AvatarMutation;
+
 export type Gender = "Feminino" | "Masculino" | "Outro";
 export type ActivityType = "walk" | "run" | "cycling";
 export type Period = "day" | "week" | "month";
@@ -9,6 +20,8 @@ export type Profile = {
 	heightCm: number;
 	gender: Gender;
 	avatar?: string;
+	avatarRemoteUrl?: string;
+	avatarMutationId?: string;
 	hasWeight?: boolean;
 	hasHeight?: boolean;
 };

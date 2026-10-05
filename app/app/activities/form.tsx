@@ -1,3 +1,4 @@
+import { decimalInput } from "@/lib/format";
 import { activityInputSchema } from "@vitalis/contracts";
 import { parseInput, parseDecimal } from "@/lib/validation";
 import { useSubmit } from "@/hooks/use-submit";
@@ -18,8 +19,8 @@ export default function ActivityForm() {
 	const item = state.activities.find((x) => x.id === id);
 	const [type, setType] = useState<ActivityType>(item?.type ?? "run");
 	const [date, setDate] = useState(item?.date ?? isoDate());
-	const [duration, setDuration] = useState(String(item?.durationMinutes ?? ""));
-	const [distance, setDistance] = useState(String(item?.distanceKm ?? ""));
+	const [duration, setDuration] = useState(decimalInput(item?.durationMinutes));
+	const [distance, setDistance] = useState(decimalInput(item?.distanceKm));
 	const save = () =>
 		submit(async () => {
 			const input = parseInput(activityInputSchema, {
@@ -76,7 +77,7 @@ export default function ActivityForm() {
 			<Field
 				label="Duração (minutos)"
 				value={duration}
-				keyboardType="numeric"
+				keyboardType="decimal-pad"
 				onChangeText={setDuration}
 			/>
 			<Field

@@ -1,3 +1,4 @@
+import { formatNumber } from "@/lib/format";
 import { router } from "expo-router";
 import { useState } from "react";
 import { View } from "react-native";
@@ -31,6 +32,7 @@ export default function WaterScreen() {
 		new Date().toLocaleTimeString("pt-BR", {
 			hour: "2-digit",
 			minute: "2-digit",
+			hour12: false,
 		});
 	const open = (entry?: WaterEntry) => {
 		setEditing(entry ?? null);
@@ -108,7 +110,7 @@ export default function WaterScreen() {
 						style={{ flexDirection: "row", alignItems: "center" }}
 					>
 						<View style={{ flex: 1 }}>
-							<Text variant="titleMedium">{row.amountMl} mL</Text>
+							<Text variant="titleMedium">{formatNumber(row.amountMl)} mL</Text>
 							<Text>{row.time}</Text>
 						</View>
 						<IconButton

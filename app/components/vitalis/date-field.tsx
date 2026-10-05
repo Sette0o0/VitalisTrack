@@ -1,3 +1,4 @@
+import { formatDate } from "@/lib/format";
 import { DateTimePickerAndroid } from "@react-native-community/datetimepicker";
 import { Button } from "react-native-paper";
 import { View } from "react-native";
@@ -29,6 +30,8 @@ export function DateField({
 							: new Date(),
 						mode: "date",
 						maximumDate,
+						positiveButton: { label: "Confirmar" },
+						negativeButton: { label: "Cancelar" },
 						onChange: (event, date) => {
 							if (event.type === "set" && date) onChange(isoDate(date));
 						},
@@ -37,7 +40,7 @@ export function DateField({
 			>
 				{label}:{" "}
 				{value
-					? new Date(`${value}T12:00:00`).toLocaleDateString("pt-BR")
+					? formatDate(value)
 					: "Selecionar"}
 			</Button>
 			{optional && value && (

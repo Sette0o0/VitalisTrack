@@ -1,3 +1,5 @@
+import { useQaReady } from "@/hooks/use-qa-ready";
+import { formatNumber } from "@/lib/format";
 import { router } from "expo-router";
 import { View } from "react-native";
 import { Text } from "react-native-paper";
@@ -17,12 +19,13 @@ import {
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { useAppState, useDailySummary } from "@/state/app-state";
 export default function HomeScreen() {
+	const onReady = useQaReady("home");
 	const { state } = useAppState(),
 		summary = useDailySummary(),
 		theme = useAppTheme(),
 		remaining = state.goals.calories - summary.calories;
 	return (
-		<Screen>
+		<Screen onLayout={onReady}>
 			<View style={{ flexDirection: "row", alignItems: "center", gap: 16 }}>
 				<ProfileAvatar profile={state.profile} size={48} />
 				<View style={{ flex: 1 }}>
@@ -50,10 +53,10 @@ export default function HomeScreen() {
 							variant="displaySmall"
 							style={{ color: theme.onPrimaryContainer }}
 						>
-							{summary.steps.toLocaleString("pt-BR")}
+							{formatNumber(summary.steps)}
 						</Text>
 						<Text style={{ color: theme.onPrimaryContainer }}>
-							Meta {state.goals.steps.toLocaleString("pt-BR")}
+							Meta {formatNumber(state.goals.steps)}
 						</Text>
 					</View>
 					<ProgressRing
@@ -74,10 +77,10 @@ export default function HomeScreen() {
 					Calorias
 				</Text>
 				<Text variant="headlineMedium" style={{ color: theme.onFoodContainer }}>
-					{summary.calories} kcal
+					{formatNumber(summary.calories)} kcal
 				</Text>
 				<Text style={{ color: theme.onFoodContainer }}>
-					{Math.abs(remaining)} {remaining < 0 ? "acima da meta" : "restantes"}
+					{formatNumber(Math.abs(remaining))} {remaining < 0 ? "acima da meta" : "restantes"}
 				</Text>
 				<ProgressBar value={summary.calorieProgress} color={theme.food} />
 				<Text variant="labelLarge" style={{ color: theme.onFoodContainer }}>

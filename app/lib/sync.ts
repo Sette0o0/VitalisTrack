@@ -1,8 +1,13 @@
 import type { SyncMutation, SyncResult } from "@vitalis/contracts";
+import type { LocalMutation } from "@/state/types";
 
-export async function drainOutbox(io: {
-	read: () => Promise<SyncMutation[]>;
-	push: (rows: SyncMutation[]) => Promise<SyncResult[]>;
+export function orderedBatch(rows: LocalMutation[]) {
+	const avatar = rows.findIndex((row) => row.entity === "avatar");
+	return avatar === 0 ? rows.slice(0, 1) : avatar > 0 ? rows.slice(0, avatar) : rows;
+}
+export async function drainOutbox<T extends { mutationId: string }>(io: {
+	read: () => Promise<T[]>;
+	push: (rows: T[]) => Promise<SyncResult[]>;
 	ack: (ids: string[]) => Promise<void>;
 	fail: (ids: string[]) => Promise<void>;
 }) {
@@ -22,8 +27,8 @@ export async function drainOutbox(io: {
 	}
 }
 
-export function mergeRows<T extends { id: string }>(current: T[], incoming: (T & { deletedAt?: string | null })[], pending: SyncMutation[], entity: SyncMutation["entity"]) {
-	const protectedIds = new Set(pending.filter((x) => x.entity === entity).map((x) => x.entityId ?? x.payload?.id));
+export function mergeRows<T extends { id: string }>(current: T[], incoming: (T & { deletedAt?: string | null })[], pending: LocalMutation[], entity: SyncMutation["entity"]) {
+	const protectedIds = new Set(pending.filter((x): x is SyncMutation => x.entity === entity).map((x) => x.entityId ?? x.payload?.id));
 	const map = new Map(current.map((row) => [row.id, row]));
 	for (const row of incoming) {
 		if (protectedIds.has(row.id)) continue;

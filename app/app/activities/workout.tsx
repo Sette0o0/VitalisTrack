@@ -1,3 +1,4 @@
+import { formatNumber } from "@/lib/format";
 import * as Location from "expo-location";
 import { router, useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -254,7 +255,7 @@ export default function WorkoutScreen() {
 						<Text variant="displaySmall" accessibilityLabel={`Tempo ${timer}`}>
 							{timer}
 						</Text>
-						<Text variant="titleLarge">{distanceKm.toFixed(2)} km</Text>
+						<Text variant="titleLarge">{formatNumber(distanceKm, 2)} km</Text>
 						<Text variant="bodyLarge">
 							Ritmo:{" "}
 							{distanceKm

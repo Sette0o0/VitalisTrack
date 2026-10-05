@@ -1,3 +1,5 @@
+import { StepTrend } from "@/components/vitalis/step-trend";
+import { formatNumber } from "@/lib/format";
 import { router } from "expo-router";
 import { useState } from "react";
 import { View } from "react-native";
@@ -81,21 +83,11 @@ export default function ProgressScreen() {
 				<Subtitle>Passos</Subtitle>
 				<Text variant="bodyLarge">
 					Média dos últimos 7 dias:{" "}
-					{Math.round(stats.stepAverage).toLocaleString("pt-BR")}
+					{formatNumber(stats.stepAverage, 0)}
 				</Text>
-				<Muted>
-					{stats.trend === "flat"
-						? "Estável"
-						: stats.trend === "up"
-							? "Em crescimento"
-							: "Em queda"}{" "}
-					·{" "}
-					{stats.trendPercent === null
-						? "sem base na semana anterior"
-						: `${Math.abs(stats.trendPercent).toFixed(1)}% em relação aos 7 dias anteriores`}
-				</Muted>
+				<StepTrend trend={stats.trend} trendPercent={stats.trendPercent} />
 				<Text variant="bodyLarge">
-					{stats.steps.toLocaleString("pt-BR")} passos nos últimos{" "}
+					{formatNumber(stats.steps)} passos nos últimos{" "}
 					{period === "month" ? 30 : 7} dias
 				</Text>
 			</Card>
@@ -107,7 +99,7 @@ export default function ProgressScreen() {
 				onPress={() => router.push("/weight")}
 			/>
 			<Button
-				title={`Atividades · ${progress.activityMinutes.toFixed(1)} min`}
+				title={`Atividades · ${formatNumber(progress.activityMinutes, 1)} min`}
 				icon="run"
 				variant="outline"
 				onPress={() => router.push("/activities")}

@@ -1,7 +1,14 @@
 import type { ZodType } from "zod";
 export function parseDecimal(value: string) {
-	const normalized = value.trim().replace(",", ".");
-	return /^[+-]?\d+(?:\.\d+)?$/.test(normalized) ? Number(normalized) : NaN;
+	const input = value.trim();
+	// Brazilian thousands and decimal separators; accept an ungrouped dot for older input.
+	const grouped = /^[+-]?\d{1,3}(?:\.\d{3})+(?:,\d+)?$/;
+	const plain = /^[+-]?\d+(?:[.,]\d+)?$/;
+	if (!grouped.test(input) && !plain.test(input)) return NaN;
+	const normalized = (grouped.test(input) ? input.replace(/\./g, "") : input)
+		.replace(",", ".");
+	const result = Number(normalized);
+	return Number.isFinite(result) ? result : NaN;
 }
 const labels: Record<string, string> = {
 	name: "Nome",

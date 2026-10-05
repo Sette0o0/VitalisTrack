@@ -6,6 +6,16 @@ jobs:
   maestro:
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - api: 24
+            arch: x86
+            profile: Nexus One
+          - api: 36
+            arch: x86_64
+            profile: pixel_2
     services:
       postgres:
         image: postgres:18-alpine
@@ -21,6 +31,7 @@ jobs:
       EXPO_PUBLIC_API_URL: http://10.0.2.2:3000
       PUBLIC_BASE_URL: http://10.0.2.2:3000
       ANDROID_QA: "true"
+      EXPO_PUBLIC_ANDROID_QA: "true"
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -69,7 +80,7 @@ jobs:
         run: |
           pnpm exec expo prebuild --platform android --no-install
           cd android
-          ./gradlew --no-daemon --max-workers=2 -PreactNativeArchitectures=x86_64 assembleRelease
+          ./gradlew --no-daemon --max-workers=2 -PreactNativeArchitectures=${{ matrix.arch }} assembleRelease
       - name: Start QA API
         env:
           NODE_ENV: test
@@ -82,18 +93,19 @@ jobs:
           exit 1
       - uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 36
+          api-level: ${{ matrix.api }}
           target: google_apis
-          arch: x86_64
-          profile: pixel_2
+          arch: ${{ matrix.arch }}
+          profile: ${{ matrix.profile }}
           disable-animations: true
           script: |
             adb install app/android/app/build/outputs/apk/release/app-release.apk
-            maestro test -e QA_EMAIL=qa-${{ github.run_id }}-${{ github.run_attempt }}@example.com --format junit --output artifacts/maestro.xml --test-output-dir artifacts/maestro --debug-output artifacts/maestro .maestro/sprint-1-smoke.yaml
+            sha256sum app/android/app/build/outputs/apk/release/app-release.apk > artifacts/apk-sha256.txt
+            maestro test -e QA_EMAIL=qa-${{ github.run_id }}-${{ github.run_attempt }}-api${{ matrix.api }}@example.com --format junit --output artifacts/maestro.xml --test-output-dir artifacts/maestro --debug-output artifacts/maestro .maestro/sprint-1-smoke.yaml
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: android-qa
+          name: android-qa-api${{ matrix.api }}-${{ github.sha }}
           path: |
             app/android/app/build/outputs/apk/release/*.apk
             artifacts/

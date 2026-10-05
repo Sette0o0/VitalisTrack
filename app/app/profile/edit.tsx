@@ -1,8 +1,10 @@
-import { profileUpdateSchema } from "@vitalis/contracts";
+import { decimalInput } from "@/lib/format";
+import { createProfileUpdateSchema, deviceTimeZone } from "@vitalis/contracts";
 import { parseInput, parseDecimal } from "@/lib/validation";
 import { useSubmit } from "@/hooks/use-submit";
 import { HelperText, RadioButton, Text } from "react-native-paper";
-import { DateField } from "@/components/vitalis/date-field";
+import { BirthDateField } from "@/components/vitalis/birth-date-field";
+import { ProfileAvatar } from "@/components/vitalis/avatar";
 import { router } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
 import { useMemo, useState } from "react";
@@ -30,7 +32,7 @@ export default function EditProfileScreen() {
 	const [name, setName] = useState(p.name);
 	const [birthDate, setBirthDate] = useState(p.birthDate);
 	const [weight, setWeight] = useState(
-		p.hasWeight === false ? "" : String(p.weightKg),
+		p.hasWeight === false ? "" : decimalInput(p.weightKg),
 	);
 	const [height, setHeight] = useState(
 		p.hasHeight === false ? "" : String(p.heightCm),
@@ -55,7 +57,7 @@ export default function EditProfileScreen() {
 		});
 	const save = () =>
 		submit(async () => {
-			const data = parseInput(profileUpdateSchema, {
+				const data = parseInput(createProfileUpdateSchema(deviceTimeZone()), {
 				name: name.trim(),
 				birthDate,
 				weightKg: parseDecimal(weight),
@@ -72,21 +74,17 @@ export default function EditProfileScreen() {
 				onBack={() => goBackOrReplace(router, "/(tabs)/profile")}
 			/>
 			<Title>Seus dados</Title>
-			<Muted>A foto e os dados pessoais ficam associados à sua conta.</Muted>
+				<Muted>A foto e os dados pessoais ficam associados à sua conta.</Muted>
+				<ProfileAvatar profile={state.profile} />
 			<Button
-				title={uploading ? "Enviando foto…" : "Escolher foto"}
+					title={uploading ? "Salvando foto…" : "Escolher foto"}
 				variant="outline"
 				disabled={saving}
 				onPress={() => void chooseAvatar()}
 			/>
 			<Field label="Nome" value={name} onChangeText={setName} />
 			<Field label="E-mail (não editável)" value={p.email} editable={false} />
-			<DateField
-				label="Nascimento"
-				value={birthDate}
-				onChange={setBirthDate}
-				maximumDate={new Date()}
-			/>
+			<BirthDateField value={birthDate} onChange={setBirthDate} />
 			<View style={styles.row}>
 				<View style={{ flex: 1 }}>
 					<Field
