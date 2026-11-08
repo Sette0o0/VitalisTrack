@@ -1,3 +1,4 @@
+import { userError } from "@/lib/user-error";
 import { useRef, useState } from "react";
 export function useSubmit() {
 	const active = useRef(false);
@@ -11,11 +12,7 @@ export function useSubmit() {
 		try {
 			await action();
 		} catch (cause) {
-			setError(
-				cause instanceof Error
-					? cause.message
-					: "Não foi possível salvar. Tente novamente.",
-			);
+			setError(userError(cause));
 		} finally {
 			active.current = false;
 			setSaving(false);

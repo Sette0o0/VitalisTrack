@@ -1,0 +1,16 @@
+import * as SQLite from 'expo-sqlite';
+import { initDatabase,saveState,rememberProfiles,pendingMutations,getValue } from './local-database';
+import { synchronizeAccount } from './sync-engine';
+import { apiRequest } from './api';
+import { getWellbeing,saveWellbeing } from './wellbeing-store';
+import { initialState } from '@/state/reducer';
+import type { SyncPull,WellbeingRecord } from '@vitalis/contracts';
+jest.mock('expo-sqlite',()=>jest.requireActual('@/testing/sqlite').sqliteBridge());
+jest.mock('./api',()=>({apiRequest:jest.fn()}));
+jest.mock('./avatar-files',()=>({reconcileAvatar:()=>({})}));
+const profile={id:'a',name:'QA',isPrimary:true,updatedAt:'2026-11-07'};
+const health:SyncPull={water:[],meals:[],activities:[],weights:[],steps:[],profile:null,goals:null,cursor:'health-1',wellbeingVersion:1};
+const remote:WellbeingRecord={id:'00000000-0000-4000-8000-000000000001',kind:'sleep',data:{date:'2026-11-07',durationMinutes:480},createdAt:'2026-11-07',updatedAt:'2026-11-07',deletedAt:null,revision:'1'};
+beforeEach(async()=>{await initDatabase();const db=await SQLite.openDatabaseAsync('test');await db.execAsync('DELETE FROM kv;DELETE FROM outbox_v2;DELETE FROM wellbeing_records;');await saveState({...initialState,userId:'a',profileId:'a'});await rememberProfiles('a',[profile]);jest.mocked(apiRequest).mockReset();});
+test('account sync receives all new pages, advances their separate cursor and keeps health compatibility',async()=>{jest.mocked(apiRequest).mockImplementation(async(path)=>{if(path==='/v1/profiles')return [profile];if(path.startsWith('/v1/sync'))return health;if(path.endsWith('cursor=0'))return {records:[remote],cursor:'1',hasMore:true};if(path.endsWith('cursor=1'))return {records:[{...remote,id:'00000000-0000-4000-8000-000000000002',revision:'2'}],cursor:'2',hasMore:false};throw new Error(path);});await synchronizeAccount('a');expect(await getWellbeing('a','a',remote.id)).not.toBeNull();expect(await getValue('wellbeing-cursor','a','a')).toBe('2');expect(await getValue('sync-cursor','a','a')).toBe('health-1');});
+test('new local edits during remote fetch survive receipt and remain queued',async()=>{jest.mocked(apiRequest).mockImplementation(async(path)=>{if(path==='/v1/profiles')return [profile];if(path.startsWith('/v1/sync'))return health;if(path.includes('/wellbeing/sync')){await saveWellbeing('a','a',{id:remote.id,kind:'sleep',data:{date:'2026-11-07',durationMinutes:500}});return {records:[remote],cursor:'1',hasMore:false};}throw new Error(path);});await synchronizeAccount('a');expect((await getWellbeing('a','a',remote.id))!.data).toEqual({date:'2026-11-07',durationMinutes:500});expect(await pendingMutations(100,'a','a')).toHaveLength(1);});

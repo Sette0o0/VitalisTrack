@@ -1,3 +1,4 @@
+import { UserFacingError } from "@/lib/user-error";
 import { Directory, File, Paths } from "expo-file-system";
 import type { Profile } from "@/state/types";
 
@@ -6,10 +7,10 @@ const directory = (userId: string) => new Directory(Paths.document, "avatars", u
 
 export function persistAvatar(userId: string, mutationId: string, uri: string, mimeType: string) {
 	const extension = extensions[mimeType];
-	if (!extension) throw new Error("Use JPEG, PNG ou WebP.");
+	if (!extension) throw new UserFacingError("Use JPEG, PNG ou WebP.");
 	const source = new File(uri);
-	if (!source.exists || source.size <= 0) throw new Error("Não foi possível ler a imagem escolhida.");
-	if (source.size > 5 * 1024 * 1024) throw new Error("A imagem deve ter no máximo 5 MB.");
+	if (!source.exists || source.size <= 0) throw new UserFacingError("Não foi possível ler a imagem escolhida.");
+	if (source.size > 5 * 1024 * 1024) throw new UserFacingError("A imagem deve ter no máximo 5 MB.");
 	const folder = directory(userId);
 	folder.create({ intermediates: true, idempotent: true });
 	const target = new File(folder, `${mutationId}.${extension}`);

@@ -1,9 +1,11 @@
+jest.mock("expo/fetch", () => ({
+	fetch: (...args: Parameters<typeof fetch>) => globalThis.fetch(...args),
+}));
 import * as SecureStore from "expo-secure-store";
 import { apiRequest, ensureFreshSession, refreshAccessToken } from "./api";
 import { clearTokens, loadTokens, saveTokens, tokenClaims } from "./session";
 
-const jwt = (exp: number) =>
-	`header.${btoa(JSON.stringify({ exp, sub: "user-a" }))}.signature`;
+const jwt = (exp: number) => `header.${btoa(JSON.stringify({ exp, sub: "user-a" }))}.signature`;
 const tokens = (seconds = 900) => ({
 	accessToken: jwt(Math.floor(Date.now() / 1000) + seconds),
 	refreshToken: "refresh-a",
@@ -50,9 +52,7 @@ test("não renova uma sessão ainda válida", async () => {
 });
 test("renova antecipadamente e compartilha requisições concorrentes", async () => {
 	await saveTokens(tokens(30));
-	(fetch as jest.Mock).mockResolvedValue(
-		response({ ...tokens(), refreshToken: "rotated" }),
-	);
+	(fetch as jest.Mock).mockResolvedValue(response({ ...tokens(), refreshToken: "rotated" }));
 	await Promise.all([ensureFreshSession(), ensureFreshSession()]);
 	expect(fetch).toHaveBeenCalledTimes(1);
 	expect((await loadTokens())?.refreshToken).toBe("rotated");
@@ -60,10 +60,8 @@ test("renova antecipadamente e compartilha requisições concorrentes", async ()
 test("falha de rede preserva a sessão offline", async () => {
 	const value = tokens();
 	await saveTokens(value);
-	(fetch as jest.Mock).mockRejectedValue(
-		new TypeError("Network request failed"),
-	);
-	await expect(refreshAccessToken()).rejects.toThrow("Network");
+	(fetch as jest.Mock).mockRejectedValue(new TypeError("Network request failed"));
+	await expect(refreshAccessToken()).rejects.toMatchObject({kind:"network"});
 	expect(await loadTokens()).toEqual(value);
 });
 test("refresh definitivamente inválido revoga a sessão", async () => {
@@ -78,20 +76,14 @@ test("anexa Bearer, retorna dados e suporta 204", async () => {
 		.mockResolvedValueOnce(response({ water: 500 }))
 		.mockResolvedValueOnce(response(null, 204));
 	expect(await apiRequest("/v1/dashboard/daily")).toEqual({ water: 500 });
-	expect(
-		(fetch as jest.Mock).mock.calls[0][1].headers.get("authorization"),
-	).toContain("Bearer ");
-	expect(
-		await apiRequest("/v1/auth/logout", { method: "POST" }),
-	).toBeUndefined();
+	expect((fetch as jest.Mock).mock.calls[0][1].headers.get("authorization")).toContain("Bearer ");
+	expect(await apiRequest("/v1/auth/logout", { method: "POST" })).toBeUndefined();
 });
 test("repete apenas uma vez após 401", async () => {
 	await saveTokens(tokens());
 	(fetch as jest.Mock)
 		.mockResolvedValueOnce(response(null, 401))
-		.mockResolvedValueOnce(
-			response({ ...tokens(1200), refreshToken: "rotated" }),
-		)
+		.mockResolvedValueOnce(response({ ...tokens(1200), refreshToken: "rotated" }))
 		.mockResolvedValueOnce(response({ ok: true }));
 	expect(await apiRequest("/v1/profile")).toEqual({ ok: true });
 	expect(fetch).toHaveBeenCalledTimes(3);
@@ -99,9 +91,9 @@ test("repete apenas uma vez após 401", async () => {
 
 test("troca de conta bloqueia uma requisição com dados do dono anterior", async () => {
 	await saveTokens(tokens());
-	await expect(
-		apiRequest("/v1/sync", {}, true, "user-b"),
-	).rejects.toMatchObject({ code: "STALE_SESSION" });
+	await expect(apiRequest("/v1/sync", {}, true, "user-b")).rejects.toMatchObject({
+		code: "STALE_SESSION",
+	});
 	expect(fetch).not.toHaveBeenCalled();
 });
 test("erro transitório do servidor preserva os tokens", async () => {
@@ -127,4 +119,25 @@ test("resposta de refresh antiga não sobrescreve uma sessão nova", async () =>
 	release(response({ ...tokens(), refreshToken: "old-rotation" }));
 	await expect(request).rejects.toMatchObject({ code: "STALE_SESSION" });
 	expect(await loadTokens()).toEqual(next);
+});
+
+test("resposta inválida e cancelamento recebem categorias seguras sem encerrar sessão", async () => {
+ const value=tokens();await saveTokens(value);
+ (fetch as jest.Mock).mockResolvedValueOnce({ok:true,status:200,json:async()=>{throw new SyntaxError("private endpoint secret");}});
+ await expect(apiRequest("/v1/profile")).rejects.toMatchObject({kind:"response"});
+ const controller=new AbortController();controller.abort();
+ (fetch as jest.Mock).mockRejectedValueOnce(new Error("java.net private"));
+ await expect(apiRequest("/v1/profile",{signal:controller.signal})).rejects.toMatchObject({kind:"cancelled"});
+ expect(await loadTokens()).toEqual(value);
+});
+test("timeout preserva tokens e não vaza a exceção nativa", async () => {
+ jest.useFakeTimers();
+ try {
+  const value=tokens();await saveTokens(value);
+  (fetch as jest.Mock).mockImplementation((_url, init) => new Promise((_resolve,reject)=>init.signal.addEventListener("abort",()=>reject(new Error("java.net timeout secret")))));
+  const request=apiRequest("/v1/profile");
+  const assertion=expect(request).rejects.toMatchObject({kind:"timeout"});
+  await jest.advanceTimersByTimeAsync(15001);await assertion;
+  expect(await loadTokens()).toEqual(value);
+ } finally {jest.useRealTimers();}
 });

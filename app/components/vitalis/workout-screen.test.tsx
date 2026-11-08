@@ -24,7 +24,7 @@ jest.mock("@/lib/local-database", () => ({
 	getValue: jest.fn(async () => null),
 	setValue: jest.fn(async () => {}),
 }));
-jest.mock("expo-router", () => ({ router: { replace: jest.fn() }, useLocalSearchParams: () => ({}) }));
+jest.mock("expo-router", () => ({ useFocusEffect: (effect: () => (() => void)) => require("react").useEffect(effect, [effect]), router: { replace: jest.fn() }, useLocalSearchParams: () => ({}) }));
 jest.mock("react-native-safe-area-context", () => jest.requireActual("react-native-safe-area-context/jest/mock").default);
 
 beforeEach(() => {

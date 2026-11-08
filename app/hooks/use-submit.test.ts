@@ -26,7 +26,7 @@ test("bloqueia envio duplo e mostra erro recuperável", async () => {
 			throw new Error("Disco cheio");
 		}),
 	);
-	expect(result.current.error).toBe("Disco cheio");
+	expect(result.current.error).toBe("Não foi possível salvar. Tente novamente.");
 	await act(async () => result.current.submit(async () => {}));
 	expect(result.current.error).toBe("");
 });

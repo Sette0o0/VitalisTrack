@@ -11,15 +11,12 @@ function Navigation() {
 	const { state } = useAppState();
 	return (
 		<PaperProvider theme={createPaperTheme(state.darkMode)}>
-			<ConfirmationProvider>
+			<ConfirmationProvider key={`${state.authenticated}:${state.userId ?? "guest"}:${state.profileId ?? "main"}`}>
 				<ThemeProvider
-					value={
-						state.darkMode
-							? navigationThemes.DarkTheme
-							: navigationThemes.LightTheme
-					}
+					value={state.darkMode ? navigationThemes.DarkTheme : navigationThemes.LightTheme}
 				>
 					<Stack
+						key={`${state.userId ?? "guest"}:${state.profileId ?? "main"}`}
 						screenOptions={{
 							headerShown: false,
 							animation: "slide_from_right",
@@ -32,6 +29,8 @@ function Navigation() {
 						<Stack.Protected guard={state.authenticated}>
 							<Stack.Screen name="(tabs)" />
 							<Stack.Screen name="activities" />
+ <Stack.Screen name="wellbeing" />
+ <Stack.Screen name="reports" />
 							<Stack.Screen name="meals" />
 							<Stack.Screen name="profile" />
 							<Stack.Screen name="water" />

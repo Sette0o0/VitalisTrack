@@ -1,5 +1,6 @@
 import type { SyncMutation } from "@vitalis/contracts";
 export type AvatarMutation = {
+	profileId?: string;
 	mutationId: string;
 	entity: "avatar";
 	action: "upsert";
@@ -40,6 +41,7 @@ export type WaterEntry = {
 	time: string;
 };
 export type Meal = {
+	nutrition?: import("@vitalis/contracts").Meal["nutrition"];
 	id: string;
 	name: string;
 	date: string;
@@ -49,6 +51,8 @@ export type Meal = {
 	calories: number;
 };
 export type Activity = {
+ visibility?: "private" | "friends";
+ heartRate?: import("@vitalis/contracts").Activity["heartRate"];
 	id: string;
 	type: ActivityType;
 	date: string;
@@ -66,7 +70,11 @@ export type Activity = {
 };
 export type WeightEntry = { id: string; date: string; weightKg: number };
 export type AppState = {
-	schemaVersion?: 2;
+	schemaVersion?: 2 | 3;
+	profileId?: string;
+	unitSystem?: import("@vitalis/contracts").UnitSystem;
+	nutrition?: import("@vitalis/contracts").NutritionProfile | null;
+	recipes?: import("@vitalis/contracts").Recipe[];
 	userId?: string;
 	dailySteps?: { date: string; steps: number }[];
 	profile: Profile;

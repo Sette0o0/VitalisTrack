@@ -1,3 +1,5 @@
+import { reportingRoutes } from "./routes/reporting.js";
+import { documentRoutes, privateDocumentDirectory } from "./routes/documents.js";
 import { join } from "node:path";
 import Fastify from "fastify";
 import cors from "@fastify/cors";
@@ -22,18 +24,25 @@ import { mealRoutes } from "./routes/meals.js";
 import { activityRoutes } from "./routes/activities.js";
 import { weightRoutes } from "./routes/weights.js";
 import { aggregateRoutes } from "./routes/aggregates.js";
+import { healthProfilesRoutes, sprint2Routes } from "./routes/sprint2.js";
+import { foodRoutes } from "./routes/foods.js";
+import { wellbeingRoutes } from "./routes/wellbeing.js";
+import { friendRoutes } from "./routes/friends.js";
 import { syncRoutes } from "./routes/sync.js";
 import { clientTimeZone } from "./lib/client-time-zone.js";
 import { ZodError } from "zod";
 
 export async function buildApp() {
+ privateDocumentDirectory();
 	const app = Fastify({
 		logger: config.NODE_ENV !== "test",
 		requestIdHeader: "x-request-id",
 	});
 	app.setValidatorCompiler(validatorCompiler);
 	app.setSerializerCompiler(serializerCompiler);
-	app.addHook("onRequest", async (request) => { clientTimeZone(request); });
+	app.addHook("onRequest", async (request) => {
+		clientTimeZone(request);
+	});
 	await app.register(cors, {
 		origin: config.CORS_ORIGIN === "*" ? true : config.CORS_ORIGIN.split(","),
 	});
@@ -70,9 +79,26 @@ export async function buildApp() {
 	);
 	app.setErrorHandler((error, request, reply) => {
 		if (error instanceof ZodError)
-			return reply.code(400).send({ error: { code: "VALIDATION_ERROR", message: "Dados inválidos", details: error.issues, requestId: request.id } });
+			return reply
+				.code(400)
+				.send({
+					error: {
+						code: "VALIDATION_ERROR",
+						message: "Dados inválidos",
+						details: error.issues,
+						requestId: request.id,
+					},
+				});
 		if ((error as { code?: string }).code === "FST_REQ_FILE_TOO_LARGE")
-			return reply.code(413).send({ error: { code: "FILE_TOO_LARGE", message: "A imagem deve ter no máximo 5 MB", requestId: request.id } });
+			return reply
+				.code(413)
+				.send({
+					error: {
+						code: "FILE_TOO_LARGE",
+						message: "O arquivo excede o limite permitido",
+						requestId: request.id,
+					},
+				});
 		if (hasZodFastifySchemaValidationErrors(error))
 			return reply.code(400).send({
 				error: {
@@ -100,15 +126,13 @@ export async function buildApp() {
 				},
 			});
 		request.log.error(error);
-		return reply
-			.code(500)
-			.send({
-				error: {
-					code: "INTERNAL_ERROR",
-					message: "Erro interno",
-					requestId: request.id,
-				},
-			});
+		return reply.code(500).send({
+			error: {
+				code: "INTERNAL_ERROR",
+				message: "Erro interno",
+				requestId: request.id,
+			},
+		});
 	});
 
 	app.get("/health", async () => ({ data: { status: "ok" } }));
@@ -116,6 +140,13 @@ export async function buildApp() {
 		await prisma.$queryRaw`SELECT 1`;
 		return { data: { status: "ready" } };
 	});
+	await app.register(healthProfilesRoutes, { prefix: "/v1" });
+	await app.register(sprint2Routes, { prefix: "/v1" });
+	await app.register(wellbeingRoutes, { prefix: "/v1" });
+ await app.register(reportingRoutes, { prefix: "/v1" });
+ await app.register(documentRoutes, { prefix: "/v1" });
+ await app.register(friendRoutes, { prefix: "/v1" });
+	await app.register(foodRoutes, { prefix: "/v1/foods" });
 	await app.register(authRoutes, { prefix: "/v1/auth" });
 	await app.register(profileRoutes, { prefix: "/v1" });
 	await app.register(waterRoutes, { prefix: "/v1/water" });

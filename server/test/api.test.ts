@@ -15,18 +15,14 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-	for (const id of extraUsers)
-		await prisma.user.delete({ where: { id } }).catch(() => undefined);
-	if (userId)
-		await prisma.user.delete({ where: { id: userId } }).catch(() => undefined);
+	for (const id of extraUsers) await prisma.user.delete({ where: { id } }).catch(() => undefined);
+	if (userId) await prisma.user.delete({ where: { id: userId } }).catch(() => undefined);
 	await app.close();
 });
 
 describe("API da Sprint 1", () => {
 	test("expõe health check", async () => {
-		expect(
-			(await app.inject({ method: "GET", url: "/health" })).statusCode,
-		).toBe(200);
+		expect((await app.inject({ method: "GET", url: "/health" })).statusCode).toBe(200);
 	});
 	test("cadastra, autentica e protege recursos", async () => {
 		const response = await app.inject({
@@ -44,12 +40,9 @@ describe("API da Sprint 1", () => {
 		accessToken = body.tokens.accessToken;
 		refreshToken = body.tokens.refreshToken;
 		userId = body.profile.id;
+		expect((await app.inject({ method: "GET", url: "/v1/profile" })).statusCode).toBe(401);
 		expect(
-			(await app.inject({ method: "GET", url: "/v1/profile" })).statusCode,
-		).toBe(401);
-		expect(
-			(await app.inject({ method: "GET", url: "/v1/profile", headers: auth() }))
-				.statusCode,
+			(await app.inject({ method: "GET", url: "/v1/profile", headers: auth() })).statusCode,
 		).toBe(200);
 	});
 	test("registra água e atualiza o resumo", async () => {
@@ -154,8 +147,7 @@ describe("API da Sprint 1", () => {
 				}),
 			),
 		);
-		for (const result of results)
-			expect(result.json().data[0].status).toBe("applied");
+		for (const result of results) expect(result.json().data[0].status).toBe("applied");
 		expect(
 			await prisma.processedMutation.count({
 				where: { userId, mutationId: mutation.mutationId },
@@ -201,9 +193,9 @@ describe("API da Sprint 1", () => {
 			},
 		});
 		expect(result.json().data[0].status).toBe("failed");
-		expect(
-			(await prisma.meal.findUniqueOrThrow({ where: { id: owned.id } })).name,
-		).toBe(owned.name);
+		expect((await prisma.meal.findUniqueOrThrow({ where: { id: owned.id } })).name).toBe(
+			owned.name,
+		);
 	});
 	test("validação rejeita data inexistente e quantidade inválida", async () => {
 		const result = await app.inject({
@@ -244,9 +236,7 @@ test("login valida e-mail e senha e emite JWT para credenciais válidas", async 
 		payload: { email, password: "12345678" },
 	});
 	expect(result.statusCode).toBe(200);
-	expect(
-		app.jwt.verify<{ sub: string }>(result.json().data.tokens.accessToken).sub,
-	).toBe(userId);
+	expect(app.jwt.verify<{ sub: string }>(result.json().data.tokens.accessToken).sub).toBe(userId);
 });
 
 test("edição, exclusão e meta de água recalculam o resumo", async () => {
@@ -311,14 +301,12 @@ test("edição, exclusão e meta de água recalculam o resumo", async () => {
 			})
 		).statusCode,
 	).toBe(200);
-	expect(
-		(await app.inject({ method: "GET", url: "/v1/goals", headers })).json().data
-			.waterMl,
-	).toBe(2000);
-	expect(
-		(await app.inject({ method: "DELETE", url: `/v1/water/${id}`, headers }))
-			.statusCode,
-	).toBe(204);
+	expect((await app.inject({ method: "GET", url: "/v1/goals", headers })).json().data.waterMl).toBe(
+		2000,
+	);
+	expect((await app.inject({ method: "DELETE", url: `/v1/water/${id}`, headers })).statusCode).toBe(
+		204,
+	);
 	expect(
 		(
 			await app.inject({
@@ -346,7 +334,7 @@ test("falha no meio da mutação reverte registro e marcador de idempotência", 
 		owner = account.profile.id;
 	extraUsers.push(owner);
 	// A ausência do perfil provoca uma falha real após o upsert do peso dentro da transação.
-	await prisma.profile.delete({ where: { userId: owner } });
+	await prisma.profile.delete({ where: { id: owner } });
 	const mutation = {
 		mutationId: crypto.randomUUID(),
 		entity: "weight",
@@ -362,9 +350,7 @@ test("falha no meio da mutação reverte registro e marcador de idempotência", 
 	});
 	expect(response.json().data[0].status).toBe("failed");
 	expect(await prisma.weightEntry.count({ where: { userId: owner } })).toBe(0);
-	expect(
-		await prisma.processedMutation.count({ where: { userId: owner } }),
-	).toBe(0);
+	expect(await prisma.processedMutation.count({ where: { userId: owner } })).toBe(0);
 });
 
 test("CRUD de refeições, atividades, peso e metas atualiza os agregados", async () => {
@@ -519,11 +505,7 @@ test("CRUD de refeições, atividades, peso e metas atualiza os agregados", asyn
 			})
 		).statusCode,
 	).toBe(204);
-	const pull = (
-		await app.inject({ method: "GET", url: "/v1/sync", headers })
-	).json().data;
-	expect(
-		pull.meals.find((x: { id: string }) => x.id === meal.id).deletedAt,
-	).toBeTruthy();
+	const pull = (await app.inject({ method: "GET", url: "/v1/sync", headers })).json().data;
+	expect(pull.meals.find((x: { id: string }) => x.id === meal.id).deletedAt).toBeTruthy();
 	expect(pull.profile.name).toBe("Pessoa Teste");
 });

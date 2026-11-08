@@ -1,15 +1,10 @@
-import type {
-	AppState,
-	Profile,
-	Goals,
-	WaterEntry,
-	Meal,
-	Activity,
-	WeightEntry,
-} from "./types";
+import type { AppState, Profile, Goals, WaterEntry, Meal, Activity, WeightEntry } from "./types";
 import { newId, isoDate } from "@/lib/health";
 export const initialState: AppState = {
-	schemaVersion: 2,
+	schemaVersion: 3,
+	unitSystem: "metric",
+	recipes: [],
+	nutrition: null,
 	dailySteps: [],
 	themeMode: "system",
 	profile: {
@@ -17,7 +12,7 @@ export const initialState: AppState = {
 		hasHeight: false,
 		name: "",
 		email: "",
-		birthDate: "2000-01-01",
+		birthDate: "",
 		weightKg: 70,
 		heightCm: 170,
 		gender: "Outro",
@@ -42,6 +37,9 @@ export const initialState: AppState = {
 
 export type Action =
 	| { type: "AVATAR_SAVE"; uri: string; mimeType: string; mutationId: string }
+	| { type: "UNITS"; value: import("@vitalis/contracts").UnitSystem }
+	| { type: "NUTRITION"; value: import("@vitalis/contracts").NutritionProfile }
+	| { type: "RECIPE_SAVE"; value: import("@vitalis/contracts").Recipe }
 	| { type: "LOGIN" }
 	| { type: "LOGOUT" }
 	| { type: "SET_DARK"; value: boolean }
@@ -61,8 +59,20 @@ export type Action =
 
 export function appReducer(state: AppState, action: Action): AppState {
 	switch (action.type) {
+		case "UNITS":
+			return { ...state, unitSystem: action.value };
+		case "NUTRITION":
+			return { ...state, nutrition: action.value };
+		case "RECIPE_SAVE":
+			return {
+				...state,
+				recipes: [...(state.recipes ?? []).filter((r) => r.id !== action.value.id), action.value],
+			};
 		case "AVATAR_SAVE":
-			return { ...state, profile: { ...state.profile, avatar: action.uri, avatarMutationId: action.mutationId } };
+			return {
+				...state,
+				profile: { ...state.profile, avatar: action.uri, avatarMutationId: action.mutationId },
+			};
 		case "LOGIN":
 			return { ...state, authenticated: true };
 		case "LOGOUT":
@@ -78,7 +88,7 @@ export function appReducer(state: AppState, action: Action): AppState {
 		case "PROFILE":
 			return {
 				...state,
-				profile: { ...action.value, hasWeight: true, hasHeight: true },
+				profile: { ...action.value },
 			};
 		case "GOALS":
 			return { ...state, goals: { ...state.goals, ...action.value } };
@@ -90,9 +100,7 @@ export function appReducer(state: AppState, action: Action): AppState {
 		case "WATER_UPDATE":
 			return {
 				...state,
-				water: state.water.map((x) =>
-					x.id === action.value.id ? action.value : x,
-				),
+				water: state.water.map((x) => (x.id === action.value.id ? action.value : x)),
 			};
 		case "WATER_DELETE":
 			return { ...state, water: state.water.filter((x) => x.id !== action.id) };
@@ -100,9 +108,7 @@ export function appReducer(state: AppState, action: Action): AppState {
 			return {
 				...state,
 				meals: state.meals.some((x) => x.id === action.value.id)
-					? state.meals.map((x) =>
-							x.id === action.value.id ? action.value : x,
-						)
+					? state.meals.map((x) => (x.id === action.value.id ? action.value : x))
 					: [...state.meals, action.value],
 			};
 		case "MEAL_DELETE":
@@ -111,9 +117,7 @@ export function appReducer(state: AppState, action: Action): AppState {
 			return {
 				...state,
 				activities: state.activities.some((x) => x.id === action.value.id)
-					? state.activities.map((x) =>
-							x.id === action.value.id ? action.value : x,
-						)
+					? state.activities.map((x) => (x.id === action.value.id ? action.value : x))
 					: [...state.activities, action.value],
 			};
 		case "ACTIVITY_DELETE":
@@ -136,8 +140,7 @@ export function appReducer(state: AppState, action: Action): AppState {
 			const date = action.date ?? isoDate();
 			const steps =
 				action.type === "STEPS_INCREMENT"
-					? (state.dailySteps?.find((row) => row.date === date)?.steps ?? 0) +
-						action.value
+					? (state.dailySteps?.find((row) => row.date === date)?.steps ?? 0) + action.value
 					: action.value;
 			return {
 				...state,

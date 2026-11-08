@@ -5,8 +5,17 @@ import type { AppState } from "./types";
 export function migrateState(saved: Partial<AppState> | null, userId: string): AppState {
 	if (!saved || (saved.userId && saved.userId !== userId)) return { ...initialState, userId };
 	return {
-		...initialState, ...saved, userId, schemaVersion: 2,
+		...initialState,
+		...saved,
+		userId,
+		schemaVersion: 3,
+		profileId: saved.profileId ?? userId,
+		unitSystem: saved.unitSystem ?? "metric",
+		recipes: saved.recipes ?? [],
 		dailySteps: saved.dailySteps ?? (saved.steps ? [{ date: isoDate(), steps: saved.steps }] : []),
-		activities: (saved.activities ?? []).map((row) => ({ ...row, durationSeconds: row.durationSeconds ?? Math.round(row.durationMinutes * 60) })),
+		activities: (saved.activities ?? []).map((row) => ({
+			...row,
+			durationSeconds: row.durationSeconds ?? Math.round(row.durationMinutes * 60),
+		})),
 	};
 }

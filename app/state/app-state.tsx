@@ -1,3 +1,6 @@
+import { onWellbeingChanged } from "@/lib/wellbeing-store";
+import { reconcileReminders,clearNativeAccount } from "@/lib/reminders";
+import { UserFacingError, userError } from "@/lib/user-error";
 import { AppState as Lifecycle, useColorScheme } from "react-native";
 import NetInfo from "@react-native-community/netinfo";
 import { Pedometer } from "expo-sensors";
@@ -11,27 +14,26 @@ import {
 	useRef,
 	useState,
 } from "react";
-import type {
-	AuthTokens,
-	Profile as ApiProfile,
-	SyncPull,
-	SyncResult,
-} from "@vitalis/contracts";
+import { healthProfileCreateSchema } from "@vitalis/contracts";
+import type { AuthTokens, Profile as ApiProfile, HealthProfile } from "@vitalis/contracts";
 import { apiRequest, publicRequest } from "@/lib/api";
 import { calculateActivityCalories, isoDate, newId } from "@/lib/health";
 import {
 	getValue,
 	initDatabase,
 	loadState,
+ serializeWrite,
 	loadLegacyState,
-	markAttempt,
 	migrateLegacyAccount,
-	pendingCount,
 	pendingMutations,
-	removeMutations,
+	pendingCount,
 	saveState,
 	setActiveUser,
 	setValue,
+	storedProfiles,
+	restoreProfileCatalog,
+	updateStoredState,
+	createStoredProfile,
 } from "@/lib/local-database";
 import {
 	clearTokens,
@@ -45,8 +47,8 @@ import {
 	type BiometricStatus,
 } from "@/lib/session";
 import { useSessionRefresh } from "@/lib/use-session-refresh";
-import { drainOutbox, mergeRows } from "@/lib/sync";
-import { orderedBatch } from "@/lib/sync";
+import { synchronizeAccount, setSyncForeground, type SyncAdapter } from "@/lib/sync-engine";
+import { registerBackgroundSync, unregisterBackgroundSync } from "@/lib/background-sync";
 import { cleanupAvatarFiles, persistAvatar, reconcileAvatar } from "@/lib/avatar-files";
 import { appReducer, initialState, type Action } from "./reducer";
 import { mutationFor } from "./mutations";
@@ -71,6 +73,9 @@ const localProfile = (profile: ApiProfile): Profile => ({
 });
 type ContextValue = {
 	state: AppState;
+	profiles: HealthProfile[];
+	createProfile: (name: string) => Promise<void>;
+	selectProfile: (id: string) => Promise<void>;
 	dispatch: (action: Action) => Promise<void>;
 	loading: boolean;
 	lastError: string | null;
@@ -87,6 +92,7 @@ type ContextValue = {
 	) => Promise<void>;
 	logout: () => Promise<void>;
 	syncNow: () => Promise<void>;
+ runLocalOperation: (work: () => Promise<void>) => Promise<void>;
 	uploadAvatar: (uri: string, mimeType?: string) => Promise<void>;
 };
 const AppContext = createContext<ContextValue | null>(null);
@@ -96,30 +102,44 @@ export function AppStateProvider({ children }: PropsWithChildren) {
 		[loading, setLoading] = useState(true),
 		[lastError, setLastError] = useState<string | null>(null);
 	const systemScheme = useColorScheme();
+	const [profiles, setProfiles] = useState<HealthProfile[]>([]);
 	const [biometrics, setBiometrics] = useState<BiometricStatus>({
 		enabled: false,
 		available: false,
 	});
 	const stateRef = useRef(state);
+	const epoch = useRef(0),
+		mounted = useRef(true);
+	useEffect(() => {
+		mounted.current = true;
+		return () => {
+			mounted.current = false;
+			epoch.current++;
+		};
+	}, []);
 	const writes = useRef<Promise<void>>(Promise.resolve());
-	const flight = useRef<Promise<void> | null>(null);
-	const flightOwner = useRef<string | undefined>(undefined);
+
 	const inFlightAvatars = useRef(new Set<string>());
 	const cleanupAvatars = useCallback(async (owner: string) => {
-		try {
-			const stored = await loadState(owner);
-			const pending = await pendingMutations(1_000_000, owner);
+		try {await serializeWrite(async()=>{
+			const list = await storedProfiles(owner);
 			const references = new Set(inFlightAvatars.current);
-			if (stored?.profile.avatar) references.add(stored.profile.avatar);
-			for (const row of pending) if (row.entity === "avatar") references.add(row.payload.uri);
-			cleanupAvatarFiles(owner, references);
-		} catch { /* A failed cleanup must never roll back a saved photo. */ }
+			for (const id of new Set([owner, ...list.map((p) => p.id)])) {
+				const stored = await loadState(owner, id);
+				if (stored?.profile.avatar) references.add(stored.profile.avatar);
+				for (const row of await pendingMutations(1_000_000, owner, id))
+					if (row.entity === "avatar") references.add(row.payload.uri);
+			}
+			cleanupAvatarFiles(owner, references);});
+		} catch {
+			/* A failed cleanup must never roll back a saved photo. */
+		}
 	}, []);
 	const syncRef = useRef<() => Promise<void>>(async () => {});
-	const syncTimer = useRef<ReturnType<typeof setTimeout> | undefined>(
-		undefined,
-	);
+	const syncTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 	const invalidateSession = useCallback(() => {
+ void clearNativeAccount().catch(()=>{});
+		epoch.current++;
 		const next = { ...stateRef.current, authenticated: false };
 		stateRef.current = next;
 		setState(next);
@@ -129,23 +149,22 @@ export function AppStateProvider({ children }: PropsWithChildren) {
 		(
 			updater: (previous: AppState) => AppState | Promise<AppState>,
 			action?: Action,
+			cursor?: string,
 		) => {
 			const operation = writes.current.then(async () => {
 				const previous = stateRef.current,
 					updated = await updater(previous);
-				const mutation =
-					action && updated.authenticated ? mutationFor(action, updated) : null;
+				if (updated === previous) return;
+				const mutation = action && updated.authenticated ? mutationFor(action, updated) : null;
 				const next = mutation
 					? {
 							...updated,
 							syncStatus:
-								updated.syncStatus === "offline"
-									? ("offline" as const)
-									: ("pending" as const),
+								updated.syncStatus === "offline" ? ("offline" as const) : ("pending" as const),
 						}
 					: updated;
 				if (next === previous) return;
-				await saveState(next, mutation);
+				await saveState(next, mutation, cursor);
 				const applied =
 					previous.authenticated && !stateRef.current.authenticated
 						? { ...next, authenticated: false }
@@ -154,9 +173,7 @@ export function AppStateProvider({ children }: PropsWithChildren) {
 				setState(applied);
 			});
 			writes.current = operation.catch((error) =>
-				setLastError(
-					error instanceof Error ? error.message : "Falha ao salvar os dados.",
-				),
+				setLastError(userError(error, "save")),
 			);
 			return operation;
 		},
@@ -166,193 +183,197 @@ export function AppStateProvider({ children }: PropsWithChildren) {
 		clearTimeout(syncTimer.current);
 		syncTimer.current = setTimeout(() => void syncRef.current(), 750);
 	}, []);
+ useEffect(()=>{
+  if(!state.authenticated || !state.userId)return;
+  const owner=state.userId;
+  const update=()=>{void reconcileReminders(owner).catch(()=>{});};update();
+  const off=onWellbeingChanged(reason=>{update();if(reason==="local")scheduleSync();});
+  const sub=Lifecycle.addEventListener("change",value=>{if(value==="active")update();});
+  return ()=>{off();sub.remove();};
+ },[state.authenticated,state.userId,scheduleSync]);
+
+ const runLocalOperation = useCallback((work:()=>Promise<void>)=>{
+ const owner=state.userId,profileId=state.profileId??owner;
+ const operation=writes.current.then(async()=>{
+  if(!owner || stateRef.current.userId!==owner || (stateRef.current.profileId??owner)!==profileId || !stateRef.current.authenticated)throw new UserFacingError("O perfil foi alterado. Confira a prévia novamente.");
+  await work();const saved=await loadState(owner,profileId);
+  if(saved && stateRef.current.userId===owner && (stateRef.current.profileId??owner)===profileId && stateRef.current.authenticated){stateRef.current=saved;setState(saved);}
+  scheduleSync();
+ });writes.current=operation.catch(e=>setLastError(userError(e,"save")));return operation;
+ },[state.userId,state.profileId,scheduleSync]);
 	const dispatch = useCallback(
 		async (action: Action) => {
-			const owner = stateRef.current.userId;
+			const owner = state.userId;
+			const profileId = state.profileId;
+			if (owner !== stateRef.current.userId || profileId !== stateRef.current.profileId)
+				throw new UserFacingError("O perfil foi alterado. Abra o formulário novamente.");
 			await commit(
 				(previous) =>
-					previous.userId !== owner ? previous : appReducer(previous, action),
+					previous.userId !== owner || previous.profileId !== profileId
+						? previous
+						: appReducer(previous, action),
 				action,
 			);
 			if (mutationFor(action, stateRef.current)) scheduleSync();
 		},
-		[commit, scheduleSync],
+		[commit, scheduleSync, state.userId, state.profileId],
 	);
-	const syncNow = useCallback(() => {
+	const makeAdapter = useCallback(
+		(owner: string): SyncAdapter => {
+			const generation = epoch.current;
+			return {
+				active: () =>
+					mounted.current &&
+					generation === epoch.current &&
+					stateRef.current.userId === owner &&
+					stateRef.current.authenticated,
+				apply: async (profileId, update, cursor) => {
+					if (stateRef.current.userId !== owner || !stateRef.current.authenticated) return;
+					await commit(
+						async (current) => {
+							if (current.userId !== owner || !current.authenticated) return current;
+							if ((current.profileId ?? owner) !== profileId) {
+								await updateStoredState(owner, profileId, update, cursor);
+								return current;
+							}
+							return update(current);
+						},
+						undefined,
+						cursor,
+					);
+				},
+				avatarStarted: (uri) => inFlightAvatars.current.add(uri),
+				avatarFinished: (uri) => inFlightAvatars.current.delete(uri),
+				acknowledged: () => cleanupAvatars(owner),
+			};
+		},
+		[commit, cleanupAvatars],
+	);
+	const syncNow = useCallback(async () => {
 		const owner = stateRef.current.userId;
-		if (flight.current) return flightOwner.current === owner ? flight.current : Promise.resolve();
-		if (!owner || !stateRef.current.authenticated) return Promise.resolve();
-		const active = () =>
-			stateRef.current.userId === owner && stateRef.current.authenticated;
-		const run = (async () => {
-			const network = await NetInfo.fetch();
-			if (!network.isConnected || network.isInternetReachable === false) {
-				if (active()) await commit((x) => ({ ...x, syncStatus: "offline" }));
-				return;
-			}
-			if (!active()) return;
-			await commit((x) => ({ ...x, syncStatus: "syncing" }));
-			try {
-				await writes.current;
-				await drainOutbox({
-					read: async () => {
-						await writes.current;
-						return active() ? orderedBatch(await pendingMutations(100, owner)) : [];
-					},
-					push: async (mutations) => {
-						const first = mutations[0];
-						if (first?.entity === "avatar") {
-							inFlightAvatars.current.add(first.payload.uri);
-							try {
-								const data = new FormData();
-								data.append("file", { uri: first.payload.uri, type: first.payload.mimeType, name: `avatar.${first.payload.mimeType.split("/")[1]}` } as unknown as Blob);
-								const profile = await apiRequest<ApiProfile>("/v1/profile/avatar", { method: "POST", headers: { "Idempotency-Key": first.mutationId }, body: data }, true, owner);
-								if (!active()) throw new Error("A sessão foi alterada");
-								await commit((current) => active() && current.profile.avatarMutationId === first.mutationId
-									? { ...current, profile: { ...current.profile, avatarRemoteUrl: profile.avatarUrl ?? undefined } }
-									: current);
-								return [{ mutationId: first.mutationId, status: "applied" as const }];
-							} finally { inFlightAvatars.current.delete(first.payload.uri); }
-						}
-						return apiRequest<SyncResult[]>(
-							"/v1/sync",
-							{ method: "POST", body: JSON.stringify({ mutations }) },
-							true,
-							owner,
-						);
-					},
-					ack: async (ids) => { await removeMutations(ids, owner); await cleanupAvatars(owner); },
-					fail: (ids) => markAttempt(ids, owner),
-				});
-				if (!active()) return;
-				const cursor = await getValue("sync-cursor", owner);
-				const pulled = await apiRequest<SyncPull>(
-					`/v1/sync${cursor ? `?cursor=${encodeURIComponent(cursor)}` : ""}`,
-					{},
-					true,
-					owner,
-				);
-				await commit(async (current) => {
-					if (!active()) return current;
-					const pending = await pendingMutations(1_000_000, owner);
-					const hasPending = (entity: string) =>
-						pending.some((x) => x.entity === entity);
-					return {
-						...current,
-						profile:
-							pulled.profile && !hasPending("profile")
-								? {
-										...current.profile,
-										name: pulled.profile.name ?? current.profile.name,
-										birthDate:
-											pulled.profile.birthDate ?? current.profile.birthDate,
-										weightKg: hasPending("weight")
-											? current.profile.weightKg
-											: (pulled.profile.weightKg ?? current.profile.weightKg),
-										heightCm:
-											pulled.profile.heightCm ?? current.profile.heightCm,
-										gender: pulled.profile.gender ?? current.profile.gender,
-										hasWeight: hasPending("weight")
-											? current.profile.hasWeight
-											: "weightKg" in pulled.profile
-												? pulled.profile.weightKg != null
-												: current.profile.hasWeight,
-										hasHeight:
-											"heightCm" in pulled.profile
-												? pulled.profile.heightCm != null
-												: current.profile.hasHeight,
-										...reconcileAvatar(current.profile, pulled.profile.avatarUrl ?? null, hasPending("avatar")),
-									}
-								: current.profile,
-						goals:
-							pulled.goals && !hasPending("goals")
-								? { ...current.goals, ...pulled.goals }
-								: current.goals,
-						water: mergeRows(current.water, pulled.water, pending, "water"),
-						meals: mergeRows(current.meals, pulled.meals, pending, "meal"),
-						activities: mergeRows(
-							current.activities,
-							pulled.activities.map((x) => ({
-								...x,
-								durationMinutes: x.durationSeconds / 60,
-								distanceKm: x.distanceMeters / 1000,
-							})),
-							pending,
-							"activity",
-						),
-						weights: mergeRows(
-							current.weights,
-							pulled.weights,
-							pending,
-							"weight",
-						),
-						dailySteps: hasPending("steps")
-							? current.dailySteps
-							: [
-									...new Map(
-										[...(current.dailySteps ?? []), ...pulled.steps].map(
-											(x) => [x.date, x],
-										),
-									).values(),
-								],
-						steps: hasPending("steps")
-							? current.steps
-							: (pulled.steps.find((x) => x.date === isoDate())?.steps ??
-								current.dailySteps?.find((x) => x.date === isoDate())?.steps ??
-								0),
-						syncStatus: pending.length ? "pending" : "idle",
-					};
-				});
-				await setValue("sync-cursor", pulled.cursor, owner);
+		if (!owner || !stateRef.current.authenticated) return;
+		const generation = epoch.current;
+		const valid = () =>
+			generation === epoch.current &&
+			mounted.current &&
+			stateRef.current.userId === owner &&
+			stateRef.current.authenticated;
+		const network = await NetInfo.fetch();
+		if (!valid()) return;
+		if (!network.isConnected || network.isInternetReachable === false) {
+			await commit((x) => ({ ...x, syncStatus: "offline" }));
+			return;
+		}
+		await commit((x) => ({ ...x, syncStatus: "syncing" }));
+		try {
+			await writes.current;
+			await synchronizeAccount(owner, makeAdapter(owner));
+			if (valid()) {
+				const list = await storedProfiles(owner);
+				setProfiles(list);
 				setLastError(null);
-			} catch (error) {
-				if (!active()) return;
-				await commit((x) => ({ ...x, syncStatus: "error" }));
-				setLastError(
-					error instanceof Error ? error.message : "Falha ao sincronizar",
-				);
-				clearTimeout(syncTimer.current);
-				syncTimer.current = setTimeout(() => void syncRef.current(), 30_000);
-			}
-		})()
-			.catch((error) =>
-				{ if (active()) setLastError(error instanceof Error ? error.message : "Falha de rede"); },
-			)
-			.finally(async () => {
-				flight.current = null;
-				flightOwner.current = undefined;
-				if (stateRef.current.authenticated && stateRef.current.userId !== owner) { scheduleSync(); return; }
-				if (
-					active() &&
-					stateRef.current.syncStatus === "pending" &&
-					(await pendingCount(owner))
-				)
+				if ((await Promise.all(list.map((p) => pendingCount(owner, p.id)))).some(Boolean))
 					scheduleSync();
+			}
+		} catch (error) {
+			if (!valid()) return;
+			await commit((x) => ({ ...x, syncStatus: "error" }));
+			setLastError(userError(error, "sync"));
+			clearTimeout(syncTimer.current);
+			syncTimer.current = setTimeout(() => void syncRef.current(), 30000);
+		}
+	}, [commit, makeAdapter, scheduleSync]);
+	useEffect(() => {
+		if (!state.authenticated || !state.userId) return;
+		const release = setSyncForeground(state.userId, makeAdapter(state.userId));
+		void registerBackgroundSync().catch(() => {});
+		const timer = setInterval(() => {
+			if (Lifecycle.currentState === "active") scheduleSync();
+		}, 15 * 60_000);
+		return () => {
+			clearInterval(timer);
+			release();
+		};
+	}, [state.authenticated, state.userId, makeAdapter, scheduleSync]);
+	const selectProfile = useCallback(
+		async (id: string) => {
+			const current = stateRef.current,
+				owner = current.userId;
+			if (!owner || !current.authenticated) throw new UserFacingError("Entre na conta.");
+			if (!profiles.some((p) => p.id === id)) throw new UserFacingError("Perfil não encontrado.");
+			await writes.current;
+			if (await getValue("active-workout", owner, current.profileId ?? owner))
+				throw new UserFacingError("Finalize ou descarte o treino antes de trocar de perfil.");
+			await commit(async (previous) => {
+				if (previous.userId !== owner || !previous.authenticated) return previous;
+				const restored = migrateState(await loadState(owner, id), owner);
+				return {
+					...restored,
+					profileId: id,
+					authenticated: true,
+					darkMode: previous.darkMode,
+					themeMode: previous.themeMode,
+				};
 			});
-		flight.current = run;
-		flightOwner.current = owner;
-		return run;
-	}, [commit, scheduleSync, cleanupAvatars]);
+			if (stateRef.current.userId !== owner || !stateRef.current.authenticated)
+				throw new UserFacingError("A sessão foi alterada");
+			setActiveUser(owner, id);
+			await setValue("selected-profile", id, owner, owner);
+			scheduleSync();
+		},
+		[profiles, commit, scheduleSync],
+	);
+	const createProfile = useCallback(
+		async (name: string) => {
+			const owner = stateRef.current.userId;
+			if (!owner || !stateRef.current.authenticated) throw new UserFacingError("Entre na conta.");
+			const input = healthProfileCreateSchema.parse({ id: newId(), name });
+			const p: HealthProfile = { ...input, isPrimary: false, updatedAt: new Date().toISOString() };
+			const fresh = {
+				...migrateState(null, owner),
+				profileId: p.id,
+				authenticated: true,
+				profile: { ...initialState.profile, name: p.name, email: stateRef.current.profile.email },
+			};
+			await createStoredProfile(fresh, p, {
+				mutationId: newId(),
+				entity: "healthProfile",
+				action: "upsert",
+				profileId: p.id,
+				payload: input,
+				clientUpdatedAt: new Date().toISOString(),
+			});
+			if (stateRef.current.userId === owner && stateRef.current.authenticated) {
+				setProfiles(await storedProfiles(owner));
+				scheduleSync();
+			}
+		},
+		[scheduleSync],
+	);
 	syncRef.current = syncNow;
 	const acceptSession = useCallback(
 		async (result: AuthResult) => {
 			await writes.current;
 			await saveTokens(result.tokens);
 			setBiometrics(await getBiometricStatus());
-			setActiveUser(result.profile.id);
-			await migrateLegacyAccount(result.profile.id, result.profile.email);
+			const owner = result.profile.id;
+			await migrateLegacyAccount(owner, result.profile.email);
+			const { profiles: list, selected } = await restoreProfileCatalog(owner, result.profile.name);
+			setProfiles(list);
+			setActiveUser(owner, selected);
 			const restored = migrateState(
-				await loadState(result.profile.id),
+				await loadState(result.profile.id, selected),
 				result.profile.id,
 			);
-			const pending = await pendingMutations(1_000_000, result.profile.id);
+			const pending = await pendingMutations(1_000_000, result.profile.id, selected);
 			const pendingProfile = pending.some((row) => row.entity === "profile");
-		const pendingWeight = pending.some((row) => row.entity === "weight");
-		const pendingAvatar = pending.some((row) => row.entity === "avatar");
+			const pendingWeight = pending.some((row) => row.entity === "weight");
+			const pendingAvatar = pending.some((row) => row.entity === "avatar");
 			await commit(() => ({
 				...restored,
+				profileId: selected,
 				profile: {
-					...(pendingProfile
+					...(pendingProfile || selected !== owner
 						? { ...restored.profile, email: result.profile.email }
 						: localProfile(result.profile)),
 					...(pendingWeight
@@ -361,7 +382,9 @@ export function AppStateProvider({ children }: PropsWithChildren) {
 								hasWeight: restored.profile.hasWeight,
 							}
 						: {}),
-					...reconcileAvatar(restored.profile, result.profile.avatarUrl, pendingAvatar),
+					...(selected === owner
+						? reconcileAvatar(restored.profile, result.profile.avatarUrl, pendingAvatar)
+						: {}),
 				},
 				authenticated: true,
 			}));
@@ -372,18 +395,11 @@ export function AppStateProvider({ children }: PropsWithChildren) {
 	);
 	const login = useCallback(
 		async (email: string, password: string) =>
-			acceptSession(
-				await publicRequest<AuthResult>("/v1/auth/login", { email, password }),
-			),
+			acceptSession(await publicRequest<AuthResult>("/v1/auth/login", { email, password })),
 		[acceptSession],
 	);
 	const register = useCallback(
-		async (
-			name: string,
-			email: string,
-			password: string,
-			passwordConfirmation: string,
-		) =>
+		async (name: string, email: string, password: string, passwordConfirmation: string) =>
 			acceptSession(
 				await publicRequest<AuthResult>("/v1/auth/register", {
 					name,
@@ -399,7 +415,9 @@ export function AppStateProvider({ children }: PropsWithChildren) {
 			if (enabled) await enableBiometricLogin();
 			else await disableBiometricLogin();
 		} catch {
-			throw new Error("Não foi possível alterar a biometria. Confirme sua digital ou tente novamente.");
+			throw new UserFacingError(
+				"Não foi possível alterar a biometria. Confirme sua digital ou tente novamente.",
+			);
 		} finally {
 			setBiometrics(await getBiometricStatus());
 		}
@@ -408,15 +426,20 @@ export function AppStateProvider({ children }: PropsWithChildren) {
 		try {
 			const tokens = await unlockBiometricSession();
 			const owner = tokenClaims(tokens.accessToken).sub;
-			if (!owner) throw new Error("Entre com e-mail e senha para renovar sua sessão.");
+			if (!owner) throw new UserFacingError("Entre com e-mail e senha para renovar sua sessão.");
 			await writes.current;
-			setActiveUser(owner);
-			const restored = migrateState(await loadState(owner), owner);
+			const { profiles: list, selected } = await restoreProfileCatalog(owner);
+			setActiveUser(owner, selected);
+			setProfiles(list);
+			const restored = {
+				...migrateState(await loadState(owner, selected), owner),
+				profileId: selected,
+			};
 			await commit(() => ({ ...restored, authenticated: true }));
 			await syncNow();
 			if (!(await loadTokens())) {
 				invalidateSession();
-				throw new Error("Sua sessão expirou. Entre com e-mail e senha para continuar.");
+				throw new UserFacingError("Sua sessão expirou. Entre com e-mail e senha para continuar.");
 			}
 			scheduleSync();
 		} finally {
@@ -430,6 +453,9 @@ export function AppStateProvider({ children }: PropsWithChildren) {
 		clearTimeout(syncTimer.current);
 		await writes.current;
 		await clearTokens();
+		await unregisterBackgroundSync();
+ await clearNativeAccount();
+		setProfiles([]);
 		setBiometrics(await getBiometricStatus());
 		setActiveUser(null);
 		stateRef.current = initialState;
@@ -443,8 +469,12 @@ export function AppStateProvider({ children }: PropsWithChildren) {
 	}, [invalidateSession]);
 	const uploadAvatar = useCallback(
 		async (uri: string, mimeType = "image/jpeg") => {
-			const owner = stateRef.current.userId;
-			if (!owner || !stateRef.current.authenticated) throw new Error("Entre na sua conta para alterar a foto.");
+			const owner = state.userId;
+			const profileId = state.profileId;
+			if (owner !== stateRef.current.userId || profileId !== stateRef.current.profileId)
+				throw new UserFacingError("O perfil foi alterado.");
+			if (!owner || !stateRef.current.authenticated)
+				throw new UserFacingError("Entre na sua conta para alterar a foto.");
 			const mutationId = newId();
 			const savedUri = persistAvatar(owner, mutationId, uri, mimeType);
 			// Protect the copy until its snapshot/outbox transaction has completed.
@@ -452,7 +482,8 @@ export function AppStateProvider({ children }: PropsWithChildren) {
 			try {
 				const action: Action = { type: "AVATAR_SAVE", uri: savedUri, mimeType, mutationId };
 				await commit((current) => {
-					if (current.userId !== owner || !current.authenticated) throw new Error("A sessão foi alterada");
+					if (current.userId !== owner || current.profileId !== profileId || !current.authenticated)
+						throw new UserFacingError("A sessão foi alterada");
 					return appReducer(current, action);
 				}, action);
 				scheduleSync();
@@ -461,7 +492,7 @@ export function AppStateProvider({ children }: PropsWithChildren) {
 				await cleanupAvatars(owner);
 			}
 		},
-		[commit, scheduleSync, cleanupAvatars],
+		[commit, scheduleSync, cleanupAvatars, state.userId, state.profileId],
 	);
 	useEffect(() => {
 		let stopped = false;
@@ -474,17 +505,18 @@ export function AppStateProvider({ children }: PropsWithChildren) {
 				const owner = tokens ? tokenClaims(tokens.accessToken).sub : undefined;
 				setActiveUser(owner ?? null);
 				if (owner) {
-					const scoped = await loadState(owner);
-					const legacy = scoped ? null : await loadLegacyState();
-					// v1 cleared cache on logout. A legacy authenticated snapshot belongs to
-					// the SecureStore session being migrated; a different login uses verified email.
-					if (
-						legacy?.authenticated &&
-						(!legacy.userId || legacy.userId === owner)
-					)
+					const legacy = (await loadState(owner, owner)) ? null : await loadLegacyState();
+					// SecureStore identity authorizes migrating this legacy authenticated cache.
+					if (legacy?.authenticated && (!legacy.userId || legacy.userId === owner))
 						await migrateLegacyAccount(owner, legacy.profile.email);
+					const { profiles: list, selected } = await restoreProfileCatalog(owner);
+					setActiveUser(owner, selected);
+					if (!stopped) setProfiles(list);
 
-					const migrated = migrateState(await loadState(owner), owner);
+					const migrated = {
+						...migrateState(await loadState(owner, selected), owner),
+						profileId: selected,
+					};
 					if (!stopped) {
 						stateRef.current = { ...migrated, authenticated: true };
 						setState(stateRef.current);
@@ -492,11 +524,7 @@ export function AppStateProvider({ children }: PropsWithChildren) {
 				}
 			} catch (error) {
 				if (!stopped)
-					setLastError(
-						error instanceof Error
-							? error.message
-							: "Falha ao carregar os dados",
-					);
+					setLastError(userError(error, "load"));
 			} finally {
 				if (!stopped) {
 					setLoading(false);
@@ -512,16 +540,17 @@ export function AppStateProvider({ children }: PropsWithChildren) {
 	}, [scheduleSync, cleanupAvatars]);
 	useEffect(() => {
 		const subscription = Lifecycle.addEventListener("change", (status) => {
-			if (status === "active")
-				void getBiometricStatus().then(setBiometrics).catch(() => {});
+			if (status === "active") {
+				scheduleSync();
+				void getBiometricStatus()
+					.then(setBiometrics)
+					.catch(() => {});
+			}
 		});
 		return () => subscription.remove();
 	}, []);
 	useEffect(() => {
-		if (
-			state.themeMode === "system" &&
-			state.darkMode !== (systemScheme === "dark")
-		)
+		if (state.themeMode === "system" && state.darkMode !== (systemScheme === "dark"))
 			void commit((x) => ({ ...x, darkMode: systemScheme === "dark" }));
 	}, [commit, systemScheme, state.themeMode, state.darkMode]);
 	useEffect(
@@ -542,8 +571,7 @@ export function AppStateProvider({ children }: PropsWithChildren) {
 				day = nextDay;
 				void commit((current) => ({
 					...current,
-					steps:
-						current.dailySteps?.find((row) => row.date === nextDay)?.steps ?? 0,
+					steps: current.dailySteps?.find((row) => row.date === nextDay)?.steps ?? 0,
 				}));
 			}
 		};
@@ -587,10 +615,13 @@ export function AppStateProvider({ children }: PropsWithChildren) {
 			stopped = true;
 			subscription?.remove();
 		};
-	}, [dispatch, state.authenticated]);
+	}, [dispatch, state.authenticated, state.profileId]);
 	const value = useMemo<ContextValue>(
 		() => ({
 			state,
+			profiles,
+			createProfile,
+			selectProfile,
 			dispatch,
 			loading,
 			lastError,
@@ -601,6 +632,7 @@ export function AppStateProvider({ children }: PropsWithChildren) {
 			register,
 			logout,
 			syncNow,
+ runLocalOperation,
 			uploadAvatar,
 			addActivity: async (activity) =>
 				dispatch({
@@ -618,6 +650,9 @@ export function AppStateProvider({ children }: PropsWithChildren) {
 		}),
 		[
 			state,
+			profiles,
+			createProfile,
+			selectProfile,
 			dispatch,
 			loading,
 			lastError,
@@ -628,6 +663,7 @@ export function AppStateProvider({ children }: PropsWithChildren) {
 			register,
 			logout,
 			syncNow,
+ runLocalOperation,
 			uploadAvatar,
 		],
 	);
@@ -635,8 +671,7 @@ export function AppStateProvider({ children }: PropsWithChildren) {
 }
 export const useAppState = () => {
 	const value = useContext(AppContext);
-	if (!value)
-		throw new Error("useAppState deve estar dentro de AppStateProvider");
+	if (!value) throw new Error("useAppState deve estar dentro de AppStateProvider");
 	return value;
 };
 export function useDailySummary(date = isoDate()) {

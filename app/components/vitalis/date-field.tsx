@@ -1,7 +1,7 @@
 import { formatDate } from "@/lib/format";
 import { DateTimePickerAndroid } from "@react-native-community/datetimepicker";
-import { Button } from "react-native-paper";
-import { View } from "react-native";
+import { Button } from "./ui";
+import { View, PixelRatio } from "react-native";
 import { isoDate } from "@/lib/health";
 export function DateField({
 	label = "Data",
@@ -19,16 +19,19 @@ export function DateField({
 	return (
 		<View>
 			<Button
-				mode="outlined"
+				variant="outline"
 				icon="calendar"
 				accessibilityLabel={label}
-				contentStyle={{ minHeight: 52 }}
+    title={`${label}: ${value ? formatDate(value) : "Selecionar"}`}
+
 				onPress={() =>
 					DateTimePickerAndroid.open({
 						value: /^\d{4}-\d{2}-\d{2}$/.test(value)
 							? new Date(`${value}T12:00:00`)
 							: new Date(),
 						mode: "date",
+						// Keep both native dialog actions within small screens at large font scales.
+						display: PixelRatio.getFontScale() >= 1.5 ? "spinner" : "default",
 						maximumDate,
 						positiveButton: { label: "Confirmar" },
 						negativeButton: { label: "Cancelar" },
@@ -37,16 +40,9 @@ export function DateField({
 						},
 					})
 				}
-			>
-				{label}:{" "}
-				{value
-					? formatDate(value)
-					: "Selecionar"}
-			</Button>
+			/>
 			{optional && value && (
-				<Button contentStyle={{ minHeight: 48 }} onPress={() => onChange("")}>
-					Limpar filtro
-				</Button>
+				<Button title="Limpar filtro" variant="text" onPress={() => onChange("")} />
 			)}
 		</View>
 	);
@@ -60,10 +56,11 @@ export function TimeField({
 }) {
 	return (
 		<Button
-			mode="outlined"
+			variant="outline"
 			icon="clock-outline"
 			accessibilityLabel="Horário"
-			contentStyle={{ minHeight: 52 }}
+   title={`Horário: ${value}`}
+
 			onPress={() => {
 				const date = new Date();
 				const [h, m] = value.split(":").map(Number);
@@ -80,8 +77,6 @@ export function TimeField({
 					},
 				});
 			}}
-		>
-			Horário: {value}
-		</Button>
+		/>
 	);
 }

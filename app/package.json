@@ -1,6 +1,6 @@
 {
 	"name": "vitalis-track",
-	"main": "expo-router/entry",
+	"main": "index.ts",
 	"version": "1.0.0",
 	"scripts": {
 		"start": "expo start",
@@ -23,7 +23,10 @@
 		"@react-navigation/native": "^7.1.8",
 		"@vitalis/contracts": "workspace:*",
 		"expo": "~54.0.36",
+		"expo-background-task": "~1.0.10",
+		"expo-camera": "~17.0.10",
 		"expo-constants": "~18.0.13",
+		"expo-document-picker": "~14.0.8",
 		"expo-file-system": "~19.0.24",
 		"expo-font": "~14.0.12",
 		"expo-haptics": "~15.0.8",
@@ -31,14 +34,17 @@
 		"expo-image-picker": "~17.0.8",
 		"expo-linking": "~8.0.12",
 		"expo-location": "~19.0.8",
+		"expo-print": "~15.0.8",
 		"expo-router": "~6.0.24",
 		"expo-secure-store": "~15.0.8",
 		"expo-sensors": "~15.0.8",
+		"expo-sharing": "~14.0.8",
 		"expo-splash-screen": "~31.0.13",
 		"expo-sqlite": "~16.0.10",
 		"expo-status-bar": "~3.0.9",
 		"expo-symbols": "~1.0.8",
 		"expo-system-ui": "~6.0.9",
+		"expo-task-manager": "~14.0.9",
 		"expo-web-browser": "~15.0.11",
 		"react": "19.1.0",
 		"react-dom": "19.1.0",
@@ -90,6 +96,15 @@
 			"json-summary",
 			"lcov"
 		]
+	},
+	"expo": {
+		"autolinking": {
+			"android": {
+				"buildFromSource": [
+					"expo-background-task"
+				]
+			}
+		}
 	},
 	"private": true
 }

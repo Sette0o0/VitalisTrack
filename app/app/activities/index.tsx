@@ -1,3 +1,4 @@
+import { useMeasurements } from "@/hooks/use-measurements";
 import { StepTrend } from "@/components/vitalis/step-trend";
 import { selectActivityStats } from "@/state/selectors";
 import { formatDate, formatNumber } from "@/lib/format";
@@ -5,13 +6,7 @@ import { router } from "expo-router";
 import { useMemo, useState } from "react";
 import { FlatList, View } from "react-native";
 import { Chip, IconButton, Text } from "react-native-paper";
-import {
-	Button,
-	Card,
-	EmptyState,
-	Header,
-	Screen,
-} from "@/components/vitalis/ui";
+import { Button, Card, EmptyState, Header, Screen } from "@/components/vitalis/ui";
 import { DateRangeFilter } from "@/components/vitalis/date-range-filter";
 import { filterByDateRange, recentDateRange, type DateRange } from "@/lib/date-filter";
 import { useAppTheme } from "@/hooks/use-app-theme";
@@ -21,6 +16,7 @@ import type { ActivityType } from "@/state/types";
 import { useConfirm } from "@/components/vitalis/confirmation";
 const names = { run: "Corrida", walk: "Caminhada", cycling: "Ciclismo" };
 export default function ActivitiesScreen() {
+	const m = useMeasurements();
 	const { state, dispatch } = useAppState(),
 		theme = useAppTheme(),
 		confirm = useConfirm();
@@ -34,24 +30,29 @@ export default function ActivitiesScreen() {
 				.sort((a, b) =>
 					sort === "date"
 						? b.date.localeCompare(a.date) || b.id.localeCompare(a.id)
-						: a.type.localeCompare(b.type) || b.date.localeCompare(a.date) || b.id.localeCompare(a.id),
+						: a.type.localeCompare(b.type) ||
+							b.date.localeCompare(a.date) ||
+							b.id.localeCompare(a.id),
 				),
 		[state.activities, filter, range, sort],
 	);
-	const stats = list.reduce((totals, activity) => ({
-		durationSeconds: totals.durationSeconds + (activity.durationSeconds ?? activity.durationMinutes * 60),
-		distanceMeters: totals.distanceMeters + activity.distanceKm * 1000,
-		calories: totals.calories + activity.calories,
-	}), { durationSeconds: 0, distanceMeters: 0, calories: 0 });
+	const stats = list.reduce(
+		(totals, activity) => ({
+			durationSeconds:
+				totals.durationSeconds + (activity.durationSeconds ?? activity.durationMinutes * 60),
+			distanceMeters: totals.distanceMeters + activity.distanceKm * 1000,
+			calories: totals.calories + activity.calories,
+		}),
+		{ durationSeconds: 0, distanceMeters: 0, calories: 0 },
+	);
 	const trend = selectActivityStats(state, "week");
-	const steps = filterByDateRange(state.dailySteps ?? [], range)
-		.reduce((total, row) => total + row.steps, 0);
+	const steps = filterByDateRange(state.dailySteps ?? [], range).reduce(
+		(total, row) => total + row.steps,
+		0,
+	);
 	return (
 		<Screen scroll={false}>
-			<Header
-				title="Atividades"
-				onBack={() => goBackOrReplace(router, "/(tabs)")}
-			/>
+			<Header title="Atividades" onBack={() => goBackOrReplace(router, "/(tabs)")} />
 			<FlatList
 				data={list}
 				keyExtractor={(x) => x.id}
@@ -59,14 +60,17 @@ export default function ActivitiesScreen() {
 				contentContainerStyle={{ gap: 12, paddingBottom: 16 }}
 				ListHeaderComponent={
 					<View style={{ gap: 16 }}>
-						<DateRangeFilter value={range} onChange={setRange} />
+						<Button title="Plano semanal" variant="outline" onPress={()=>router.push({pathname:"/wellbeing/records",params:{kind:"workoutPlan"}})}/>
+ <Button title="Meta diária de passos" variant="outline" onPress={()=>router.push("/activities/steps")}/>
+ <DateRangeFilter value={range} onChange={setRange} />
 						<Card>
-							<Text variant="titleLarge">{formatNumber(list.length)} {list.length === 1 ? "atividade" : "atividades"}</Text>
+							<Text variant="titleLarge">
+								{formatNumber(list.length)} {list.length === 1 ? "atividade" : "atividades"}
+							</Text>
 							<StepTrend trend={trend.trend} trendPercent={trend.trendPercent} />
 							<Text>
 								{formatNumber(stats.durationSeconds / 60, 1)} min ·{" "}
-								{formatNumber(stats.distanceMeters / 1000, 2)} km · {formatNumber(stats.calories)}{" "}
-								kcal
+								{m.distanceText(stats.distanceMeters / 1000)} · {formatNumber(stats.calories)} kcal
 							</Text>
 							<Text>{formatNumber(steps)} passos no período</Text>
 						</Card>
@@ -99,9 +103,7 @@ export default function ActivitiesScreen() {
 									textStyle={{ minHeight: 36 }}
 									selected={filter === type}
 									onPress={() => setFilter(type)}
-									accessibilityLabel={
-										type === "all" ? "Todas as atividades" : names[type]
-									}
+									accessibilityLabel={type === "all" ? "Todas as atividades" : names[type]}
 								>
 									{type === "all" ? "Todas" : names[type]}
 								</Chip>
@@ -124,11 +126,14 @@ export default function ActivitiesScreen() {
 				renderItem={({ item }) => (
 					<Card>
 						<Text variant="titleMedium">{names[item.type]}</Text>
+ <Text>{item.visibility === "friends" ? "Visível para amigos" : "Privada"}</Text>
+ {item.heartRate && <Text>Frequência média: {item.heartRate.averageBpm.toLocaleString("pt-BR",{maximumFractionDigits:1})} bpm · {item.heartRate.source === "ble" ? "Sensor BLE" : "Manual"}</Text>}
 						<Text>
-							{formatDate(item.date)} · {formatNumber(item.distanceKm, 2)} km ·{" "}
-							{formatNumber(item.durationSeconds
-								? item.durationSeconds / 60
-								: item.durationMinutes, 1)}{" "}
+							{formatDate(item.date)} · {m.distanceText(item.distanceKm)} ·{" "}
+							{formatNumber(
+								item.durationSeconds ? item.durationSeconds / 60 : item.durationMinutes,
+								1,
+							)}{" "}
 							min · {formatNumber(item.calories)} kcal
 						</Text>
 						<View style={{ flexDirection: "row", justifyContent: "flex-end" }}>
@@ -151,10 +156,8 @@ export default function ActivitiesScreen() {
 								size={24}
 								accessibilityLabel={`Excluir ${names[item.type]}`}
 								onPress={() =>
-									confirm(
-										"Excluir atividade?",
-										"As estatísticas serão atualizadas.",
-										() => dispatch({ type: "ACTIVITY_DELETE", id: item.id }),
+									confirm("Excluir atividade?", "As estatísticas serão atualizadas.", () =>
+										dispatch({ type: "ACTIVITY_DELETE", id: item.id }),
 									)
 								}
 							/>

@@ -8,13 +8,15 @@ datasource db {
 }
 
 model User {
+ documents MedicalDocument[]
+ wellbeing WellbeingRecord[]
   id           String              @id @default(uuid()) @db.Uuid
   email        String              @unique
   passwordHash String
   createdAt    DateTime            @default(now())
   updatedAt    DateTime            @updatedAt
-  profile      Profile?
-  goals        Goals?
+  profile      Profile[]
+  goals        Goals[]
   sessions     RefreshSession[]
   water        WaterEntry[]
   meals        Meal[]
@@ -25,11 +27,27 @@ model User {
 }
 
 model Profile {
-  userId     String   @id @db.Uuid
+ documents MedicalDocument[]
+ wellbeing WellbeingRecord[]
+ invites FriendInvite[]
+ friendshipsA Friendship[] @relation("FriendA")
+ friendshipsB Friendship[] @relation("FriendB")
+  id         String   @id @default(uuid()) @db.Uuid
+  userId     String   @db.Uuid
+  isPrimary  Boolean  @default(false)
+  unitSystem String   @default("metric")
+  goals Goals?
+  nutrition NutritionProfile?
+  recipes Recipe[]
+  water WaterEntry[]
+  meals Meal[]
+  activities Activity[]
+  weights WeightEntry[]
+  dailySteps DailySteps[]
   name       String
   birthDate  DateTime? @db.Date
   weightKg   Float?
-  heightCm   Int?
+  heightCm   Float?
   gender     String?
   avatarPath String?
   updatedAt  DateTime @updatedAt
@@ -37,7 +55,9 @@ model Profile {
 }
 
 model Goals {
-  userId       String   @id @db.Uuid
+  profileId    String   @id @db.Uuid
+  userId       String   @db.Uuid
+  profile      Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
   waterMl      Int      @default(2500)
   calories     Int      @default(2000)
   mealCalories Int      @default(700)
@@ -63,6 +83,8 @@ model RefreshSession {
 
 model WaterEntry {
   id        String    @id @db.Uuid
+  profileId String @db.Uuid
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
   userId    String    @db.Uuid
   amountMl  Int
   date      DateTime  @db.Date
@@ -72,13 +94,16 @@ model WaterEntry {
   deletedAt DateTime?
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([userId, date])
-  @@index([userId, updatedAt])
+  @@index([userId, profileId, date])
+  @@index([userId, profileId, updatedAt])
 }
 
 model Meal {
   id        String    @id @db.Uuid
+  profileId String @db.Uuid
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
   userId    String    @db.Uuid
+  nutrition Json?
   name      String
   date      DateTime  @db.Date
   time      String
@@ -90,12 +115,16 @@ model Meal {
   deletedAt DateTime?
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([userId, date])
-  @@index([userId, updatedAt])
+  @@index([userId, profileId, date])
+  @@index([userId, profileId, updatedAt])
 }
 
 model Activity {
+ visibility String @default("private")
+ heartRate Json?
   id              String               @id @db.Uuid
+  profileId String @db.Uuid
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
   userId          String               @db.Uuid
   type            String
   date            DateTime             @db.Date
@@ -109,8 +138,8 @@ model Activity {
   user            User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
   route            ActivityRoutePoint[]
 
-  @@index([userId, date])
-  @@index([userId, updatedAt])
+  @@index([userId, profileId, date])
+  @@index([userId, profileId, updatedAt])
 }
 
 model ActivityRoutePoint {
@@ -129,6 +158,8 @@ model ActivityRoutePoint {
 
 model WeightEntry {
   id        String    @id @db.Uuid
+  profileId String @db.Uuid
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
   userId    String    @db.Uuid
   date      DateTime  @db.Date
   weightKg  Float
@@ -137,23 +168,27 @@ model WeightEntry {
   deletedAt DateTime?
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([userId, date])
-  @@index([userId, updatedAt])
+  @@index([userId, profileId, date])
+  @@index([userId, profileId, updatedAt])
 }
 
 model DailySteps {
   id        String   @id @default(uuid()) @db.Uuid
+  profileId String @db.Uuid
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
   userId    String   @db.Uuid
   date      DateTime @db.Date
   steps     Int
   updatedAt DateTime @updatedAt
+  deletedAt DateTime?
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, date])
-  @@index([userId, updatedAt])
+  @@unique([profileId, date])
+  @@index([userId, profileId, updatedAt])
 }
 
 model ProcessedMutation {
+  profileId String? @db.Uuid
   id         String   @id @default(uuid()) @db.Uuid
   userId     String   @db.Uuid
   mutationId String   @db.Uuid
@@ -163,4 +198,84 @@ model ProcessedMutation {
 
   @@unique([userId, mutationId])
   @@index([userId, createdAt])
+}
+
+model NutritionProfile {
+ profileId String @id @db.Uuid
+ objective String
+ restrictions String[]
+ preferences String[]
+ updatedAt DateTime @updatedAt
+ profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+}
+model Recipe {
+ id String @id @db.Uuid
+ profileId String @db.Uuid
+ name String
+ ingredients String
+ instructions String
+ nutrition Json?
+ createdAt DateTime @default(now())
+ updatedAt DateTime @updatedAt
+ deletedAt DateTime?
+ profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+ @@index([profileId, updatedAt])
+}
+model FoodCache {
+ key String @id
+ value Json
+ expiresAt DateTime
+}
+
+model WellbeingRecord {
+ id String @id @db.Uuid
+ userId String @db.Uuid
+ profileId String @db.Uuid
+ kind String
+ data Json
+ revision BigInt @unique @default(autoincrement())
+ createdAt DateTime @default(now())
+ updatedAt DateTime @updatedAt
+ deletedAt DateTime?
+ user User @relation(fields:[userId],references:[id],onDelete:Cascade)
+ profile Profile @relation(fields:[profileId],references:[id],onDelete:Cascade)
+ @@index([profileId,kind,createdAt,id])
+ @@index([profileId,revision])
+}
+model FriendInvite {
+ code String @id
+ profileId String @db.Uuid
+ expiresAt DateTime
+ used Boolean @default(false)
+ profile Profile @relation(fields:[profileId],references:[id],onDelete:Cascade)
+}
+model Friendship {
+ id String @id @default(uuid()) @db.Uuid
+ aId String @db.Uuid
+ bId String @db.Uuid
+ requestedBy String @db.Uuid
+ status String @default("pending")
+ updatedAt DateTime @updatedAt
+ a Profile @relation("FriendA",fields:[aId],references:[id],onDelete:Cascade)
+ b Profile @relation("FriendB",fields:[bId],references:[id],onDelete:Cascade)
+ @@unique([aId,bId])
+}
+
+model MedicalDocument {
+ id String @id @db.Uuid
+ userId String @db.Uuid
+ profileId String @db.Uuid
+ name String
+ mimeType String
+ size Int
+ sha256 String
+ storageName String
+ revision BigInt @unique @default(autoincrement())
+ createdAt DateTime @default(now())
+ updatedAt DateTime @updatedAt
+ deletedAt DateTime?
+ user User @relation(fields:[userId],references:[id],onDelete:Cascade)
+ profile Profile @relation(fields:[profileId],references:[id],onDelete:Cascade)
+ @@index([userId,profileId,createdAt,id])
+ @@index([profileId,revision])
 }

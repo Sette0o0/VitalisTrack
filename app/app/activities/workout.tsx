@@ -1,3 +1,8 @@
+import { HeartRateControl } from "@/components/vitalis/heart-rate-control";
+import { FocusControl } from "@/components/vitalis/focus-control";
+import { addHeartRate } from "@/lib/wellbeing-timers";
+import { UserFacingError } from "@/lib/user-error";
+import { useMeasurements } from "@/hooks/use-measurements";
 import { formatNumber } from "@/lib/format";
 import * as Location from "expo-location";
 import { router, useLocalSearchParams } from "expo-router";
@@ -7,11 +12,7 @@ import { ActivityIndicator, Chip, HelperText, Text } from "react-native-paper";
 import { WorkoutMap } from "@/components/vitalis/workout-map";
 import { Button, Card, Header, Screen } from "@/components/vitalis/ui";
 import { useConfirm } from "@/components/vitalis/confirmation";
-import {
-	calculateActivityCalories,
-	calculatePace,
-	formatPace,
-} from "@/lib/health";
+import { calculateActivityCalories, calculatePace, formatPace } from "@/lib/health";
 import { getValue, setValue } from "@/lib/local-database";
 import {
 	createWorkout,
@@ -25,26 +26,22 @@ import { useAppState } from "@/state/app-state";
 import type { ActivityType } from "@/state/types";
 
 export default function WorkoutScreen() {
+	const m = useMeasurements();
 	const { type } = useLocalSearchParams<{
 		type?: ActivityType;
 	}>();
-	const requested: ActivityType =
-		type === "walk" || type === "cycling" ? type : "run";
+	const requested: ActivityType = type === "walk" || type === "cycling" ? type : "run";
 	const { state, dispatch } = useAppState(),
 		owner = state.userId;
 	const confirm = useConfirm();
-	const [workout, setWorkout] = useState<Workout>(() =>
-		createWorkout(requested),
-	);
+	const [workout, setWorkout] = useState<Workout>(() => createWorkout(requested));
 	const current = useRef(workout),
 		writes = useRef(Promise.resolve()),
 		finished = useRef(false);
 	const [ready, setReady] = useState(false),
 		[gpsError, setGpsError] = useState(""),
 		[gpsReady, setGpsReady] = useState(false);
-	const [foreground, setForeground] = useState(
-			Lifecycle.currentState === "active",
-		),
+	const [foreground, setForeground] = useState(Lifecycle.currentState === "active"),
 		[retry, setRetry] = useState(0);
 	const update = (next: Workout) => {
 		current.current = next;
@@ -53,14 +50,10 @@ export default function WorkoutScreen() {
 	const persist = useCallback(() => {
 		const snapshot = current.current;
 		const operation = writes.current.then(() =>
-			finished.current
-				? undefined
-				: setValue("active-workout", JSON.stringify(snapshot), owner),
+			finished.current ? undefined : setValue("active-workout", JSON.stringify(snapshot), owner),
 		);
 		writes.current = operation.catch(() => {
-			setGpsError(
-				"Não foi possível salvar o treino no aparelho. Tente novamente.",
-			);
+			setGpsError("Não foi possível salvar o treino no aparelho. Tente novamente.");
 		});
 		return operation;
 	}, [owner]);
@@ -73,11 +66,7 @@ export default function WorkoutScreen() {
 				update(restored);
 				setReady(true);
 			})
-			.catch(() =>
-				setGpsError(
-					"Não foi possível restaurar o treino. Volte e tente novamente.",
-				),
-			);
+			.catch(() => setGpsError("Não foi possível restaurar o treino. Volte e tente novamente."));
 		return () => {
 			stopped = true;
 		};
@@ -121,8 +110,7 @@ export default function WorkoutScreen() {
 				if (stopped) return;
 				// Reopening Android's permission activity pauses the workout even if
 				// permission was already granted. Request only when it is necessary.
-				if (!permission.granted)
-					permission = await Location.requestForegroundPermissionsAsync();
+				if (!permission.granted) permission = await Location.requestForegroundPermissionsAsync();
 				if (stopped) return;
 				if (!permission.granted)
 					return fail(
@@ -145,8 +133,7 @@ export default function WorkoutScreen() {
 						};
 						update(recordPoint(current.current, point));
 					},
-					() =>
-						fail("GPS indisponível. Confira a localização e retome o treino."),
+					() => fail("GPS indisponível. Confira a localização e retome o treino."),
 				);
 				if (stopped) listener.remove();
 				else {
@@ -195,8 +182,7 @@ export default function WorkoutScreen() {
 				if (finished.current) return;
 				const saved = current.current,
 					seconds = Math.floor(saved.elapsedMs / 1000);
-				if (seconds < 1)
-					throw new Error("Registre ao menos um segundo de atividade.");
+				if (seconds < 1) throw new UserFacingError("Registre ao menos um segundo de atividade.");
 				finished.current = true;
 				try {
 					await writes.current;
@@ -210,11 +196,9 @@ export default function WorkoutScreen() {
 							durationMinutes: seconds / 60,
 							distanceKm: saved.distance / 1000,
 							route: saved.route,
-							calories: calculateActivityCalories(
-								saved.type,
-								state.profile.weightKg,
-								seconds / 60,
-							),
+ visibility:"private",
+ ...(saved.heartCount ? {heartRate:{source:"ble" as const,averageBpm:Math.round((saved.heartSum??0)/saved.heartCount*10)/10,sum:saved.heartSum??0,count:saved.heartCount}} : {}),
+							calories: calculateActivityCalories(saved.type, state.profile.weightKg, seconds / 60),
 						},
 					});
 					await setValue("active-workout", "", owner);
@@ -238,12 +222,14 @@ export default function WorkoutScreen() {
 			) : (
 				<>
 					<WorkoutMap workout={workout} />
+ <HeartRateControl enabled={!workout.paused&&foreground&&gpsReady} onReading={(bpm,second)=>{
+ const w=current.current;const summary=addHeartRate({sum:w.heartSum??0,count:w.heartCount??0,lastSecond:w.lastHeartSecond??-1},bpm,second,w.paused||!foreground||!gpsReady);
+ update({...w,heartSum:summary.sum,heartCount:summary.count,lastHeartSecond:summary.lastSecond});
+ }}/>
+ {workout.heartCount ? <Text>Média cardíaca: {((workout.heartSum??0)/workout.heartCount).toLocaleString("pt-BR",{maximumFractionDigits:1})} bpm</Text>:null}
+ <FocusControl owner={`${owner}:${state.profileId}:workout`} enabled={!workout.paused&&foreground&&gpsReady} attached/>
 					<Chip icon={gpsReady ? "map-marker-check" : "map-marker-off"}>
-						{workout.paused
-							? "Treino pausado"
-							: gpsReady
-								? "GPS ativo"
-								: "Iniciando GPS"}
+						{workout.paused ? "Treino pausado" : gpsReady ? "GPS ativo" : "Iniciando GPS"}
 					</Chip>
 					{gpsError ? (
 						<HelperText type="error" accessibilityLiveRegion="polite">
@@ -255,13 +241,11 @@ export default function WorkoutScreen() {
 						<Text variant="displaySmall" accessibilityLabel={`Tempo ${timer}`}>
 							{timer}
 						</Text>
-						<Text variant="titleLarge">{formatNumber(distanceKm, 2)} km</Text>
+						<Text variant="titleLarge">{m.distanceText(distanceKm)}</Text>
 						<Text variant="bodyLarge">
 							Ritmo:{" "}
-							{distanceKm
-								? formatPace(calculatePace(seconds / 60, distanceKm))
-								: "—"}{" "}
-							/km
+							{distanceKm ? formatPace(calculatePace(seconds / 60, m.distance(distanceKm))) : "—"} /
+							{m.distanceUnit}
 						</Text>
 					</Card>
 					<Button
@@ -272,12 +256,7 @@ export default function WorkoutScreen() {
 							setRetry((x) => x + 1);
 						}}
 					/>
-					<Button
-						title="Finalizar"
-						variant="outline"
-						icon="stop"
-						onPress={finish}
-					/>
+					<Button title="Finalizar" variant="outline" icon="stop" onPress={finish} />
 				</>
 			)}
 		</Screen>

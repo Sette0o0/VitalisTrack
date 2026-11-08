@@ -16,13 +16,22 @@ const createMutation = (
 	clientUpdatedAt: new Date().toISOString(),
 	...(entity === "profile" ? { clientTimeZone: deviceTimeZone() } : {}),
 });
-export function mutationFor(
-	action: Action,
-	next: AppState,
-): LocalMutation | null {
+export function mutationFor(action: Action, next: AppState): LocalMutation | null {
 	switch (action.type) {
+		case "UNITS":
+			return createMutation("preferences", "upsert", { unitSystem: action.value });
+		case "NUTRITION":
+			return createMutation("nutrition", "upsert", action.value);
+		case "RECIPE_SAVE":
+			return createMutation("recipe", "upsert", action.value, action.value.id);
 		case "AVATAR_SAVE":
-			return { mutationId: action.mutationId, entity: "avatar", action: "upsert", payload: { uri: action.uri, mimeType: action.mimeType }, clientUpdatedAt: new Date().toISOString() };
+			return {
+				mutationId: action.mutationId,
+				entity: "avatar",
+				action: "upsert",
+				payload: { uri: action.uri, mimeType: action.mimeType },
+				clientUpdatedAt: new Date().toISOString(),
+			};
 		case "PROFILE": {
 			const { name, birthDate, weightKg, heightCm, gender } = action.value;
 			return createMutation("profile", "upsert", {
@@ -34,11 +43,7 @@ export function mutationFor(
 			});
 		}
 		case "GOALS":
-			return createMutation(
-				"goals",
-				"upsert",
-				action.value as Record<string, unknown>,
-			);
+			return createMutation("goals", "upsert", action.value as Record<string, unknown>);
 		case "WATER_ADD":
 			return createMutation(
 				"water",
@@ -69,11 +74,12 @@ export function mutationFor(
 				"upsert",
 				{
 					id: action.value.id,
+ ...(action.value.visibility === undefined ? {} : {visibility:action.value.visibility}),
+ ...(action.value.heartRate === undefined ? {} : {heartRate:action.value.heartRate}),
 					type: action.value.type,
 					date: action.value.date,
 					durationSeconds:
-						action.value.durationSeconds ??
-						Math.round(action.value.durationMinutes * 60),
+						action.value.durationSeconds ?? Math.round(action.value.durationMinutes * 60),
 					distanceMeters: action.value.distanceKm * 1000,
 					route: action.value.route ?? [],
 				},
@@ -92,9 +98,8 @@ export function mutationFor(
 			return createMutation("steps", "upsert", {
 				date: action.date ?? isoDate(),
 				steps:
-					next.dailySteps?.find(
-						(row) => row.date === (action.date ?? isoDate()),
-					)?.steps ?? action.value,
+					next.dailySteps?.find((row) => row.date === (action.date ?? isoDate()))?.steps ??
+					action.value,
 			});
 		default:
 			return null;

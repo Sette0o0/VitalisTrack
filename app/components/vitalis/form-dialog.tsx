@@ -5,6 +5,7 @@ import {
 	ScrollView,
 	StyleSheet,
 	View,
+	useWindowDimensions,
 } from "react-native";
 import { Dialog, Portal } from "react-native-paper";
 
@@ -19,6 +20,7 @@ export function FormDialog({
 	children: ReactNode;
 	actions: ReactNode;
 }) {
+ const {fontScale} = useWindowDimensions();
 	return (
 		<Portal>
 			<KeyboardAvoidingView
@@ -26,7 +28,7 @@ export function FormDialog({
 				style={StyleSheet.absoluteFill}
 				behavior={Platform.OS === "ios" ? "padding" : "height"}
 			>
-				<Dialog
+				<Dialog key={fontScale}
 					{...props}
 					style={[{ maxHeight: "90%", marginVertical: 16 }, style]}
 				>

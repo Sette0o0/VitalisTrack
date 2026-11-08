@@ -6,3 +6,9 @@ declare module "@fastify/jwt" {
 		user: { sub: string };
 	}
 }
+
+declare module "fastify" {
+	interface FastifyRequest {
+		profileId: string;
+	}
+}

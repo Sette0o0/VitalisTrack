@@ -80,7 +80,10 @@ jobs:
         run: |
           pnpm exec expo prebuild --platform android --no-install
           cd android
+          ./gradlew --no-daemon --max-workers=2 -PreactNativeArchitectures=${{ matrix.arch }} :app:createBundleReleaseJsAndAssets --rerun-tasks
           ./gradlew --no-daemon --max-workers=2 -PreactNativeArchitectures=${{ matrix.arch }} assembleRelease
+          python3 ../../scripts/check-native-font-flags.py
+          python3 ../../scripts/verify-android-bundle.py app/build/outputs/apk/release/app-release.apk --api-url "$EXPO_PUBLIC_API_URL" --qa --package com.vitalistrack.app --font-scale
       - name: Start QA API
         env:
           NODE_ENV: test

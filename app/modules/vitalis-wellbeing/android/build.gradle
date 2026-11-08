@@ -1,0 +1,16 @@
+plugins {
+ id 'com.android.library'
+ id 'expo-module-gradle-plugin'
+}
+group = 'com.vitalistrack'
+version = '1.0.0'
+android {
+ namespace 'com.vitalistrack.wellbeing'
+ defaultConfig { versionCode 1; versionName '1.0.0' }
+}
+android { defaultConfig { testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner' } }
+dependencies {
+ testImplementation 'junit:junit:4.13.2'
+ androidTestImplementation 'androidx.test:runner:1.6.2'
+ androidTestImplementation 'androidx.test:rules:1.6.1'
+}

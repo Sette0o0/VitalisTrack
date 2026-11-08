@@ -34,8 +34,9 @@ export default function MealsScreen() {
 		[limit, setLimit] = useState(String(state.goals.mealCalories));
 	const summary = useDailySummary(),
 		remaining = state.goals.calories - summary.calories,
-		meals = filterByDateRange(state.meals, range)
-			.sort((a, b) => b.date.localeCompare(a.date) || a.time.localeCompare(b.time));
+		meals = filterByDateRange(state.meals, range).sort(
+			(a, b) => b.date.localeCompare(a.date) || a.time.localeCompare(b.time),
+		);
 	const save = () =>
 		submit(async () => {
 			const value = parseInput(goalsUpdateSchema, {
@@ -47,10 +48,22 @@ export default function MealsScreen() {
 		});
 	return (
 		<Screen>
+			<Button
+				title="Buscar alimentos"
+				variant="outline"
+				onPress={() => router.push("/meals/foods")}
+			/>
+			<Button
+				title="Minhas receitas"
+				variant="outline"
+				onPress={() => router.push("/meals/recipes")}
+			/>
 			<Eyebrow>Diário alimentar</Eyebrow>
 			<Title>Alimentação</Title>
 			<Card style={{ backgroundColor: theme.foodContainer }}>
-				<Text variant="titleMedium" style={{ color: theme.onFoodContainer }}>Resumo de hoje</Text>
+				<Text variant="titleMedium" style={{ color: theme.onFoodContainer }}>
+					Resumo de hoje
+				</Text>
 				<Text
 					variant="displaySmall"
 					style={{ color: remaining < 0 ? theme.error : theme.onFoodContainer }}
@@ -76,12 +89,16 @@ export default function MealsScreen() {
 			</Card>
 			<Subtitle>Refeições</Subtitle>
 			<DateRangeFilter value={range} onChange={setRange} />
-			<Muted>{formatNumber(meals.length)} {meals.length === 1 ? "refeição" : "refeições"} · {formatNumber(meals.reduce((total, meal) => total + meal.calories, 0))} kcal no período</Muted>
+			<Muted>
+				{formatNumber(meals.length)} {meals.length === 1 ? "refeição" : "refeições"} ·{" "}
+				{formatNumber(meals.reduce((total, meal) => total + meal.calories, 0))} kcal no período
+			</Muted>
 			{meals.map((meal) => (
 				<Card key={meal.id}>
 					<Text variant="titleMedium">{meal.name}</Text>
 					<Muted>
-						{formatDate(meal.date)} · {meal.time} · {formatNumber(meal.calories)} kcal · {formatNumber(meal.quantity)} {meal.unit}
+						{formatDate(meal.date)} · {meal.time} · {formatNumber(meal.calories)} kcal ·{" "}
+						{formatNumber(meal.quantity)} {meal.unit}
 					</Muted>
 					{meal.calories > state.goals.mealCalories && (
 						<Text
@@ -117,10 +134,8 @@ export default function MealsScreen() {
 							title="Excluir"
 							variant="danger"
 							onPress={() =>
-								confirm(
-									"Excluir refeição?",
-									"As calorias serão recalculadas.",
-									() => dispatch({ type: "MEAL_DELETE", id: meal.id }),
+								confirm("Excluir refeição?", "As calorias serão recalculadas.", () =>
+									dispatch({ type: "MEAL_DELETE", id: meal.id }),
 								)
 							}
 						/>
@@ -128,11 +143,7 @@ export default function MealsScreen() {
 				</Card>
 			))}
 			{!meals.length && <Muted>Nenhuma refeição no período selecionado.</Muted>}
-			<FAB
-				icon="plus"
-				label="Adicionar refeição"
-				onPress={() => router.push("/meals/form")}
-			/>
+			<FAB icon="plus" label="Adicionar refeição" onPress={() => router.push("/meals/form")} />
 			<FormDialog
 				visible={editing}
 				dismissable={!saving}
@@ -146,12 +157,7 @@ export default function MealsScreen() {
 						disabled={saving}
 						onPress={() => setEditing(false)}
 					/>,
-					<Button
-						key="save"
-						title="Salvar metas"
-						loading={saving}
-						onPress={save}
-					/>,
+					<Button key="save" title="Salvar metas" loading={saving} onPress={save} />,
 				]}
 			>
 				<Field

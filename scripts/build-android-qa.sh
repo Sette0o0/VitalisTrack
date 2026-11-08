@@ -13,7 +13,10 @@ export NODE_ENV=production
 export BABEL_ENV=production
 pnpm exec expo prebuild --platform android --no-install
 cd android
+./gradlew --no-daemon --max-workers=2 :app:createBundleReleaseJsAndAssets --rerun-tasks
 ./gradlew --no-daemon --max-workers=2 assembleDebug assembleRelease
+python3 "$TASK_ROOT/scripts/check-native-font-flags.py"
+python3 "$TASK_ROOT/scripts/verify-android-bundle.py" app/build/outputs/apk/release/app-release.apk --api-url "${EXPO_PUBLIC_API_URL:-http://10.0.2.2:3000}" --font-scale
 mkdir -p "$TASK_ROOT/artifacts/android"
 cp app/build/outputs/apk/debug/app-debug.apk "$TASK_ROOT/artifacts/android/vitalis-debug.apk"
 cp app/build/outputs/apk/release/app-release.apk "$TASK_ROOT/artifacts/android/vitalis-release.apk"

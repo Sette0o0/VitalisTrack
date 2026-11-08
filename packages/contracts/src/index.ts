@@ -1,25 +1,40 @@
+export * from "./reporting";
 import { z } from "zod";
+import { visibilitySchema, heartRateSummarySchema } from "./wellbeing";
+export * from "./wellbeing";
 
 export const idSchema = z.uuid();
 export const dateSchema = z.iso.date();
-export const timeZoneSchema = z.string().min(1).max(100).refine((value) => {
-	try {
-		new Intl.DateTimeFormat("en", { timeZone: value }).format();
-		return true;
-	} catch { return false; }
-}, "Fuso horário inválido");
+export const timeZoneSchema = z
+	.string()
+	.min(1)
+	.max(100)
+	.refine((value) => {
+		try {
+			new Intl.DateTimeFormat("en", { timeZone: value }).format();
+			return true;
+		} catch {
+			return false;
+		}
+	}, "Fuso horário inválido");
 export const deviceTimeZone = () => Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
 export function calendarDate(timeZone = "UTC", now = new Date()) {
-	const parts = new Intl.DateTimeFormat("en", { timeZone, year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(now);
+	const parts = new Intl.DateTimeFormat("en", {
+		timeZone,
+		year: "numeric",
+		month: "2-digit",
+		day: "2-digit",
+	}).formatToParts(now);
 	const part = (type: string) => parts.find((item) => item.type === type)!.value;
 	return `${part("year")}-${part("month")}-${part("day")}`;
 }
 export const birthDateError = (value: string, timeZone = "UTC", now = new Date()) =>
-	!dateSchema.safeParse(value).success ? "Informe uma data válida em dd/mm/aaaa."
-		: value > calendarDate(timeZone, now) ? "Nascimento não pode estar no futuro." : undefined;
-export const timeSchema = z
-	.string()
-	.regex(/^([01]\d|2[0-3]):[0-5]\d$/, "Use HH:mm");
+	!dateSchema.safeParse(value).success
+		? "Informe uma data válida em dd/mm/aaaa."
+		: value > calendarDate(timeZone, now)
+			? "Nascimento não pode estar no futuro."
+			: undefined;
+export const timeSchema = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, "Use HH:mm");
 export const genderSchema = z.enum(["Feminino", "Masculino", "Outro"]);
 export const activityTypeSchema = z.enum(["walk", "run", "cycling"]);
 export const periodSchema = z.enum(["day", "week", "month"]);
@@ -31,6 +46,12 @@ export const entityTypeSchema = z.enum([
 	"activity",
 	"weight",
 	"steps",
+	"healthProfile",
+	"nutrition",
+	"preferences",
+	"recipe",
+	"wellbeing",
+ "document",
 ]);
 export const mutationActionSchema = z.enum(["upsert", "delete"]);
 
@@ -54,6 +75,8 @@ export const refreshSchema = z.object({ refreshToken: z.string().min(32) });
 
 export const profileSchema = z.object({
 	id: idSchema,
+	profileId: idSchema.optional(),
+	unitSystem: z.enum(["metric", "imperial"]).optional(),
 	name: z.string(),
 	email: z.email(),
 	birthDate: dateSchema.nullable(),
@@ -69,16 +92,17 @@ export const profileUpdateInputSchema = z
 		name: z.string().trim().min(2).max(100).optional(),
 		birthDate: dateSchema.optional(),
 		weightKg: z.number().min(20).max(500).optional(),
-		heightCm: z.number().int().min(80).max(260).optional(),
+		heightCm: z.number().min(80).max(260).optional(),
 		gender: genderSchema.optional(),
 	})
 	.strict();
-export const createProfileUpdateSchema = (timeZone = "UTC") => profileUpdateInputSchema.superRefine((value, ctx) => {
-	if (value.birthDate) {
-		const error = birthDateError(value.birthDate, timeZone);
-		if (error) ctx.addIssue({ code: "custom", path: ["birthDate"], message: error });
-	}
-});
+export const createProfileUpdateSchema = (timeZone = "UTC") =>
+	profileUpdateInputSchema.superRefine((value, ctx) => {
+		if (value.birthDate) {
+			const error = birthDateError(value.birthDate, timeZone);
+			if (error) ctx.addIssue({ code: "custom", path: ["birthDate"], message: error });
+		}
+	});
 export const profileUpdateSchema = createProfileUpdateSchema();
 
 export const goalsSchema = z.object({
@@ -93,10 +117,21 @@ export const goalsSchema = z.object({
 export const goalsUpdateSchema = goalsSchema
 	.omit({ updatedAt: true })
 	.partial()
-	.refine(
-		(value) => Object.keys(value).length > 0,
-		"Informe ao menos uma meta",
-	);
+	.refine((value) => Object.keys(value).length > 0, "Informe ao menos uma meta");
+
+export const nutritionValuesSchema = z.object({
+	calories: z.number().nonnegative().nullable(),
+	proteins: z.number().nonnegative().nullable(),
+	carbohydrates: z.number().nonnegative().nullable(),
+	fat: z.number().nonnegative().nullable(),
+});
+export type NutritionValues = z.infer<typeof nutritionValuesSchema>;
+export const mealNutritionSchema = z.object({
+	source: z.literal("openfoodfacts"),
+	code: z.string(),
+	basisUnit: z.enum(["g", "mL"]),
+	values: nutritionValuesSchema,
+});
 
 const syncFields = {
 	createdAt: z.string(),
@@ -119,6 +154,7 @@ export const waterInputSchema = waterEntrySchema.pick({
 export const waterUpdateSchema = waterInputSchema.omit({ id: true }).partial();
 
 export const mealSchema = z.object({
+	nutrition: mealNutritionSchema.nullable().optional(),
 	id: idSchema,
 	name: z.string(),
 	date: dateSchema,
@@ -129,6 +165,7 @@ export const mealSchema = z.object({
 	...syncFields,
 });
 export const mealInputSchema = z.object({
+	nutrition: mealNutritionSchema.nullable().optional(),
 	id: idSchema,
 	name: z.string().trim().min(1).max(200),
 	date: dateSchema,
@@ -147,6 +184,8 @@ export const routePointSchema = z.object({
 	timestamp: z.iso.datetime({ offset: true }),
 });
 export const activitySchema = z.object({
+ visibility:visibilitySchema.optional(),
+ heartRate:heartRateSummarySchema.nullable().optional(),
 	id: idSchema,
 	type: activityTypeSchema,
 	date: dateSchema,
@@ -158,6 +197,8 @@ export const activitySchema = z.object({
 	...syncFields,
 });
 export const activityInputSchema = z.object({
+ visibility:visibilitySchema.optional(),
+ heartRate:heartRateSummarySchema.nullable().optional(),
 	id: idSchema,
 	type: activityTypeSchema,
 	date: dateSchema,
@@ -165,9 +206,7 @@ export const activityInputSchema = z.object({
 	distanceMeters: z.number().nonnegative(),
 	route: z.array(routePointSchema).max(10_000).default([]),
 });
-export const activityUpdateSchema = activityInputSchema
-	.omit({ id: true })
-	.partial();
+export const activityUpdateSchema = activityInputSchema.omit({ id: true }).partial();
 
 export const weightEntrySchema = z.object({
 	id: idSchema,
@@ -180,9 +219,7 @@ export const weightInputSchema = weightEntrySchema.pick({
 	date: true,
 	weightKg: true,
 });
-export const weightUpdateSchema = weightInputSchema
-	.omit({ id: true })
-	.partial();
+export const weightUpdateSchema = weightInputSchema.omit({ id: true }).partial();
 export const stepsInputSchema = z.object({
 	steps: z.number().int().nonnegative(),
 });
@@ -200,6 +237,7 @@ export const activityListQuerySchema = listQuerySchema.extend({
 
 export const syncMutationSchema = z.object({
 	mutationId: idSchema,
+	profileId: idSchema.optional(),
 	entity: entityTypeSchema,
 	action: mutationActionSchema,
 	entityId: idSchema.optional(),
@@ -244,11 +282,16 @@ export type SyncResult = {
 	message?: string;
 };
 export type SyncPull = {
+ wellbeingVersion?: 1;
+ documentsVersion?: 1;
+	nutrition?: NutritionProfile | null;
+	recipes?: Recipe[];
+	unitSystem?: UnitSystem;
 	water: WaterEntry[];
 	meals: Meal[];
 	activities: Activity[];
 	weights: WeightEntry[];
-	steps: { date: string; steps: number; updatedAt?: string }[];
+	steps: { date: string; steps: number; updatedAt?: string; deletedAt?: string | null }[];
 	profile: Partial<Profile> | null;
 	goals: Partial<Goals> | null;
 	cursor: string;
@@ -275,3 +318,87 @@ export type ProgressStatistics = {
 	activityMinutes: number;
 	contributingDays: number;
 };
+
+export const unitSystemSchema = z.enum(["metric", "imperial"]);
+export type UnitSystem = z.infer<typeof unitSystemSchema>;
+export const healthProfileCreateSchema = z.object({
+	id: idSchema,
+	name: z.string().trim().min(2).max(100),
+});
+export const healthProfileSchema = z.object({
+	id: idSchema,
+	name: z.string(),
+	isPrimary: z.boolean(),
+	updatedAt: z.string(),
+});
+export type HealthProfile = z.infer<typeof healthProfileSchema>;
+export const nutritionProfileInputSchema = z.object({
+	objective: z.enum(["lose", "maintain", "gain"]),
+	restrictions: z.array(z.string().trim().min(1).max(200)).max(50),
+	preferences: z.array(z.string().trim().min(1).max(200)).max(50),
+});
+export const nutritionProfileSchema = nutritionProfileInputSchema.extend({ updatedAt: z.string() });
+export type NutritionProfile = z.infer<typeof nutritionProfileSchema>;
+export const recipeInputSchema = z.object({
+	id: idSchema,
+	name: z.string().trim().min(1).max(200),
+	ingredients: z.string().trim().min(1).max(20000),
+	instructions: z.string().trim().min(1).max(20000),
+	nutrition: nutritionValuesSchema.nullable().optional(),
+});
+export const recipeSchema = recipeInputSchema.extend(syncFields);
+export type Recipe = z.infer<typeof recipeSchema>;
+export const foodProductSchema = z.object({
+	code: z.string(),
+	name: z.string(),
+	brand: z.string().nullable(),
+	basisUnit: z.enum(["g", "mL"]).nullable(),
+	values: nutritionValuesSchema,
+	source: z.literal("openfoodfacts"),
+	fetchedAt: z.string(),
+});
+export type FoodProduct = z.infer<typeof foodProductSchema>;
+
+// Harris & Benedict (1918), original coefficients. No inferred coefficients.
+export function basalCalories(input: {
+	weightKg?: number | null;
+	heightCm?: number | null;
+	age?: number | null;
+	gender?: string | null;
+}) {
+	const { weightKg: w, heightCm: h, age: a, gender } = input;
+	if (!w || !h || a == null || a < 0 || ![w, h, a].every(Number.isFinite)) return null;
+	if (gender === "Masculino") return Math.round(66.473 + 13.7516 * w + 5.0033 * h - 6.755 * a);
+	if (gender === "Feminino") return Math.round(655.0955 + 9.5634 * w + 1.8496 * h - 4.6756 * a);
+	return null;
+}
+export const toDisplayWeight = (kg: number, units: UnitSystem) =>
+	units === "imperial" ? kg / 0.45359237 : kg;
+export const fromDisplayWeight = (value: number, units: UnitSystem) =>
+	units === "imperial" ? value * 0.45359237 : value;
+export const toDisplayHeight = (cm: number, units: UnitSystem) =>
+	units === "imperial" ? cm / 2.54 : cm;
+export const fromDisplayHeight = (value: number, units: UnitSystem) =>
+	units === "imperial" ? value * 2.54 : value;
+export const toDisplayDistance = (km: number, units: UnitSystem) =>
+	units === "imperial" ? km / 1.609344 : km;
+export const fromDisplayDistance = (value: number, units: UnitSystem) =>
+	units === "imperial" ? value * 1.609344 : value;
+export function foodNutrition(
+	product: FoodProduct,
+	quantity: number,
+	unit: "g" | "mL",
+): NutritionValues {
+	if (
+		!Number.isFinite(quantity) ||
+		quantity <= 0 ||
+		(product.basisUnit && unit !== product.basisUnit)
+	)
+		throw new Error("Confirme a quantidade e a unidade nutricional.");
+	return Object.fromEntries(
+		Object.entries(product.values).map(([key, value]) => [
+			key,
+			value == null ? null : (value * quantity) / 100,
+		]),
+	) as NutritionValues;
+}

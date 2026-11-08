@@ -1,10 +1,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { buildApp } from "../src/app.js";
 import { prisma } from "../src/lib/prisma.js";
-if (
-	process.env.NODE_ENV !== "test" ||
-	!/\/vitalis_qa(?:\?|$)/.test(process.env.DATABASE_URL ?? "")
-)
+if (process.env.NODE_ENV !== "test" || !/\/vitalis_qa(?:\?|$)/.test(process.env.DATABASE_URL ?? ""))
 	throw new Error("Use exclusivamente NODE_ENV=test e banco vitalis_qa.");
 const app = await buildApp();
 await app.ready();
@@ -50,9 +47,7 @@ try {
 				});
 				return {
 					durationMs: performance.now() - begin,
-					ok:
-						result.statusCode === 200 &&
-						result.json().data[0]?.status === "applied",
+					ok: result.statusCode === 200 && result.json().data[0]?.status === "applied",
 					message: result.json().data?.[0]?.message,
 				};
 			} catch (cause) {
@@ -71,6 +66,7 @@ try {
 		data: Array.from({ length: 1000 }, (_, i) => ({
 			id: crypto.randomUUID(),
 			userId,
+			profileId: userId,
 			type: i % 2 ? "run" : "walk",
 			date: new Date("2026-10-03T00:00:00Z"),
 			durationSeconds: 60,
@@ -116,8 +112,7 @@ try {
 			searchMatches: search
 				.json()
 				.data?.every(
-					(row: { type: string; date: string }) =>
-						row.type === "run" && row.date === "2026-10-03",
+					(row: { type: string; date: string }) => row.type === "run" && row.date === "2026-10-03",
 				),
 		},
 		limits: {
@@ -128,10 +123,7 @@ try {
 		},
 	};
 	await mkdir("../docs/qa/evidence", { recursive: true });
-	await writeFile(
-		"../docs/qa/evidence/server-load.json",
-		JSON.stringify(report, null, 2) + "\n",
-	);
+	await writeFile("../docs/qa/evidence/server-load.json", JSON.stringify(report, null, 2) + "\n");
 	console.log(JSON.stringify(report, null, 2));
 } finally {
 	if (userId) await prisma.user.delete({ where: { id: userId } });

@@ -1,0 +1,19 @@
+diff --git a/android/src/fabric/java/com/swmansion/rnscreens/NativeProxy.kt b/android/src/fabric/java/com/swmansion/rnscreens/NativeProxy.kt
+index e1ff013ea01380590d68f96173d2efc7cdff5aaf..245fd260ea46f533d8ef3e3d1e288f20469dd5a8 100644
+--- a/android/src/fabric/java/com/swmansion/rnscreens/NativeProxy.kt
++++ b/android/src/fabric/java/com/swmansion/rnscreens/NativeProxy.kt
+@@ -61,7 +61,13 @@ class NativeProxy {
+ 
+         val screen = weakScreeRef.get()
+         if (screen is Screen) {
+-            screen.startRemovalTransition()
++            val isScheduled =
++                screen.post {
++                    screen.startRemovalTransition()
++                }
++            if (!isScheduled) {
++                Log.w("[RNScreens]", "Failed to schedule removal transition start for screen with tag $screenTag")
++            }
+         } else {
+             Log.w("[RNScreens]", "Reference stored in NativeProxy for tag $screenTag no longer points to valid object.")
+         }

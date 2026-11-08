@@ -26,7 +26,10 @@ export default function ProgressScreen() {
 		stats = selectActivityStats(state, period === "month" ? "month" : "week");
 	return (
 		<Screen>
-			<Eyebrow>Acompanhamento</Eyebrow>
+ <Button title="Bem-estar" variant="outline" onPress={()=>router.push("/wellbeing")}/>
+			<Button title="Relatórios e exportação" variant="outline" onPress={()=>router.push("/reports")}/>
+ <Button title="Linha do tempo" variant="outline" onPress={()=>router.push("/reports/timeline")}/>
+ <Eyebrow>Acompanhamento</Eyebrow>
 			<Title>Progresso</Title>
 			<SegmentedButtons
 				value={period}

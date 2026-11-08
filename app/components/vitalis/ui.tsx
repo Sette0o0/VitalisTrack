@@ -7,11 +7,12 @@ import {
 	StyleSheet,
 	View,
 	ViewStyle,
+	useWindowDimensions,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
 	Appbar,
-	Button as PaperButton,
+	ActivityIndicator,
 	Surface,
 	TouchableRipple,
 	HelperText,
@@ -30,8 +31,12 @@ export function Screen({
 }: PropsWithChildren<{ scroll?: boolean; style?: ViewStyle; onLayout?: ComponentProps<typeof View>["onLayout"] }>) {
 	const theme = useAppTheme(),
 		insets = useSafeAreaInsets();
+ const {fontScale} = useWindowDimensions();
 	const content = (
 		<View
+   // RN 0.81 retains paragraph measurements across Android font changes.
+   // Remount presentation nodes while controlled values stay in screen state.
+   key={fontScale}
 			onLayout={onLayout}
 			style={[
 				styles.screen,
@@ -144,8 +149,10 @@ export function Button({
 	disabled,
 	loading,
 	testID,
+	accessibilityLabel,
 }: {
 	title: string;
+	accessibilityLabel?: string;
 	onPress?: () => void | Promise<void>;
 	variant?: "filled" | "outline" | "text" | "danger";
 	icon?: keyof typeof MaterialCommunityIcons.glyphMap;
@@ -154,45 +161,41 @@ export function Button({
 	testID?: string;
 }) {
 	const theme = useAppTheme();
-	return (
-		<PaperButton
-			testID={testID}
-			accessibilityLabel={title}
-			mode={
-				variant === "filled"
-					? "contained"
-					: variant === "outline"
-						? "outlined"
-						: "text"
-			}
-			icon={icon}
-			disabled={disabled || loading}
-			loading={loading}
-			textColor={variant === "danger" ? theme.error : undefined}
-			onPress={() => void onPress?.()}
-			contentStyle={{ minHeight: 48 }}
-			labelStyle={{ fontSize: 14 }}
-		>
-			{title}
-		</PaperButton>
-	);
+ const inactive = Boolean(disabled || loading);
+ const color = inactive ? theme.onSurfaceVariant : variant === "filled" ? theme.onPrimary : variant === "danger" ? theme.error : theme.primary;
+ return (
+  <TouchableRipple testID={testID} accessibilityRole="button"
+   accessibilityLabel={accessibilityLabel ?? title}
+   accessibilityState={{disabled:inactive,busy:Boolean(loading)}} disabled={inactive}
+   onPress={() => void onPress?.()}
+   style={{borderRadius:24,borderWidth:variant === "outline" ? 1 : 0,borderColor:theme.outline,
+    backgroundColor:variant === "filled" ? (inactive ? theme.surfaceVariant : theme.primary) : "transparent"}}>
+   <View style={{minHeight:48,paddingHorizontal:16,paddingVertical:12,flexDirection:"row",alignItems:"center",justifyContent:"center",gap:8}}>
+    {loading ? <ActivityIndicator size={20} color={color}/> : icon ? <MaterialCommunityIcons name={icon} size={20} color={color}/> : null}
+    <Text variant="labelLarge" style={{color,flexShrink:1,textAlign:"center",lineHeight:undefined}}>{title}</Text>
+   </View>
+  </TouchableRipple>
+ );
 }
 export function Field({
 	label,
 	error,
+	style,
 	...props
 }: Omit<ComponentProps<typeof TextInput>, "error" | "label"> & {
 	label: string;
 	error?: string;
 }) {
+ const {fontScale} = useWindowDimensions();
 	return (
-		<View>
+		<View style={{gap:4}}>
+   <Text variant="bodyMedium" style={{lineHeight:undefined}}>{label}</Text>
 			<TextInput
 				mode="outlined"
-				label={label}
 				accessibilityLabel={label}
 				error={Boolean(error)}
 				{...props}
+    style={[{minHeight:Math.max(56,32 * fontScale + 24)},style]}
 			/>
 			{error && (
 				<HelperText type="error" accessibilityLiveRegion="polite">
@@ -211,19 +214,13 @@ export function Header({
 	onBack?: () => void;
 	action?: ReactNode;
 }) {
-	return (
-		<Appbar.Header
-			statusBarHeight={0}
-			style={{ backgroundColor: "transparent" }}
-		>
-			{onBack && (
-				<Appbar.BackAction accessibilityLabel="Voltar" onPress={onBack}
-					style={{ width: 48, height: 48 }} />
-			)}
-			<Appbar.Content title={title} />
-			{action}
-		</Appbar.Header>
-	);
+ return (
+  <View style={{flexDirection:"row",alignItems:"center",gap:8,minHeight:64}}>
+   {onBack && <Appbar.BackAction accessibilityLabel="Voltar" onPress={onBack} style={{width:48,height:48}}/>}
+   <Text variant="titleLarge" accessibilityRole="header" style={{flex:1,lineHeight:undefined}}>{title}</Text>
+   {action}
+  </View>
+ );
 }
 export function ProgressBar({
 	value,

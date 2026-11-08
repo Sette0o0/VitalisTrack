@@ -2,7 +2,8 @@ import "dotenv/config";
 import { z } from "zod";
 
 const envSchema = z.object({
-	NODE_ENV: z
+	PRIVATE_STORAGE_DIR: z.string().default("private"),
+ NODE_ENV: z
 		.enum(["development", "test", "production"])
 		.default("development"),
 	DATABASE_URL: z.string().min(1),

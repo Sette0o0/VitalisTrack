@@ -1,3 +1,4 @@
+import { UserFacingError } from "@/lib/user-error";
 import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
 import type { AuthTokens } from "@vitalis/contracts";
@@ -16,6 +17,7 @@ let memory: AuthTokens | null = null;
 let expiresAt = 0;
 let biometricUnlocked = false;
 let sessionVersion = 0;
+export const sessionRevision = () => sessionVersion;
 let clearingSession = false;
 const listeners = new Set<(authenticated: boolean) => void>();
 export type BiometricStatus = { enabled: boolean; available: boolean };
@@ -30,7 +32,9 @@ export function tokenClaims(token: string): { exp?: number; sub?: string } {
 export const sessionExpiresAt = () => expiresAt;
 export function onSessionChange(listener: (authenticated: boolean) => void) {
 	listeners.add(listener);
-	return () => { listeners.delete(listener); };
+	return () => {
+		listeners.delete(listener);
+	};
 }
 
 export async function getBiometricStatus(): Promise<BiometricStatus> {
@@ -38,7 +42,9 @@ export async function getBiometricStatus(): Promise<BiometricStatus> {
 	let available = false;
 	try {
 		available = SecureStore.canUseBiometricAuthentication();
-	} catch { /* Web and devices without supported biometrics use password login. */ }
+	} catch {
+		/* Web and devices without supported biometrics use password login. */
+	}
 	return { enabled: Boolean(owner), available };
 }
 
@@ -49,14 +55,17 @@ export async function disableBiometricLogin() {
 
 export async function enableBiometricLogin() {
 	if (!(await getBiometricStatus()).available)
-		throw new Error("Cadastre uma digital nas configurações de segurança do celular.");
+		throw new UserFacingError("Cadastre uma digital nas configurações de segurança do celular.");
 	const tokens = await loadTokens();
 	const owner = tokens && tokenClaims(tokens.accessToken).sub;
-	if (!owner) throw new Error("Entre com e-mail e senha antes de ativar a biometria.");
+	if (!owner) throw new UserFacingError("Entre com e-mail e senha antes de ativar a biometria.");
 	await SecureStore.setItemAsync(BIOMETRIC_PROOF, owner, biometricOptions);
 	// iOS authenticates on reading a new entry; Android already prompts on writing it.
-	if (Platform.OS === "ios" && await SecureStore.getItemAsync(BIOMETRIC_PROOF, biometricOptions) !== owner)
-		throw new Error("Não foi possível confirmar a biometria.");
+	if (
+		Platform.OS === "ios" &&
+		(await SecureStore.getItemAsync(BIOMETRIC_PROOF, biometricOptions)) !== owner
+	)
+		throw new UserFacingError("Não foi possível confirmar a biometria.");
 	await SecureStore.setItemAsync(BIOMETRIC_OWNER, owner);
 	biometricUnlocked = true;
 }
@@ -79,7 +88,7 @@ export async function loadTokens(): Promise<AuthTokens | null> {
 	const version = sessionVersion;
 	if (memory) return memory;
 	// Neither startup nor background refresh can bypass the biometric login screen.
-	if (!biometricUnlocked && await SecureStore.getItemAsync(BIOMETRIC_OWNER)) return null;
+	if (!biometricUnlocked && (await SecureStore.getItemAsync(BIOMETRIC_OWNER))) return null;
 	const saved = await SecureStore.getItemAsync(SESSION);
 	if (version !== sessionVersion || clearingSession) return null;
 	if (saved) {
@@ -90,7 +99,9 @@ export async function loadTokens(): Promise<AuthTokens | null> {
 				expiresAt = session.expiresAt ?? 0;
 				return memory;
 			}
-		} catch { /* Migrate or request authentication when storage is incomplete. */ }
+		} catch {
+			/* Migrate or request authentication when storage is incomplete. */
+		}
 	}
 	const [accessToken, refreshToken] = await Promise.all([
 		SecureStore.getItemAsync(ACCESS),
@@ -105,24 +116,24 @@ export async function unlockBiometricSession(): Promise<AuthTokens> {
 	const version = sessionVersion;
 	const owner = await SecureStore.getItemAsync(BIOMETRIC_OWNER);
 	if (!owner || !(await getBiometricStatus()).available)
-		throw new Error("Biometria indisponível. Entre com e-mail e senha.");
+		throw new UserFacingError("Biometria indisponível. Entre com e-mail e senha.");
 	let proof: string | null;
 	try {
 		proof = await SecureStore.getItemAsync(BIOMETRIC_PROOF, biometricOptions);
 	} catch {
-		throw new Error("Biometria não confirmada. Tente novamente ou entre com sua senha.");
+		throw new UserFacingError("Biometria não confirmada. Tente novamente ou entre com sua senha.");
 	}
-	if (sessionVersion !== version) throw new Error("A sessão foi alterada. Entre novamente.");
+	if (sessionVersion !== version) throw new UserFacingError("A sessão foi alterada. Entre novamente.");
 	if (proof !== owner) {
 		await clearTokens();
-		throw new Error("A biometria mudou. Entre com sua senha e ative-a novamente no Perfil.");
+		throw new UserFacingError("A biometria mudou. Entre com sua senha e ative-a novamente no Perfil.");
 	}
 	biometricUnlocked = true;
 	const tokens = await loadTokens();
-	if (version !== sessionVersion) throw new Error("A sessão foi alterada. Entre novamente.");
+	if (version !== sessionVersion) throw new UserFacingError("A sessão foi alterada. Entre novamente.");
 	if (!tokens || tokenClaims(tokens.accessToken).sub !== owner) {
 		await clearTokens();
-		throw new Error("Sessão indisponível. Entre com e-mail e senha.");
+		throw new UserFacingError("Sessão indisponível. Entre com e-mail e senha.");
 	}
 	return tokens;
 }

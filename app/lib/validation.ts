@@ -1,3 +1,4 @@
+import { UserFacingError } from "@/lib/user-error";
 import type { ZodType } from "zod";
 export function parseDecimal(value: string) {
 	const input = value.trim();
@@ -31,7 +32,7 @@ const labels: Record<string, string> = {
 export function parseInput<T>(schema: ZodType<T>, value: unknown): T {
 	const result = schema.safeParse(value);
 	if (!result.success)
-		throw new Error(
+		throw new UserFacingError(
 			`${labels[String(result.error.issues[0].path[0])] ?? "Dados"}: valor inválido. Revise o campo informado.`,
 		);
 	return result.data;

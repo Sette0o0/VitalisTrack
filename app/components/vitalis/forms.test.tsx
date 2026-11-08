@@ -1,3 +1,4 @@
+import { UserFacingError } from "@/lib/user-error";
 import { act, fireEvent, render, waitFor } from "@testing-library/react-native";
 import { PaperProvider } from "react-native-paper";
 import { initialState } from "@/state/reducer";
@@ -62,7 +63,7 @@ test("edição de refeição abre com vírgula e data brasileira", async () => {
 });
 test("entrada biométrica cancelada mantém login e permite nova tentativa", async () => {
 	const biometricLogin = jest.fn()
-		.mockRejectedValueOnce(new Error("Biometria não confirmada"))
+		.mockRejectedValueOnce(new UserFacingError("Biometria não confirmada"))
 		.mockResolvedValueOnce(undefined);
 	(useAppState as jest.Mock).mockReturnValue({
 		state: initialState, login,

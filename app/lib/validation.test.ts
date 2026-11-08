@@ -17,13 +17,19 @@ test.each([
 	["1.000", 1000],
 	["1.234.567,89", 1234567.89],
 	["-12,5", -12.5],
-])("aceita decimal %s", (input, expected) =>
-	expect(parseDecimal(String(input))).toBe(expected),
-);
-test.each(["", "1,2,3", "Infinity", "1e3", "12mL", "1.23,45", "1,000.50", "1..000", "1.000,", "1 000,50"])(
-	"rejeita entrada ambígua %s",
-	(value) => expect(parseDecimal(value)).toBeNaN(),
-);
+])("aceita decimal %s", (input, expected) => expect(parseDecimal(String(input))).toBe(expected));
+test.each([
+	"",
+	"1,2,3",
+	"Infinity",
+	"1e3",
+	"12mL",
+	"1.23,45",
+	"1,000.50",
+	"1..000",
+	"1.000,",
+	"1 000,50",
+])("rejeita entrada ambígua %s", (value) => expect(parseDecimal(value)).toBeNaN());
 test("água exige inteiro positivo, data real e horário válido", () => {
 	const valid = { id, amountMl: 500, date: "2024-02-29", time: "23:59" };
 	expect(parseInput(waterInputSchema, valid)).toEqual(valid);
@@ -34,9 +40,7 @@ test("água exige inteiro positivo, data real e horário válido", () => {
 		{ date: "2026-04-31" },
 		{ time: "24:00" },
 	])
-		expect(() =>
-			parseInput(waterInputSchema, { ...valid, ...invalid }),
-		).toThrow("inválido");
+		expect(() => parseInput(waterInputSchema, { ...valid, ...invalid })).toThrow("inválido");
 });
 test("quantidade decimal de alimento é aceita, calorias fracionárias não", () => {
 	const meal = {
@@ -49,9 +53,7 @@ test("quantidade decimal de alimento é aceita, calorias fracionárias não", ()
 		calories: 80,
 	};
 	expect(parseInput(mealInputSchema, meal).quantity).toBe(100.5);
-	expect(() =>
-		parseInput(mealInputSchema, { ...meal, calories: 80.5 }),
-	).toThrow();
+	expect(() => parseInput(mealInputSchema, { ...meal, calories: 80.5 })).toThrow();
 });
 test("cadastro exige confirmação, normaliza e-mail e senha mínima", () => {
 	const account = {
@@ -61,9 +63,7 @@ test("cadastro exige confirmação, normaliza e-mail e senha mínima", () => {
 		passwordConfirmation: "12345678",
 	};
 	expect(parseInput(registerSchema, account).email).toBe("rafael@example.com");
-	expect(() =>
-		parseInput(registerSchema, { ...account, password: "1234567" }),
-	).toThrow();
+	expect(() => parseInput(registerSchema, { ...account, password: "1234567" })).toThrow();
 	expect(() =>
 		parseInput(registerSchema, {
 			...account,
@@ -72,14 +72,10 @@ test("cadastro exige confirmação, normaliza e-mail e senha mínima", () => {
 	).toThrow();
 });
 test("perfil rejeita nascimento futuro, e-mail e medidas incompatíveis", () => {
-	expect(() =>
-		parseInput(profileUpdateSchema, { birthDate: "2999-01-01" }),
-	).toThrow();
-	expect(() => parseInput(profileUpdateSchema, { heightCm: 170.5 })).toThrow();
+	expect(() => parseInput(profileUpdateSchema, { birthDate: "2999-01-01" })).toThrow();
+	expect(parseInput(profileUpdateSchema, { heightCm: 170.5 }).heightCm).toBe(170.5);
 	expect(() => parseInput(profileUpdateSchema, { weightKg: 10 })).toThrow();
-	expect(() =>
-		parseInput(profileUpdateSchema, { email: "outro@example.com" }),
-	).toThrow();
+	expect(() => parseInput(profileUpdateSchema, { email: "outro@example.com" })).toThrow();
 });
 test("atividades exigem segundos positivos e metas inteiras", () => {
 	expect(() =>

@@ -3,6 +3,7 @@ import { Button, Eyebrow, Screen, Title } from "@/components/vitalis/ui";
 export default function AddScreen() {
 	return (
 		<Screen>
+ <Button title="Bem-estar" variant="outline" onPress={()=>router.push("/wellbeing")}/>
 			<Eyebrow>Registro rápido</Eyebrow>
 			<Title>O que você quer registrar?</Title>
 			<Button

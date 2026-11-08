@@ -1,0 +1,11 @@
+import { render,waitFor } from '@testing-library/react-native';
+import { PaperProvider } from 'react-native-paper';
+import { AppState } from 'react-native';
+import { StepAlert } from './step-alert';
+import { initialState as mockInitialState } from '@/state/reducer';
+import { claimStepAlert } from '@/lib/step-alert';
+let mockFocused=false,mockSteps=9000;
+jest.mock('@react-navigation/native',()=>({useIsFocused:()=>mockFocused}));
+jest.mock('@/state/app-state',()=>({useAppState:()=>({state:{...mockInitialState,userId:'a',profileId:'a',authenticated:true,steps:mockSteps}})}));
+jest.mock('@/lib/step-alert',()=>({claimStepAlert:jest.fn()}));
+test('only the visible active Home claims the daily message and later steps do not hide it',async()=>{Object.defineProperty(AppState,'currentState',{value:'active',configurable:true});jest.mocked(claimStepAlert).mockResolvedValueOnce(true).mockResolvedValue(false);const ui=render(<PaperProvider><StepAlert/></PaperProvider>);expect(claimStepAlert).not.toHaveBeenCalled();mockFocused=true;ui.rerender(<PaperProvider><StepAlert/></PaperProvider>);await waitFor(()=>expect(ui.getByText(/Você chegou a 90%/)).toBeTruthy());mockSteps=9001;ui.rerender(<PaperProvider><StepAlert/></PaperProvider>);await waitFor(()=>expect(claimStepAlert).toHaveBeenCalledTimes(2));expect(ui.getByText(/Você chegou a 90%/)).toBeTruthy();});

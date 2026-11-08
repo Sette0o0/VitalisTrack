@@ -9,3 +9,7 @@ allowBuilds:
   argon2: true
   esbuild: true
   unrs-resolver: true
+
+patchedDependencies:
+  expo-background-task@1.0.10: patches/expo-background-task@1.0.10.patch
+  react-native-screens@4.16.0: patches/react-native-screens@4.16.0.patch

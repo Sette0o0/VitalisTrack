@@ -15,3 +15,6 @@ app/ios/
 artifacts/
 .idea/
 docs/
+
+# Medical attachments must never be committed or served as public uploads.
+server/private/

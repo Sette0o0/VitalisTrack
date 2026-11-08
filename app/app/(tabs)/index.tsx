@@ -1,3 +1,4 @@
+import { StepAlert } from "@/components/vitalis/step-alert";
 import { useQaReady } from "@/hooks/use-qa-ready";
 import { formatNumber } from "@/lib/format";
 import { router } from "expo-router";
@@ -26,6 +27,7 @@ export default function HomeScreen() {
 		remaining = state.goals.calories - summary.calories;
 	return (
 		<Screen onLayout={onReady}>
+ <StepAlert/>
 			<View style={{ flexDirection: "row", alignItems: "center", gap: 16 }}>
 				<ProfileAvatar profile={state.profile} size={48} />
 				<View style={{ flex: 1 }}>

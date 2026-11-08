@@ -1,3 +1,4 @@
+import { heartRateSummarySchema } from "@vitalis/contracts";
 import { calculateAge } from "./dates.js";
 import type {
 	Activity,
@@ -11,32 +12,37 @@ export function serializeProfile(
 	user: {
 		id: string;
 		email: string;
-		profile: {
-			name: string;
-			birthDate: Date | null;
-			weightKg: number | null;
-			heightCm: number | null;
-			gender: string | null;
-			avatarPath: string | null;
-			updatedAt: Date;
-		} | null;
+		profile:
+			| {
+					id: string;
+					isPrimary: boolean;
+					unitSystem: string;
+					name: string;
+					birthDate: Date | null;
+					weightKg: number | null;
+					heightCm: number | null;
+					gender: string | null;
+					avatarPath: string | null;
+					updatedAt: Date;
+			  }[]
+			| null;
 	},
 	publicBaseUrl: string,
 	timeZone = "UTC",
 ) {
-	const profile = user.profile;
+	const profile = user.profile?.find((p) => p.isPrimary);
 	if (!profile) throw new Error("Perfil ausente");
 	return {
 		id: user.id,
+		profileId: profile.id,
+		unitSystem: profile.unitSystem,
 		name: profile.name,
 		email: user.email,
 		birthDate: profile.birthDate?.toISOString().slice(0, 10) ?? null,
 		weightKg: profile.weightKg,
 		heightCm: profile.heightCm,
 		gender: profile.gender,
-		avatarUrl: profile.avatarPath
-			? `${publicBaseUrl}${profile.avatarPath}`
-			: null,
+		avatarUrl: profile.avatarPath ? `${publicBaseUrl}${profile.avatarPath}` : null,
 		age: calculateAge(profile.birthDate, new Date(), timeZone),
 		updatedAt: profile.updatedAt.toISOString(),
 	};
@@ -52,11 +58,7 @@ export const serializeGoals = (goals: {
 	updatedAt: Date;
 }) => ({ ...goals, updatedAt: goals.updatedAt.toISOString() });
 
-const base = (value: {
-	createdAt: Date;
-	updatedAt: Date;
-	deletedAt: Date | null;
-}) => ({
+const base = (value: { createdAt: Date; updatedAt: Date; deletedAt: Date | null }) => ({
 	createdAt: value.createdAt.toISOString(),
 	updatedAt: value.updatedAt.toISOString(),
 	deletedAt: value.deletedAt?.toISOString() ?? null,
@@ -76,6 +78,7 @@ export const serializeMeal = (value: Meal) => ({
 	quantity: value.quantity,
 	unit: value.unit,
 	calories: value.calories,
+	nutrition: value.nutrition,
 	...base(value),
 });
 export const serializeWeight = (value: WeightEntry) => ({
@@ -84,10 +87,10 @@ export const serializeWeight = (value: WeightEntry) => ({
 	weightKg: value.weightKg,
 	...base(value),
 });
-export const serializeActivity = (
-	value: Activity & { route: ActivityRoutePoint[] },
-) => ({
+export const serializeActivity = (value: Activity & { route: ActivityRoutePoint[] }) => ({
 	id: value.id,
+ visibility:value.visibility,
+ heartRate:value.heartRate == null ? null : heartRateSummarySchema.parse(value.heartRate),
 	type: value.type,
 	date: value.date.toISOString().slice(0, 10),
 	durationSeconds: value.durationSeconds,

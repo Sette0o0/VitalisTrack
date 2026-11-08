@@ -1,3 +1,5 @@
+import { useState } from "react";
+import { useMeasurements } from "@/hooks/use-measurements";
 import { formatNumber } from "@/lib/format";
 import { router } from "expo-router";
 import { View, useColorScheme } from "react-native";
@@ -5,6 +7,7 @@ import { HelperText, List, RadioButton, Text } from "react-native-paper";
 import { ProfileAvatar } from "@/components/vitalis/avatar";
 import {
 	Button,
+	Field,
 	Card,
 	Eyebrow,
 	Muted,
@@ -16,14 +19,24 @@ import { useSubmit } from "@/hooks/use-submit";
 import { calculateAge, calculateBmi, classifyBmi } from "@/lib/health";
 import { useAppState } from "@/state/app-state";
 export default function ProfileScreen() {
-	const { state, dispatch, logout, lastError, biometrics, setBiometricLogin } = useAppState(),
+	const {
+			state,
+			dispatch,
+			logout,
+			lastError,
+			biometrics,
+			setBiometricLogin,
+			profiles,
+			createProfile,
+			selectProfile,
+		} = useAppState(),
 		scheme = useColorScheme(),
 		{ submit, saving, error } = useSubmit(),
 		p = state.profile;
+	const measurements = useMeasurements();
+	const [newName, setNewName] = useState("");
 	const bmi =
-		p.hasWeight === false || p.hasHeight === false
-			? null
-			: calculateBmi(p.weightKg, p.heightCm);
+		p.hasWeight === false || p.hasHeight === false ? null : calculateBmi(p.weightKg, p.heightCm);
 	const status =
 		state.syncStatus === "offline"
 			? "Offline · dados salvos no aparelho"
@@ -36,7 +49,11 @@ export default function ProfileScreen() {
 						: "Dados sincronizados";
 	return (
 		<Screen>
-			<Eyebrow>Perfil</Eyebrow>
+ <Button title="Lembretes neste aparelho" variant="outline" onPress={()=>router.push("/profile/reminders")}/>
+ <Button title="Amizades" variant="outline" onPress={()=>router.push("/profile/friends")}/>
+			<Button title="Documentos médicos" variant="outline" onPress={()=>router.push("/profile/documents")}/>
+ <Button title="Backup e limpeza" variant="outline" onPress={()=>router.push("/profile/data")}/>
+ <Eyebrow>Perfil</Eyebrow>
 			<View
 				style={{
 					flexDirection: "row",
@@ -60,20 +77,75 @@ export default function ProfileScreen() {
 				onPress={() => router.push("/profile/edit")}
 			/>
 			<Card>
+				<Subtitle>Perfis de saúde</Subtitle>
+				<RadioButton.Group
+					value={state.profileId ?? state.userId ?? ""}
+					onValueChange={(id) => void submit(() => selectProfile(id))}
+				>
+					{profiles.map((profile) => (
+						<RadioButton.Item
+							key={profile.id}
+							value={profile.id}
+							label={profile.name + (profile.isPrimary ? " · Principal" : "")}
+							disabled={saving}
+							style={{ minHeight: 48 }}
+						/>
+					))}
+				</RadioButton.Group>
+				<Field label="Nome do novo perfil" value={newName} onChangeText={setNewName} />
+				<Button
+					title="Cadastrar perfil"
+					disabled={saving}
+					onPress={() =>
+						void submit(async () => {
+							await createProfile(newName);
+							setNewName("");
+						})
+					}
+				/>
+				{error && (
+					<HelperText type="error" accessibilityLiveRegion="polite">
+						{error}
+					</HelperText>
+				)}
+			</Card>
+			<Card>
+				<Subtitle>Unidades de medida</Subtitle>
+				<RadioButton.Group
+					value={state.unitSystem ?? "metric"}
+					onValueChange={(value) =>
+						void submit(() => dispatch({ type: "UNITS", value: value as "metric" | "imperial" }))
+					}
+				>
+					<RadioButton.Item value="metric" label="Métrico · kg, cm, km" style={{ minHeight: 48 }} />
+					<RadioButton.Item
+						value="imperial"
+						label="Imperial · lb, in, mi"
+						style={{ minHeight: 48 }}
+					/>
+				</RadioButton.Group>
+				<Button
+					title="Perfil nutricional"
+					variant="outline"
+					onPress={() => router.push("/profile/nutrition")}
+				/>
+				<Button
+					title="Minhas receitas"
+					variant="outline"
+					onPress={() => router.push("/meals/recipes")}
+				/>
+			</Card>
+			<Card>
 				<List.Item
 					title="Idade"
 					description={
-						p.birthDate
-							? `${calculateAge(p.birthDate)} anos`
-							: "Nascimento não informado"
+						p.birthDate ? `${calculateAge(p.birthDate)} anos` : "Nascimento não informado"
 					}
 				/>
 				<List.Item
 					title="Peso"
 					description={
-						p.hasWeight === false
-							? "Não informado"
-							: `${formatNumber(p.weightKg, 1)} kg`
+						p.hasWeight === false ? "Não informado" : measurements.weightText(p.weightKg)
 					}
 				/>
 				<List.Item
@@ -81,17 +153,11 @@ export default function ProfileScreen() {
 					description={
 						p.hasHeight === false
 							? "Não informada"
-							: `${formatNumber(p.heightCm / 100, 2)} m`
+							: `${formatNumber(measurements.height(p.heightCm), 2)} ${measurements.heightUnit}`
 					}
 				/>
-				<Subtitle>
-					{bmi === null ? "IMC indisponível" : `IMC ${formatNumber(bmi, 1)}`}
-				</Subtitle>
-				<Muted>
-					{bmi === null
-						? "Complete peso e altura no perfil."
-						: classifyBmi(bmi)}
-				</Muted>
+				<Subtitle>{bmi === null ? "IMC indisponível" : `IMC ${formatNumber(bmi, 1)}`}</Subtitle>
+				<Muted>{bmi === null ? "Complete peso e altura no perfil." : classifyBmi(bmi)}</Muted>
 				<Button
 					title="Ver evolução do peso"
 					variant="text"
@@ -114,7 +180,11 @@ export default function ProfileScreen() {
 					disabled={saving || (!biometrics.enabled && !biometrics.available)}
 					onPress={() => submit(() => setBiometricLogin(!biometrics.enabled))}
 				/>
-				{error && <HelperText type="error" accessibilityLiveRegion="polite">{error}</HelperText>}
+				{error && (
+					<HelperText type="error" accessibilityLiveRegion="polite">
+						{error}
+					</HelperText>
+				)}
 			</Card>
 			<Card>
 				<Subtitle>Aparência</Subtitle>

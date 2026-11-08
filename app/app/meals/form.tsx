@@ -2,19 +2,12 @@ import { decimalInput } from "@/lib/format";
 import { mealInputSchema } from "@vitalis/contracts";
 import { parseInput, parseDecimal } from "@/lib/validation";
 import { useSubmit } from "@/hooks/use-submit";
-import { HelperText, SegmentedButtons } from "react-native-paper";
+import { HelperText, RadioButton } from "react-native-paper";
 import { DateField, TimeField } from "@/components/vitalis/date-field";
 import { router, useLocalSearchParams } from "expo-router";
 import { useMemo, useState } from "react";
 import { StyleSheet, View } from "react-native";
-import {
-	Button,
-	Field,
-	Header,
-	Muted,
-	Screen,
-	Title,
-} from "@/components/vitalis/ui";
+import { Button, Field, Header, Muted, Screen, Title } from "@/components/vitalis/ui";
 import { radius, ThemeTokens } from "@/constants/theme";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { isoDate, newId } from "@/lib/health";
@@ -51,6 +44,28 @@ export default function MealFormScreen() {
 				quantity: parseDecimal(quantity),
 				unit,
 				calories: parseDecimal(calories),
+				...(existing?.nutrition
+					? {
+							nutrition:
+								unit === existing.unit
+									? {
+											...existing.nutrition,
+											values: {
+												...Object.fromEntries(
+													Object.entries(existing.nutrition.values).map(([key, value]) => [
+														key,
+														key === "calories"
+															? parseDecimal(calories)
+															: value == null
+																? null
+																: (value * parseDecimal(quantity)) / existing.quantity,
+													]),
+												),
+											},
+										}
+									: null,
+						}
+					: {}),
 			});
 			await dispatch({ type: "MEAL_SAVE", value: meal });
 			goBackOrReplace(router, "/(tabs)/meals");
@@ -62,10 +77,7 @@ export default function MealFormScreen() {
 				onBack={() => goBackOrReplace(router, "/(tabs)/meals")}
 			/>
 			<Title>{existing ? "Atualize o registro" : "O que você comeu?"}</Title>
-			<Muted>
-				Os registros ficam salvos no celular e são sincronizados quando há
-				conexão.
-			</Muted>
+			<Muted>Os registros ficam salvos no celular e são sincronizados quando há conexão.</Muted>
 			<Field label="Alimento ou refeição" value={name} onChangeText={setName} />
 			<View style={styles.row}>
 				<View style={{ flex: 1 }}>
@@ -84,24 +96,10 @@ export default function MealFormScreen() {
 						onChangeText={setQuantity}
 					/>
 				</View>
-				<SegmentedButtons
-					value={unit}
-					onValueChange={(x) => setUnit(x as "g" | "mL")}
-					buttons={[
-						{
-							value: "g",
-							label: "Gramas",
-							style: { minHeight: 48, justifyContent: "center" },
-							labelStyle: { lineHeight: 30 },
-						},
-						{
-							value: "mL",
-							label: "mL",
-							style: { minHeight: 48, justifyContent: "center" },
-							labelStyle: { lineHeight: 30 },
-						},
-					]}
-				/>
+    <RadioButton.Group value={unit} onValueChange={x => setUnit(x as "g" | "mL")}>
+     <RadioButton.Item value="g" label="Gramas" style={{minHeight:48}} labelStyle={{lineHeight:undefined}}/>
+     <RadioButton.Item value="mL" label="mL" style={{minHeight:48}} labelStyle={{lineHeight:undefined}}/>
+    </RadioButton.Group>
 			</View>
 			<Field
 				label="Calorias (kcal)"

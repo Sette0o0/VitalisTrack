@@ -1,3 +1,6 @@
+jest.mock("expo/fetch", () => ({
+	fetch: (...args: Parameters<typeof fetch>) => globalThis.fetch(...args),
+}));
 import { useState } from "react";
 import { act, fireEvent, render, waitFor } from "@testing-library/react-native";
 import { PaperProvider } from "react-native-paper";
@@ -19,16 +22,24 @@ jest.mock("@/state/app-state", () => ({
 	useDailySummary: () => ({ calories: 80, calorieProgress: 0.04 }),
 }));
 jest.mock("expo-router", () => ({ router: { replace: jest.fn(), canGoBack: () => false } }));
-jest.mock("react-native-safe-area-context", () =>
-	jest.requireActual("react-native-safe-area-context/jest/mock").default);
+jest.mock(
+	"react-native-safe-area-context",
+	() => jest.requireActual("react-native-safe-area-context/jest/mock").default,
+);
 const dispatch = jest.fn(async () => {});
 beforeEach(() => {
 	jest.clearAllMocks();
 	(useAppState as jest.Mock).mockReturnValue({
-		state: { ...initialState, profile: {
-			...initialState.profile, name: "Pessoa Teste", email: "pessoa@example.com",
-			hasWeight: true, hasHeight: true,
-		} },
+		state: {
+			...initialState,
+			profile: {
+				...initialState.profile,
+				name: "Pessoa Teste",
+				email: "pessoa@example.com",
+				hasWeight: true,
+				hasHeight: true,
+			},
+		},
 		dispatch,
 	});
 });
@@ -45,7 +56,9 @@ function chooseDate(ui: Awaited<ReturnType<typeof mount>>, label: string, value:
 
 test("intervalo invertido bloqueia aplicação; extremidades válidas são aplicadas", async () => {
 	const onChange = jest.fn();
-	const ui = await mount(<DateRangeFilter value={{ start: "2026-04-02", end: "2026-04-08" }} onChange={onChange} />);
+	const ui = await mount(
+		<DateRangeFilter value={{ start: "2026-04-02", end: "2026-04-08" }} onChange={onChange} />,
+	);
 	fireEvent.press(ui.getByTestId("date-range-customize"));
 	chooseDate(ui, "Data inicial", "2026-04-09");
 	expect(ui.getByText("A data final deve ser igual ou posterior à inicial.")).toBeTruthy();
@@ -73,7 +86,15 @@ test("atalhos mudam o período e todas as datas limpa o filtro", async () => {
 	const onChange = jest.fn();
 	function Harness() {
 		const [range, setRange] = useState<DateRange | null>(recentDateRange(7));
-		return <DateRangeFilter value={range} onChange={(next) => { onChange(next); setRange(next); }} />;
+		return (
+			<DateRangeFilter
+				value={range}
+				onChange={(next) => {
+					onChange(next);
+					setRange(next);
+				}}
+			/>
+		);
 	}
 	const ui = await mount(<Harness />);
 	fireEvent.press(ui.getByRole("button", { name: "Hoje" }));
@@ -104,14 +125,35 @@ test("digitar nascimento antigo salva ISO; data impossível não salva o valor a
 	fireEvent.changeText(field, "08042000");
 	expect(ui.getByLabelText("Nascimento (dd/mm/aaaa)").props.value).toBe("08/04/2000");
 	fireEvent.press(ui.getByRole("button", { name: "Salvar perfil" }));
-	await waitFor(() => expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({
-		type: "PROFILE", value: expect.objectContaining({ birthDate: "2000-04-08" }),
-	})));
+	await waitFor(() =>
+		expect(dispatch).toHaveBeenCalledWith(
+			expect.objectContaining({
+				type: "PROFILE",
+				value: expect.objectContaining({ birthDate: "2000-04-08" }),
+			}),
+		),
+	);
 });
 test("refeições filtradas não alteram o resumo de hoje nem a ordem armazenada", async () => {
 	const meals = [
-		{ id: "old", name: "Antiga", date: "2020-04-08", time: "08:00", quantity: 100, unit: "g", calories: 200 },
-		{ id: "today", name: "Hoje", date: isoDate(), time: "09:00", quantity: 100, unit: "g", calories: 80 },
+		{
+			id: "old",
+			name: "Antiga",
+			date: "2020-04-08",
+			time: "08:00",
+			quantity: 100,
+			unit: "g",
+			calories: 200,
+		},
+		{
+			id: "today",
+			name: "Hoje",
+			date: isoDate(),
+			time: "09:00",
+			quantity: 100,
+			unit: "g",
+			calories: 80,
+		},
 	];
 	(useAppState as jest.Mock).mockReturnValue({ state: { ...initialState, meals }, dispatch });
 	const ui = await mount(<MealsScreen />);

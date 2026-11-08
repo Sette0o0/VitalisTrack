@@ -1,3 +1,5 @@
+import { ScrollView, useWindowDimensions } from "react-native";
+import { userError } from "@/lib/user-error";
 import { createContext, PropsWithChildren, useContext, useState } from "react";
 import { Button, Dialog, HelperText, Portal, Text } from "react-native-paper";
 const Context = createContext<
@@ -9,6 +11,7 @@ const Context = createContext<
 	) => void
 >(() => {});
 export function ConfirmationProvider({ children }: PropsWithChildren) {
+ const {fontScale, height} = useWindowDimensions();
 	const [value, setValue] = useState<{
 			title: string;
 			message: string;
@@ -26,11 +29,13 @@ export function ConfirmationProvider({ children }: PropsWithChildren) {
 		>
 			{children}
 			<Portal>
-				<Dialog
+				<Dialog key={fontScale}
+					style={{ maxHeight: height - 48 }}
 					visible={Boolean(value)}
 					dismissable={!saving}
 					onDismiss={() => setValue(null)}
 				>
+					<ScrollView style={{ maxHeight: Math.max(120, height - (fontScale >= 1.5 ? 180 : 120)) }}>
 					<Dialog.Title>{value?.title}</Dialog.Title>
 					<Dialog.Content>
 						<Text variant="bodyMedium">{value?.message}</Text>
@@ -40,7 +45,8 @@ export function ConfirmationProvider({ children }: PropsWithChildren) {
 							</HelperText>
 						)}
 					</Dialog.Content>
-					<Dialog.Actions>
+					</ScrollView>
+					<Dialog.Actions style={{ flexDirection: fontScale >= 1.5 ? "column" : "row", alignItems: fontScale >= 1.5 ? "stretch" : "center" }}>
 						<Button
 							contentStyle={{ minHeight: 48 }}
 							disabled={saving}
@@ -58,11 +64,7 @@ export function ConfirmationProvider({ children }: PropsWithChildren) {
 									await value?.action();
 									setValue(null);
 								} catch (cause) {
-									setError(
-										cause instanceof Error
-											? cause.message
-											: "Não foi possível concluir.",
-									);
+									setError(userError(cause));
 								} finally {
 									setSaving(false);
 								}

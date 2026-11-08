@@ -2,7 +2,7 @@ import type { SyncMutation, SyncResult } from "@vitalis/contracts";
 import type { LocalMutation } from "@/state/types";
 
 export function orderedBatch(rows: LocalMutation[]) {
-	const avatar = rows.findIndex((row) => row.entity === "avatar");
+	const avatar = rows.findIndex((row) => row.entity === "avatar" || row.entity === "document");
 	return avatar === 0 ? rows.slice(0, 1) : avatar > 0 ? rows.slice(0, avatar) : rows;
 }
 export async function drainOutbox<T extends { mutationId: string }>(io: {

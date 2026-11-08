@@ -4,6 +4,9 @@ import type { ActivityType, Activity } from "@/state/types";
 export type Point = NonNullable<Activity["route"]>[number];
 export type Workout = {
 	version: 2;
+ heartSum?:number;
+ heartCount?:number;
+ lastHeartSecond?:number;
 	id: string;
 	type: ActivityType;
 	date: string;
@@ -57,6 +60,7 @@ export function restoreWorkout(
 			segmentStarts: saved.segmentStarts ?? [0],
 			paused: true,
 			previousPoint: null,
+ lastHeartSecond:-1,
 			lastTick: now,
 		};
 	} catch {

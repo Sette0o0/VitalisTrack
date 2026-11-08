@@ -1,0 +1,44 @@
+diff --git a/android/src/main/java/expo/modules/backgroundtask/BackgroundTaskScheduler.kt b/android/src/main/java/expo/modules/backgroundtask/BackgroundTaskScheduler.kt
+index f94e78aea09e24f4c760850a76089313d5c98170..309071a6d883c79de04490003ea93f73cec07247 100644
+--- a/android/src/main/java/expo/modules/backgroundtask/BackgroundTaskScheduler.kt
++++ b/android/src/main/java/expo/modules/backgroundtask/BackgroundTaskScheduler.kt
+@@ -52,7 +52,10 @@ object BackgroundTaskScheduler {
+ 
+     if (numberOfRegisteredTasksOfThisType == 1) {
+       runBlocking {
+-        scheduleWorker(context, context.packageName)
++        // Restoring consumers in a headless process must not replace its running work.
++        if (!isWorkerRunning(context)) {
++          scheduleWorker(context, context.packageName)
++        }
+       }
+     }
+   }
+@@ -136,6 +139,8 @@ object BackgroundTaskScheduler {
+         repeatIntervalTimeUnit = TimeUnit.MINUTES,
+         repeatInterval = intervalMinutes
+       )
++        .setInputData(data)
++        .setConstraints(constraints)
+ 
+       // Create work request
+       val workRequest = builder.build()
+@@ -182,7 +187,8 @@ object BackgroundTaskScheduler {
+   private suspend fun isWorkerRunning(context: Context): Boolean {
+     val workInfo = getWorkerInfo(context)
+     return workInfo?.state == WorkInfo.State.RUNNING ||
+-      workInfo?.state == WorkInfo.State.ENQUEUED
++      workInfo?.state == WorkInfo.State.ENQUEUED ||
++      workInfo?.state == WorkInfo.State.BLOCKED
+   }
+ 
+   /**
+@@ -248,7 +254,7 @@ object BackgroundTaskScheduler {
+ 
+     return try {
+       val workInfos = workManager.getWorkInfosForUniqueWork(WORKER_IDENTIFIER).await()
+-      return workInfos.firstOrNull()
++      return workInfos.firstOrNull { !it.state.isFinished } ?: workInfos.firstOrNull()
+     } catch (e: Exception) {
+       Log.d(TAG, "Calling getWorkInfosForUniqueWork failed with error " + e.message)
+       null

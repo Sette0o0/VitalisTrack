@@ -1,3 +1,4 @@
+import { useMeasurements } from "@/hooks/use-measurements";
 import { decimalInput } from "@/lib/format";
 import { createProfileUpdateSchema, deviceTimeZone } from "@vitalis/contracts";
 import { parseInput, parseDecimal } from "@/lib/validation";
@@ -9,14 +10,7 @@ import { router } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
 import { useMemo, useState } from "react";
 import { StyleSheet, View } from "react-native";
-import {
-	Button,
-	Field,
-	Header,
-	Muted,
-	Screen,
-	Title,
-} from "@/components/vitalis/ui";
+import { Button, Field, Header, Muted, Screen, Title } from "@/components/vitalis/ui";
 import { radius, ThemeTokens } from "@/constants/theme";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { goBackOrReplace } from "@/lib/navigation";
@@ -29,13 +23,14 @@ export default function EditProfileScreen() {
 	const { submit, saving, error } = useSubmit();
 	const { state, dispatch, uploadAvatar } = useAppState();
 	const p = state.profile;
+	const m = useMeasurements();
 	const [name, setName] = useState(p.name);
 	const [birthDate, setBirthDate] = useState(p.birthDate);
 	const [weight, setWeight] = useState(
-		p.hasWeight === false ? "" : decimalInput(p.weightKg),
+		p.hasWeight === false ? "" : decimalInput(m.weight(p.weightKg)),
 	);
 	const [height, setHeight] = useState(
-		p.hasHeight === false ? "" : String(p.heightCm),
+		p.hasHeight === false ? "" : decimalInput(m.height(p.heightCm)),
 	);
 	const [gender, setGender] = useState<Gender>(p.gender);
 	const [uploading, setUploading] = useState(false);
@@ -49,35 +44,53 @@ export default function EditProfileScreen() {
 					aspect: [1, 1],
 					quality: 0.8,
 				});
-				if (!result.canceled)
-					await uploadAvatar(result.assets[0].uri, result.assets[0].mimeType);
+				if (!result.canceled) await uploadAvatar(result.assets[0].uri, result.assets[0].mimeType);
 			} finally {
 				setUploading(false);
 			}
 		});
 	const save = () =>
 		submit(async () => {
-				const data = parseInput(createProfileUpdateSchema(deviceTimeZone()), {
+			const data = parseInput(createProfileUpdateSchema(deviceTimeZone()), {
 				name: name.trim(),
-				birthDate,
-				weightKg: parseDecimal(weight),
-				heightCm: parseDecimal(height),
+				...(birthDate ? { birthDate } : {}),
+				...(weight.trim()
+					? {
+							weightKg:
+								weight === decimalInput(m.weight(p.weightKg))
+									? p.weightKg
+									: m.weightInput(parseDecimal(weight)),
+						}
+					: {}),
+				...(height.trim()
+					? {
+							heightCm:
+								height === decimalInput(m.height(p.heightCm))
+									? p.heightCm
+									: m.heightInput(parseDecimal(height)),
+						}
+					: {}),
 				gender,
 			});
-			await dispatch({ type: "PROFILE", value: { ...p, ...data } });
+			await dispatch({
+				type: "PROFILE",
+				value: {
+					...p,
+					...data,
+					hasWeight: data.weightKg !== undefined || p.hasWeight,
+					hasHeight: data.heightCm !== undefined || p.hasHeight,
+				},
+			});
 			goBackOrReplace(router, "/(tabs)/profile");
 		});
 	return (
 		<Screen>
-			<Header
-				title="Editar perfil"
-				onBack={() => goBackOrReplace(router, "/(tabs)/profile")}
-			/>
+			<Header title="Editar perfil" onBack={() => goBackOrReplace(router, "/(tabs)/profile")} />
 			<Title>Seus dados</Title>
-				<Muted>A foto e os dados pessoais ficam associados à sua conta.</Muted>
-				<ProfileAvatar profile={state.profile} />
+			<Muted>A foto e os dados pessoais ficam associados ao perfil selecionado.</Muted>
+			<ProfileAvatar profile={state.profile} />
 			<Button
-					title={uploading ? "Salvando foto…" : "Escolher foto"}
+				title={uploading ? "Salvando foto…" : "Escolher foto"}
 				variant="outline"
 				disabled={saving}
 				onPress={() => void chooseAvatar()}
@@ -88,7 +101,7 @@ export default function EditProfileScreen() {
 			<View style={styles.row}>
 				<View style={{ flex: 1 }}>
 					<Field
-						label="Peso (kg)"
+						label={`Peso (${m.weightUnit})`}
 						keyboardType="decimal-pad"
 						value={weight}
 						onChangeText={setWeight}
@@ -96,7 +109,7 @@ export default function EditProfileScreen() {
 				</View>
 				<View style={{ flex: 1 }}>
 					<Field
-						label="Altura (cm)"
+						label={`Altura (${m.heightUnit})`}
 						keyboardType="numeric"
 						value={height}
 						onChangeText={setHeight}
@@ -104,17 +117,9 @@ export default function EditProfileScreen() {
 				</View>
 			</View>
 			<Text style={styles.label}>Gênero</Text>
-			<RadioButton.Group
-				value={gender}
-				onValueChange={(x) => setGender(x as Gender)}
-			>
+			<RadioButton.Group value={gender} onValueChange={(x) => setGender(x as Gender)}>
 				{["Feminino", "Masculino", "Outro"].map((x) => (
-					<RadioButton.Item
-						key={x}
-						value={x}
-						label={x}
-						style={{ minHeight: 48 }}
-					/>
+					<RadioButton.Item key={x} value={x} label={x} style={{ minHeight: 48 }} />
 				))}
 			</RadioButton.Group>
 			<Button title="Salvar perfil" loading={saving} onPress={save} />
