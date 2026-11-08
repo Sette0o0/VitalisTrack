@@ -12,9 +12,10 @@ export default ({ config }: ConfigContext): ExpoConfig =>
 			},
 			(mod) => {
 				const application = AndroidConfig.Manifest.getMainApplicationOrThrow(mod.modResults);
-				// Local QA uses the host bridge; production keeps HTTPS enforced.
+				// USB presentation explicitly permits local HTTP without changing app identity.
 				application.$["android:usesCleartextTraffic"] =
-					process.env.ANDROID_QA === "true" ? "true" : "false";
+					process.env.ANDROID_QA === "true" || process.env.ANDROID_ALLOW_LOCAL_HTTP === "true"
+						? "true" : "false";
 				const activity = AndroidConfig.Manifest.getMainActivityOrThrow(mod.modResults);
 				activity.$["android:configChanges"] = [...new Set([
 					...(activity.$["android:configChanges"] ?? "").split("|").filter(Boolean),

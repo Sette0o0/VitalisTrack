@@ -14,7 +14,9 @@ import zipfile
 parser = argparse.ArgumentParser()
 parser.add_argument('apk', type=Path)
 parser.add_argument('--api-url', required=True)
-parser.add_argument('--qa', action='store_true')
+qa_mode = parser.add_mutually_exclusive_group()
+qa_mode.add_argument('--qa', action='store_true')
+qa_mode.add_argument('--no-qa', action='store_true')
 parser.add_argument('--package')
 parser.add_argument('--font-scale', action='store_true')
 args = parser.parse_args()
@@ -47,6 +49,8 @@ with zipfile.ZipFile(args.apk) as apk:
     qa_marker = any(value.startswith('VITALIS_QA_READY ') for value in strings)
     if args.qa and not qa_marker:
         raise SystemExit('APK recusado: marcador de QA ausente do bundle.')
+    if args.no_qa and qa_marker:
+        raise SystemExit('APK recusado: marcador de QA presente no bundle do aplicativo normal.')
     abis = sorted({p.split('/')[1] for p in apk.namelist() if p.startswith('lib/')})
 sdk = Path(os.environ.get('ANDROID_HOME', '/var/android-sdk'))
 aapts = sorted(sdk.glob('build-tools/*/aapt'), key=lambda p: tuple(int(n) for n in re.findall(r'\d+',p.parent.name)))
