@@ -4,6 +4,7 @@ RUN corepack enable
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
 COPY packages/contracts/package.json packages/contracts/package.json
 COPY server/package.json server/package.json
+COPY patches patches
 RUN pnpm install --frozen-lockfile --filter @vitalis/server...
 COPY packages/contracts packages/contracts
 COPY server server

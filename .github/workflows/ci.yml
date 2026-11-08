@@ -54,3 +54,5 @@ jobs:
             app/coverage/
             server/coverage/
       - run: pnpm build
+      - name: Verify compiled API startup
+        run: pnpm --filter @vitalis/server test:built
