@@ -77,10 +77,6 @@ export function HeartRateControl({
         {status}
         {current ? ` · ${current} bpm` : ""}
       </Text>
-      <Text>
-        Sensores Bluetooth com serviço cardíaco padrão. Leituras pausam fora do
-        aplicativo.
-      </Text>
       <Button
         title="Buscar sensor cardíaco"
         disabled={!enabled}

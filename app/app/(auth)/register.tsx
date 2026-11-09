@@ -5,7 +5,6 @@ import {
 	Button,
 	Field,
 	Header,
-	Muted,
 	Screen,
 	Title,
 } from "@/components/vitalis/ui";
@@ -46,7 +45,6 @@ export default function RegisterScreen() {
 				onBack={() => goBackOrReplace(router, "/(auth)/login")}
 			/>
 			<Title>Crie seu acesso</Title>
-			<Muted>Seus dados serão protegidos e sincronizados com sua conta.</Muted>
 			<View style={{ gap: 12 }}>
 				<Field
 					testID="auth-name"

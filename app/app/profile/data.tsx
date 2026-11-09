@@ -18,11 +18,11 @@ export default function DataScreen() {
     const [file, setFile] = useState<string | null>(null), [status, setStatus] = useState(""), [preview, setPreview] = useState<CleanupPreview | null>(null), [result, setResult] = useState("");
     const active = useRef(true);
     useEffect(() => () => { active.current = false; }, []);
-    return <Screen><Header title="Backup e limpeza" onBack={() => router.back()}/><Card><Subtitle>Backup completo da conta</Subtitle><Text>Inclui todos os perfis, configurações, históricos, fotos e documentos. Senhas e tokens não são exportados.</Text><Muted>O JSON contém seus dados pessoais. Escolha onde salvar ou com quem compartilhar. Quando offline, a cópia reflete a última sincronização e as alterações locais pendentes. Dados ainda ausentes neste aparelho exigem conexão; um backup incompleto não será apresentado como concluído.</Muted>
+    return <Screen><Header title="Backup e limpeza" onBack={() => router.back()}/><Card><Subtitle>Backup completo da conta</Subtitle><Text>Inclui todos os perfis, configurações, históricos, fotos e documentos. Senhas e tokens não são exportados.</Text><Muted>O JSON contém seus dados pessoais. Escolha onde salvar ou com quem compartilhar.</Muted>
     <Button title="Gerar backup completo em JSON" loading={saving} onPress={() => submit(async () => { setFile(null); const uri = await exportAccountBackup(owner, text => { if (active.current)
         setStatus(text); }); if (active.current) {
         setFile(uri);
-        setStatus("Backup completo gerado no aparelho.");
+        setStatus("Backup completo gerado.");
     } })}/>
     {status && <Text accessibilityLiveRegion="polite">{status}</Text>}
     {file && <><Button title="Salvar backup no Android" disabled={saving} onPress={() => submit(async () => { const saved = await saveFileAs(file, "vitalis-backup.json", "application/json"); if (active.current)
@@ -38,7 +38,7 @@ export default function DataScreen() {
                     await runLocalOperation(async () => { response = await executeCleanup(preview); });
                     if (active.current) {
                         setPreview(null);
-                        setResult(`${response.removed} registros excluídos. ${response.skipped} preservados por alterações posteriores à prévia. A exclusão será sincronizada.`);
+                        setResult(`${response.removed} registros excluídos. ${response.skipped} preservados por alterações posteriores à prévia.`);
                     }
                     void syncNow();
                 }, "Excluir registros")}/>}

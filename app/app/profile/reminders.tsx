@@ -43,8 +43,7 @@ export default function RemindersScreen() {
     <Screen>
       <Header title="Lembretes neste aparelho" onBack={() => router.back()} />
       <Text>
-        Escolha os perfis que podem emitir avisos aqui. Os horários sincronizam;
-        esta escolha vale somente neste aparelho.
+        Selecione os perfis para receber lembretes.
       </Text>
       {profiles.map((p) => (
         <Checkbox.Item
@@ -63,10 +62,6 @@ export default function RemindersScreen() {
           }
         />
       ))}
-      <Text>
-        Durante o foco, todos os lembretes são barrados, inclusive medicação.
-        Avisos perdidos não são reenviados.
-      </Text>
       {status && !status.exactAlarms && (
         <>
           <Text>Sem acesso a alarmes exatos, os avisos podem atrasar.</Text>

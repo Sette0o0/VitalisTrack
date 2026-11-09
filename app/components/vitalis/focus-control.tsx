@@ -60,9 +60,7 @@ export function FocusControl({
     <Card>
       <Text variant="titleMedium">Modo de foco</Text>
       <Text>
-        Bloqueia notificações do celular e todos os lembretes do VitalisTrack,
-        inclusive medicação. Exceções configuradas no Android continuam sob seu
-        controle.
+        Silencia notificações e todos os lembretes do VitalisTrack, inclusive medicação.
       </Text>
       {active ? (
         <Text>

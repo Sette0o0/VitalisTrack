@@ -9,7 +9,7 @@ export function reportHtml(report: HealthReport, name: string, units: UnitSystem
     return `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>${title}</title><style>
   @page{size:A4;margin:12mm}body{font-family:sans-serif;font-size:11px;color:#142b34;margin:0}h1{font-size:22px}h2{font-size:15px}p,li{line-height:1.5}table{border-collapse:collapse;width:100%;font-size:9px}th,td{border:1px solid #c4d2d5;padding:5px;text-align:right;overflow-wrap:anywhere}th{background:#e8f4f1}thead{display:table-header-group}tr{page-break-inside:avoid}.note{color:#465b63}h1,h2{page-break-after:avoid}</style></head><body>
   <h1>VitalisTrack · ${title}</h1><h2>${htmlEscape(name)}</h2><p>${report.start} a ${report.end}</p>
-  <p class="note">${pending ? "Cópia dos dados locais; existem alterações pendentes de sincronização." : "Gerado com os dados disponíveis neste aparelho."} Valores ausentes são indicados por —.</p>
+  <p class="note">${pending ? "Sincronização pendente. " : ""}Valores ausentes são indicados por —.</p>
   <p><strong>Calorias gastas: somente atividades registradas.</strong> O gasto basal não foi somado. Peso diário: média das pesagens.</p>
   <p>Totais: água ${number(report.totals.waterMl / 1000)} L; ${number(report.totals.steps)} passos; alimentação ${number(report.totals.consumedKcal)} kcal; atividades ${number(report.totals.activityKcal)} kcal; ${report.totals.activityCount} ${report.totals.activityCount===1?"atividade":"atividades"}, ${number(report.totals.durationSeconds / 60)} minutos.</p>
   <table><thead><tr><th>Data</th><th>Água L</th><th>Passos</th><th>Peso ${weight}</th><th>Consumo kcal</th><th>Atividades kcal</th><th>Qtd.</th><th>Min.</th><th>Dist. ${distance}</th></tr></thead><tbody>${rows}</tbody></table>

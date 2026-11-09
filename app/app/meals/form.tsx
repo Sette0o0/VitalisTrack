@@ -7,7 +7,7 @@ import { DateField, TimeField } from "@/components/vitalis/date-field";
 import { router, useLocalSearchParams } from "expo-router";
 import { useMemo, useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { Button, Field, Header, Muted, Screen, Title } from "@/components/vitalis/ui";
+import { Button, Field, Header, Screen, Title } from "@/components/vitalis/ui";
 import { radius, ThemeTokens } from "@/constants/theme";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { isoDate, newId } from "@/lib/health";
@@ -77,7 +77,6 @@ export default function MealFormScreen() {
 				onBack={() => goBackOrReplace(router, "/(tabs)/meals")}
 			/>
 			<Title>{existing ? "Atualize o registro" : "O que você comeu?"}</Title>
-			<Muted>Os registros ficam salvos no celular e são sincronizados quando há conexão.</Muted>
 			<Field label="Alimento ou refeição" value={name} onChangeText={setName} />
 			<View style={styles.row}>
 				<View style={{ flex: 1 }}>

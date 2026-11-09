@@ -334,7 +334,7 @@ export function EmptyState({
 }: {
 	icon: keyof typeof MaterialCommunityIcons.glyphMap;
 	title: string;
-	text: string;
+	text?: string;
 }) {
 	const t = useAppTheme();
 	return (
@@ -345,7 +345,7 @@ export function EmptyState({
 				color={t.onSurfaceVariant}
 			/>
 			<Subtitle>{title}</Subtitle>
-			<Muted>{text}</Muted>
+			{text && <Muted>{text}</Muted>}
 		</Card>
 	);
 }

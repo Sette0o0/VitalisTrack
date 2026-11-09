@@ -3,7 +3,6 @@ import { FocusControl } from "@/components/vitalis/focus-control";
 import { addHeartRate } from "@/lib/wellbeing-timers";
 import { UserFacingError } from "@/lib/user-error";
 import { useMeasurements } from "@/hooks/use-measurements";
-import { formatNumber } from "@/lib/format";
 import * as Location from "expo-location";
 import { router, useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -158,7 +157,7 @@ export default function WorkoutScreen() {
 		update(pauseWorkout(current.current, true));
 		confirm(
 			"Sair do treino?",
-			"O treino ficará salvo e pausado para você continuar depois.",
+			"O treino será pausado e salvo.",
 			async () => {
 				await persist();
 				router.replace("/activities");
@@ -177,7 +176,7 @@ export default function WorkoutScreen() {
 		update(pauseWorkout(current.current, true));
 		confirm(
 			"Finalizar atividade?",
-			"O registro ficará salvo neste aparelho e será sincronizado quando houver conexão.",
+			"Deseja salvar esta atividade?",
 			async () => {
 				if (finished.current) return;
 				const saved = current.current,

@@ -71,7 +71,7 @@ export default function FoodsScreen() {
 			if (local) {
 				if (version === revision.current) {
 					choose(local);
-					setMessage("Alimento salvo no aparelho.");
+					setMessage("Alimento encontrado.");
 				}
 				return;
 			}

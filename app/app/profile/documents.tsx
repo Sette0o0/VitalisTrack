@@ -59,7 +59,7 @@ export default function DocumentsScreen() {
                 catch { /* retained private copy is authoritative */ }
             }
             if (active.current) {
-                setNotice("Documento salvo no aparelho. O envio será retomado quando houver conexão.");
+                setNotice("Documento salvo.");
                 await reload();
             }
             void syncNow();
@@ -75,7 +75,7 @@ export default function DocumentsScreen() {
         } })}/>
       <Button title={"Compartilhar " + document.name} variant="text" disabled={saving} onPress={() => submit(async () => { const uri = await obtain(document); if (active.current)
             await shareFile(uri, document.mimeType); })}/>
-      <Button title={"Excluir " + document.name} variant="danger" disabled={saving} onPress={() => confirm("Excluir documento?", document.name + ". A exclusão será sincronizada com os seus dispositivos.", async () => { await deleteDocument(owner, profileId, document.id); if (active.current)
+      <Button title={"Excluir " + document.name} variant="danger" disabled={saving} onPress={() => confirm("Excluir documento?", document.name, async () => { await deleteDocument(owner, profileId, document.id); if (active.current)
             await reload(); void syncNow(); })}/>
     </Card>)}
     {hasMore && <Button title="Carregar mais documentos" variant="outline" onPress={() => reload(true)}/>}

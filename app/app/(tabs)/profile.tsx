@@ -39,13 +39,13 @@ export default function ProfileScreen() {
 		p.hasWeight === false || p.hasHeight === false ? null : calculateBmi(p.weightKg, p.heightCm);
 	const status =
 		state.syncStatus === "offline"
-			? "Offline · dados salvos no aparelho"
+			? "Offline"
 			: state.syncStatus === "syncing"
 				? "Sincronizando…"
 				: state.syncStatus === "pending"
-					? "Salvo no aparelho · aguardando sincronização"
+					? "Sincronização pendente"
 					: state.syncStatus === "error"
-						? "Falha ao sincronizar · alterações preservadas"
+						? "Falha ao sincronizar"
 						: "Dados sincronizados";
 	return (
 		<Screen>
@@ -166,13 +166,9 @@ export default function ProfileScreen() {
 			</Card>
 			<Card>
 				<Subtitle>Login por biometria</Subtitle>
-				<Muted>
-					{biometrics.enabled
-						? "Ativado. Use sua digital para entrar ao iniciar o app. Sair da conta desativa esse acesso."
-						: biometrics.available
-							? "Use sua digital para entrar ao iniciar o app, sem digitar a senha."
-							: "Cadastre uma digital nas configurações de segurança do celular para ativar."}
-				</Muted>
+				{!biometrics.available && (
+					<Muted>Cadastre uma digital nas configurações de segurança do celular para ativar.</Muted>
+				)}
 				<Button
 					title={biometrics.enabled ? "Desativar biometria" : "Ativar biometria"}
 					icon="fingerprint"

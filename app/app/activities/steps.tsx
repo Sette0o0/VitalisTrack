@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { router } from "expo-router";
-import { HelperText, Text } from "react-native-paper";
+import { HelperText } from "react-native-paper";
 import { Button, Field, Header, Screen } from "@/components/vitalis/ui";
 import { useAppState } from "@/state/app-state";
 import { useSubmit } from "@/hooks/use-submit";
@@ -19,11 +19,6 @@ export default function StepsGoal() {
         value={steps}
         onChangeText={setSteps}
       />
-      <Text>
-        A mensagem de proximidade aparece ao atingir 90%, uma vez ao dia neste
-        aparelho e perfil. A coleta atual depende do aplicativo aberto e do
-        sensor disponível.
-      </Text>
       <Button
         title="Salvar meta de passos"
         loading={saving}

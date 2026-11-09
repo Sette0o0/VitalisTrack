@@ -69,7 +69,6 @@ export default function RecordsScreen() {
         onRefresh={() => void reload()}
         ListHeaderComponent={
           <View style={{ gap: 12 }}>
-           {(["medication","workoutPlan","breathingReminder"] as string[]).includes(kind) && <Text>Para receber avisos, ative este perfil em Perfil → Lembretes neste aparelho. Durante o foco, todos os lembretes são barrados.</Text>}
             {kind === "breathing" ? (
               <Button
                 title="Iniciar respiração"
@@ -95,7 +94,6 @@ export default function RecordsScreen() {
           <EmptyState
             icon="notebook-outline"
             title="Nenhum registro"
-            text="Seus registros ficam disponíveis offline neste perfil."
           />
         }
         renderItem={({ item }) => (
@@ -146,7 +144,7 @@ export default function RecordsScreen() {
               onPress={() =>
                 confirm(
                   "Excluir registro?",
-                  "A exclusão será sincronizada.",
+                  "O registro será removido do histórico.",
                   () => submit(() => save(item, true)),
                 )
               }

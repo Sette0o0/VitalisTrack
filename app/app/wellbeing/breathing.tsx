@@ -157,8 +157,7 @@ export default function BreathingScreen() {
         }}
       />
       <Muted>
-        Inspire por 4 segundos e expire por 6 segundos. A sessão pausa ao sair
-        do aplicativo.
+        Inspire por 4 segundos e expire por 6 segundos.
       </Muted>
       {timer.elapsedMs < 180000 ? (
         <Button

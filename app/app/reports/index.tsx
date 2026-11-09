@@ -51,8 +51,8 @@ export default function ReportsScreen() {
         return () => { active.current = false; epoch.current++; off(); offHistory(); };
     }, [userId, profileId, period, date, state.goals]));
     return <Screen><Header title="Relatórios e exportação" onBack={() => router.back()}/>
-    <Muted>Dados do perfil {state.profile.name}. Os arquivos podem ser gerados offline com os registros deste aparelho.</Muted>
-    {(state.syncStatus !== "idle" || !state.syncStatus) && <Muted>Confira a sincronização: o arquivo utiliza os dados locais e pode incluir alterações ainda pendentes.</Muted>}
+    <Muted>Perfil: {state.profile.name}</Muted>
+    {(state.syncStatus !== "idle" || !state.syncStatus) && <Muted>Sincronização pendente.</Muted>}
     <RadioButton.Group value={period} onValueChange={v => setPeriod(v as ReportPeriod)}>
       <RadioButton.Item label="Resumo diário" value="day" style={{ minHeight: 48 }}/><RadioButton.Item label="Semanal · últimos 7 dias" value="week" style={{ minHeight: 48 }}/><RadioButton.Item label="Mensal · mês escolhido" value="month" style={{ minHeight: 48 }}/>
     </RadioButton.Group><DateField label="Data de referência" value={date} onChange={setDate} maximumDate={new Date()}/>
@@ -65,12 +65,12 @@ export default function ReportsScreen() {
     </Card>
       <Button title="Gerar PDF" loading={saving} onPress={() => submit(async () => { const requestedSelection=selection;const uri = await exportPdf(report, state, extras); if (active.current && selectionRef.current===requestedSelection) {
             setFile({ uri, mime: "application/pdf", name: `vitalis-${period}-${report.start}.pdf` });
-            setNotice("PDF gerado no aparelho.");
+            setNotice("PDF gerado.");
         } })}/>
     </>}
     <Button title="Exportar peso, atividades e refeições em CSV" variant="outline" disabled={saving} onPress={() => submit(async () => { const uri = await exportCsv(userId, profileId); if (active.current) {
         setFile({ uri, mime: "text/csv", name: "vitalis-dados.csv" });
-        setNotice("CSV gerado no aparelho, com unidades canônicas identificadas no cabeçalho.");
+        setNotice("CSV gerado.");
     } })}/>
     {file && <Card><Subtitle>Arquivo gerado</Subtitle><Text>{file.name}</Text><Button title="Salvar arquivo no Android" disabled={saving} onPress={() => submit(async () => { const saved = await saveFileAs(file.uri, file.name, file.mime); setNotice(saved ? "Arquivo salvo na pasta escolhida." : "Salvamento cancelado."); })}/><Button title="Compartilhar arquivo" variant="outline" disabled={saving} onPress={() => submit(() => shareFile(file.uri, file.mime))}/></Card>}
     {report && <><Subtitle>Registros por dia</Subtitle>
