@@ -1,5 +1,6 @@
 import { buildHealthReport, reportWindow, toDisplayDistance, toDisplayWeight, type TimelineCursor, type TimelineKind, type TimelinePage, type ReportPeriod, type UnitSystem, type HealthHistory } from "@vitalis/contracts";
 import { getDatabase } from "./local-database";
+import { moodLabel } from "./wellbeing-display";
 export async function readReport(userId: string, profileId: string, period: ReportPeriod, date: string, goals: {
     waterMl: number;
     steps: number;
@@ -55,7 +56,7 @@ export async function listTimeline(userId: string, profileId: string, filter?: T
     const records = rows.slice(0, Math.min(100, limit)).map(row => {
         const r = JSON.parse(row.record);
         const title = row.kind === "meal" ? r.name : row.kind === "activity" ? ({ walk: "Caminhada", run: "Corrida", cycling: "Ciclismo" } as Record<string, string>)[r.type] : row.kind === "weight" ? "Pesagem" : "Humor";
-        const detail = row.kind === "meal" ? `${number(r.calories)} kcal · ${number(r.quantity)} ${r.unit}` : row.kind === "activity" ? `${number((r.durationSeconds ?? r.durationMinutes * 60) / 60)} min · ${number(toDisplayDistance((r.distanceMeters ?? r.distanceKm * 1000) / 1000, units))} ${units === "imperial" ? "mi" : "km"} · ${number(r.calories)} kcal` : row.kind === "weight" ? `${number(toDisplayWeight(r.weightKg, units))} ${units === "imperial" ? "lb" : "kg"}` : `${r.score}/5${r.notes ? " · " + r.notes : ""}`;
+        const detail = row.kind === "meal" ? `${number(r.calories)} kcal · ${number(r.quantity)} ${r.unit}` : row.kind === "activity" ? `${number((r.durationSeconds ?? r.durationMinutes * 60) / 60)} min · ${number(toDisplayDistance((r.distanceMeters ?? r.distanceKm * 1000) / 1000, units))} ${units === "imperial" ? "mi" : "km"} · ${number(r.calories)} kcal` : row.kind === "weight" ? `${number(toDisplayWeight(r.weightKg, units))} ${units === "imperial" ? "lb" : "kg"}` : `${moodLabel(r.score)}${r.notes ? " · " + r.notes : ""}`;
         return { date: row.day, time: row.time, kind: row.kind, id: row.id, title: title ?? "Atividade", detail };
     });
     const last = records.at(-1);

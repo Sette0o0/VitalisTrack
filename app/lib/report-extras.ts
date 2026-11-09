@@ -1,4 +1,5 @@
 import { getDatabase } from "./local-database";
+import { moodLabel } from "./wellbeing-display";
 export async function dailyReportExtras(userId: string, profileId: string, date: string) {
     const db = await getDatabase(), rows = await db.getAllAsync<{
         kind: string;
@@ -15,6 +16,6 @@ export async function dailyReportExtras(userId: string, profileId: string, date:
         texts.push(`Última pressão registrada no dia: ${data.systolic}/${data.diastolic} mmHg.`);
     }
     if (mood)
-        texts.push(`Último humor registrado no dia: ${JSON.parse(mood.record).data.score}/5.`);
+        texts.push(`Último humor registrado no dia: ${moodLabel(JSON.parse(mood.record).data.score)}.`);
     return texts;
 }

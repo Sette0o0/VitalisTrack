@@ -6,6 +6,7 @@ import { saveWellbeing } from "./wellbeing-store";
 import { previewCleanup, executeCleanup } from "./retention";
 import { backupHealthRow, backupProfileDetails, reportHtml } from "./export-format";
 import { dailyReportExtras } from "./report-extras";
+import { describeWellbeing } from "./wellbeing-display";
 import type { AppState } from "@/state/types";
 import { buildHealthReport } from "@vitalis/contracts";
 jest.mock("expo-sqlite", () => jest.requireActual("@/testing/sqlite").sqliteBridge());
@@ -60,6 +61,18 @@ test("SQL report aggregation matches shared calculations and daily extras remain
     expect(report.days[0].weightKg).toBe(71);
     expect((await dailyReportExtras(owner, owner, "2026-11-08")).join(" ")).toMatch(/8 h 0 min.*120\/80/);
     expect(await dailyReportExtras(owner, other, "2026-11-08")).toEqual([]);
+});
+test("humor numérico antigo vira palavra no histórico, linha do tempo e relatório sem mudar o registro", async () => {
+    const record = { id: id(99), kind: "mood" as const, data: { occurredAt: "2026-11-08T13:00:00Z", score: 4, notes: "Anterior", symptoms: [], mealIds: [], activityIds: [] } };
+    await saveWellbeing(owner, owner, record);
+    expect(describeWellbeing({ ...record, createdAt: "2026-11-08T13:00:00Z", updatedAt: "2026-11-08T13:00:00Z", deletedAt: null, revision: "1" })).toContain("Humor: Bem");
+    expect((await listTimeline(owner, owner, "mood")).records[0].detail).toBe("Bem · Anterior");
+    const extras = await dailyReportExtras(owner, owner, "2026-11-08");
+    expect(extras).toEqual(["Último humor registrado no dia: Bem."]);
+    const report = await readReport(owner, owner, "day", "2026-11-08", state().goals);
+    expect(reportHtml(report, "Teste", "metric", false, extras)).toContain("Último humor registrado no dia: Bem.");
+    const stored = await (await getDatabase()).getFirstAsync<{ record: string }>("SELECT record FROM wellbeing_records WHERE user_id=? AND profile_id=? AND id=?", owner, owner, id(99));
+    expect(JSON.parse(stored!.record).data.score).toBe(4);
 });
 test("cleanup preserves cutoff boundary, edited candidates, plans and active fasting; queues tombstones", async () => {
     const s = state();

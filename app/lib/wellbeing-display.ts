@@ -3,6 +3,16 @@ import {
   type WellbeingKind,
   type WellbeingRecord,
 } from "@vitalis/contracts";
+export const moodLevels = [
+  { score: 1, label: "Muito mal" },
+  { score: 2, label: "Mal" },
+  { score: 3, label: "Neutro" },
+  { score: 4, label: "Bem" },
+  { score: 5, label: "Muito bem" },
+] as const;
+export function moodLabel(score: number) {
+  return moodLevels.find((level) => level.score === score)?.label ?? "Não informado";
+}
 export const wellbeingTitles: Record<WellbeingKind, string> = {
   workoutPlan: "Plano semanal",
   medication: "Medicação",
@@ -45,7 +55,7 @@ export function describeWellbeing(r: WellbeingRecord) {
     case "sleep":
       return `${r.data.date.split("-").reverse().join("/")} · ${Math.floor(r.data.durationMinutes / 60)}h ${r.data.durationMinutes % 60}min\n${sleepMessage(r.data.durationMinutes)}`;
     case "mood":
-      return `${new Date(r.data.occurredAt).toLocaleString("pt-BR")} · Humor ${r.data.score}/5\n${r.data.symptoms.join(", ")}${r.data.notes ? "\n" + r.data.notes : ""}`;
+      return `${new Date(r.data.occurredAt).toLocaleString("pt-BR")} · Humor: ${moodLabel(r.data.score)}\n${r.data.symptoms.join(", ")}${r.data.notes ? "\n" + r.data.notes : ""}`;
     case "fasting":
       return `${new Date(r.data.startAt).toLocaleString("pt-BR")} → ${new Date(r.data.endAt).toLocaleString("pt-BR")} · ${r.data.status === "cancelled" ? "Cancelado" : Date.parse(r.data.endAt) <= Date.now() || r.data.status === "completed" ? "Concluído" : "Em andamento"}`;
     case "bloodPressure":

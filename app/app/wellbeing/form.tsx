@@ -22,6 +22,7 @@ import {
   dayNames,
   exerciseNames,
   wellbeingTitles,
+  moodLevels,
 } from "@/lib/wellbeing-display";
 
 type Fields = Record<string, string>;
@@ -360,16 +361,16 @@ export default function WellbeingForm() {
       {kind === "mood" && (
         <>
           {datetime}
-          <Text>Humor de 1 a 5</Text>
+          <Text>Como você está se sentindo?</Text>
           <RadioButton.Group
             value={fields.score}
             onValueChange={(v) => set("score", v)}
           >
-            {[1, 2, 3, 4, 5].map((n) => (
+            {moodLevels.map(({ score, label }) => (
               <RadioButton.Item
-                key={n}
-                value={String(n)}
-                label={`Humor ${n}`}
+                key={score}
+                value={String(score)}
+                label={label}
               />
             ))}
           </RadioButton.Group>

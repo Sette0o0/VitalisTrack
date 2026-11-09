@@ -4,12 +4,14 @@ import StepsGoal from "@/app/activities/steps";
 import Form from "@/app/wellbeing/form";
 import { initialState as mockInitialState } from "@/state/reducer";
 let mockKind = "sleep";
+let mockId: string | undefined;
+const mockGetWellbeing = jest.fn();
 const mockSave = jest.fn(async () => {});
 const mockBack = jest.fn();
 const mockDispatch=jest.fn(async()=>{});
 jest.mock("expo-router", () => ({
   router: { back: () => mockBack() },
-  useLocalSearchParams: () => ({ kind: mockKind }),
+  useLocalSearchParams: () => ({ kind: mockKind, id: mockId }),
 }));
 jest.mock("@/state/app-state", () => ({
   useAppState: () => ({
@@ -25,7 +27,7 @@ jest.mock("@/state/app-state", () => ({
 jest.mock("@/hooks/use-wellbeing", () => ({
   useWellbeing: () => ({ save: mockSave }),
 }));
-jest.mock("@/lib/wellbeing-store", () => ({ getWellbeing: jest.fn() }));
+jest.mock("@/lib/wellbeing-store", () => ({ getWellbeing: (...args: unknown[]) => mockGetWellbeing(...args) }));
 jest.mock("@/components/vitalis/date-field", () => ({
   DateField: () => null,
   TimeField: () => null,
@@ -37,8 +39,37 @@ const screen = () =>
     </PaperProvider>,
   );
 beforeEach(() => {
+  mockId = undefined;
+  mockGetWellbeing.mockReset();
   mockSave.mockClear();
   mockBack.mockClear();
+});
+test.each([
+  ["Muito mal", 1], ["Mal", 2], ["Neutro", 3], ["Bem", 4], ["Muito bem", 5],
+])("humor %s salva o nível numérico %s sem exibir números", async (label, score) => {
+  mockKind = "mood";
+  const s = screen();
+  expect(s.getByText("Como você está se sentindo?")).toBeTruthy();
+  expect(s.queryByText("Humor de 1 a 5")).toBeNull();
+  fireEvent.press(s.getByLabelText(label));
+  fireEvent.press(s.getByLabelText("Salvar registro"));
+  await waitFor(() => expect(mockSave).toHaveBeenCalledWith(expect.objectContaining({
+    kind: "mood", data: expect.objectContaining({ score }),
+  })));
+});
+test("editar humor antigo mostra a palavra e preserva o número e as notas", async () => {
+  mockKind = "mood";
+  mockId = "00000000-0000-4000-8000-000000000099";
+  mockGetWellbeing.mockResolvedValue({ id: mockId, kind: "mood", data: {
+    score: 4, occurredAt: "2026-11-08T13:00:00Z", notes: "Registro anterior",
+    symptoms: [], mealIds: [], activityIds: [],
+  } });
+  const s = screen();
+  await waitFor(() => expect(s.getByLabelText("Bem").props.accessibilityState.checked).toBe(true));
+  fireEvent.press(s.getByLabelText("Salvar registro"));
+  await waitFor(() => expect(mockSave).toHaveBeenCalledWith(expect.objectContaining({
+    id: mockId, data: expect.objectContaining({ score: 4, notes: "Registro anterior" }),
+  })));
 });
 test("sleep form converts hours/minutes and waits for a committed save before navigation", async () => {
   mockKind = "sleep";
